@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Productivity Reports</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a class="active" href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 28px;">
+        <div class="widget-header">
+          <div>
+            <h3>Productivity Analytics & Reports</h3>
+            <p>Calculated 100% from your real database activity records.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Daily Completion</span>
+            <h3 id="repDailyComp" style="margin:4px 0 0; color:#1adb77;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Weekly Completion</span>
+            <h3 id="repWeeklyComp" style="margin:4px 0 0; color:#3aa4ff;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Monthly Completion</span>
+            <h3 id="repMonthlyComp" style="margin:4px 0 0; color:#8652ff;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Focus Hours</span>
+            <h3 id="repFocusHours" style="margin:4px 0 0; color:#06b6d4;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Study Hours</span>
+            <h3 id="repStudyHours" style="margin:4px 0 0; color:#ffb800;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Exercise Logged</span>
+            <h3 id="repExercise" style="margin:4px 0 0; color:#10b981;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Sleep Consistency</span>
+            <h3 id="repSleep" style="margin:4px 0 0; color:#a855f7;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">XP Growth</span>
+            <h3 id="repTotalXP" style="margin:4px 0 0; color:#ffb800;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Habit Completion</span>
+            <h3 id="repHabitComp" style="margin:4px 0 0; color:#f43f5e;">No data available</h3>
+          </div>
+          <div class="glass-card" style="padding:16px; text-align:center;">
+            <span style="color:#9aa3ff; font-size:0.8rem;">Task Completion Rate</span>
+            <h3 id="repCompletionRate" style="margin:4px 0 0; color:#1adb77;">No data available</h3>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;">
+          <div class="glass-card" style="padding: 24px;">
+            <h4 style="margin:0 0 16px;">📈 Task Completion Analytics</h4>
+            <div id="chartContainer1">
+              <canvas id="scoreChart"></canvas>
+            </div>
+            <div id="noDataBanner1" class="hidden" style="padding:40px; text-align:center; color:#9aa3ff;">No data available</div>
+          </div>
+          <div class="glass-card" style="padding: 24px;">
+            <h4 style="margin:0 0 16px;">⏱️ Activity & Focus Session Count</h4>
+            <div id="chartContainer2">
+              <canvas id="activityChart"></canvas>
+            </div>
+            <div id="noDataBanner2" class="hidden" style="padding:40px; text-align:center; color:#9aa3ff;">No data available</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>

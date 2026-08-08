@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Markdown Notes</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 4; padding: 24px; display:flex; flex-direction:column; gap:16px;">
+        <div class="widget-header">
+          <div>
+            <h3>All Notes</h3>
+            <p id="noteAutosaveStatus" style="font-size:0.8rem; color:#1adb77;">Autosaved</p>
+          </div>
+          <button id="newNoteBtn" class="btn-primary" style="width:auto; padding:8px 14px;">+ New</button>
+        </div>
+        <input type="search" id="notesSearch" placeholder="Search notes & tags..." style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px 14px; border-radius:12px; font-size:0.9rem;" />
+        <div id="notesList" style="display:flex; flex-direction:column; gap:10px; overflow-y:auto; max-height:calc(100vh - 240px);"></div>
+      </section>
+
+      <section class="glass-card" style="grid-column: span 8; padding: 24px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <input type="text" id="noteTitleInput" placeholder="Note Title..." style="font-size:1.4rem; font-weight:700; background:transparent; border:none; color:#fff; width:70%; outline:none;" />
+          <div style="display:flex; gap:10px;">
+            <button id="togglePreviewBtn" style="background:rgba(255,255,255,0.08); color:#fff; padding:8px 14px; border-radius:10px;">Preview</button>
+            <button id="deleteNoteBtn" style="background:rgba(255,91,121,0.15); color:#ff5b79; padding:8px 14px; border-radius:10px;">Delete</button>
+          </div>
+        </div>
+        <input type="text" id="noteTagsInput" placeholder="Tags (e.g. #productivity #ideas)" style="background:rgba(255,255,255,0.04); border:none; color:#9aa3ff; padding:8px 12px; border-radius:10px; font-size:0.85rem;" />
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; flex:1; min-height:450px;">
+          <textarea id="noteEditor" placeholder="Write markdown content here..." style="background:rgba(10,12,30,0.6); border:1px solid rgba(255,255,255,0.08); color:#e8ecff; padding:16px; border-radius:16px; resize:none; font-family:monospace; font-size:0.95rem; outline:none;"></textarea>
+          <div id="notePreview" style="background:rgba(10,12,30,0.4); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:16px; overflow-y:auto; font-size:0.95rem; line-height:1.6;"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/notes.js"></script>
+</body>
+</html>

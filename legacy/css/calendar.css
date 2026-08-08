@@ -1,0 +1,27 @@
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.calendar-day,
+.empty-day {
+  min-height: 88px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.04);
+  color: #c7d1ff;
+}
+
+.calendar-day:hover {
+  background: rgba(108, 84, 255, 0.2);
+}
+
+#dailySummaryCards .journey-step {
+  padding: 24px;
+}
+
+#dailySummaryCards h4 {
+  margin-top: 0;
+}

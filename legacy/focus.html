@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Focus & Pomodoro</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body style="background:#060814;">
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 36px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:calc(100vh - 48px);">
+        <h2 style="font-size:1.8rem; margin:0 0 8px;">Focus Mode & Pomodoro Timer</h2>
+        <p style="color:#9aa3ff; margin-0 0 24px;">Select your focus task, enable ambient sound, and enter distraction-free productivity.</p>
+
+        <div style="margin-bottom:20px; width:min(400px, 90vw);">
+          <select id="focusTaskSelect" style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:12px; border-radius:14px; font-size:1rem;">
+            <option value="">Select task to focus on...</option>
+          </select>
+        </div>
+
+        <div style="font-size:6rem; font-weight:800; font-family:monospace; background:linear-gradient(135deg,#8652ff,#3aa4ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:20px 0;" id="pomodoroDisplay">25:00</div>
+
+        <div style="display:flex; gap:16px; margin-bottom:30px;">
+          <button id="startFocusBtn" class="btn-primary" style="width:auto; padding:14px 36px; font-size:1.1rem;">Start Focus 🚀</button>
+          <button id="pauseFocusBtn" style="background:rgba(255,184,0,0.2); color:#ffb800; padding:14px 28px; border-radius:18px; font-weight:700;">Pause</button>
+          <button id="resetFocusBtn" style="background:rgba(255,255,255,0.08); color:#fff; padding:14px 28px; border-radius:18px;">Reset</button>
+        </div>
+
+        <!-- Ambient Sound Synthesizer Controls -->
+        <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
+          <button class="ambient-sound-btn" data-sound="rain" style="background:rgba(255,255,255,0.06); color:#c7d1ff; padding:10px 18px; border-radius:14px;">🌧️ Rain Sound</button>
+          <button class="ambient-sound-btn" data-sound="waves" style="background:rgba(255,255,255,0.06); color:#c7d1ff; padding:10px 18px; border-radius:14px;">🌊 Ocean Waves</button>
+          <button class="ambient-sound-btn" data-sound="whitenoise" style="background:rgba(255,255,255,0.06); color:#c7d1ff; padding:10px 18px; border-radius:14px;">🎧 White Noise</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/focus.js"></script>
+</body>
+</html>

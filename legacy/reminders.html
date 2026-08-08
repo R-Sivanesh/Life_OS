@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Reminders & Notifications</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 28px;">
+        <div class="widget-header">
+          <div>
+            <h3>Reminders & Notifications</h3>
+            <p>Smart alerts, snooze options, browser notifications, and recurring schedules.</p>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button id="enableNotifBtn" style="background:rgba(26,219,119,0.18); color:#1adb77; padding:10px 18px; border-radius:14px; font-weight:600;">🔔 Enable Notifications</button>
+            <button id="addReminderBtn" class="btn-primary" style="width: auto; padding: 10px 20px;">+ New Reminder</button>
+          </div>
+        </div>
+
+        <div id="remindersList" class="journey-timeline" style="margin-top:20px; gap:14px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- New Reminder Modal -->
+  <div class="modal-backdrop hidden" id="reminderModalBackdrop"></div>
+  <div class="daily-log-modal hidden glass-card" id="reminderModal" style="width: min(540px, 92vw);">
+    <div class="modal-header">
+      <h2 id="reminderModalTitle">Add Reminder</h2>
+      <button id="closeReminderModal">×</button>
+    </div>
+    <form id="reminderForm">
+      <input type="hidden" id="reminderId" />
+      <div class="form-row">
+        <label>Reminder Title<input type="text" id="reminderTitle" required placeholder="e.g. College Project Submission" /></label>
+      </div>
+      <div class="form-row">
+        <label>Trigger Date & Time<input type="datetime-local" id="reminderTime" required /></label>
+        <label>Priority
+          <select id="reminderPriority">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Recurring Schedule
+          <select id="reminderRecurring">
+            <option value="none">Once Only</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn-primary" type="submit" style="margin-top:16px;">Save Reminder</button>
+    </form>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/reminders.js"></script>
+</body>
+</html>

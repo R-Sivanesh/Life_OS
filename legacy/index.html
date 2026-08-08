@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Dashboard</title>
+  <meta name="description" content="Life OS – Your personal productivity operating system. Dashboard view." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    /* ─── Day Planner Panel ─────────────────────────────────── */
+    .day-planner-panel {
+      position: fixed;
+      top: 0; right: 0;
+      width: min(480px, 100vw);
+      height: 100vh;
+      background: var(--glass-bg);
+      border-left: 1px solid var(--glass-border);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.32s cubic-bezier(0.16,1,0.3,1);
+      overflow: hidden;
+    }
+    .day-planner-panel.open { transform: translateX(0); }
+    .day-planner-overlay {
+      position: fixed; inset: 0;
+      background: rgba(4,5,14,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 199;
+    }
+    .planner-body {
+      flex: 1; overflow-y: auto;
+      padding: 20px 22px;
+      display: flex; flex-direction: column; gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(139,92,246,0.3) transparent;
+    }
+    .planner-section-label {
+      font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 1.2px; color: #6b7dff;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+
+    /* ─── Quick Add Form inside Day Planner ─────────────────── */
+    .planner-add-form {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .planner-add-form input,
+    .planner-add-form select,
+    .planner-add-form textarea {
+      width: 100%; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; padding: 9px 12px;
+      border-radius: 10px; font-size: 0.85rem;
+      font-family: inherit; box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .planner-add-form input:focus,
+    .planner-add-form select:focus,
+    .planner-add-form textarea:focus {
+      outline: none; border-color: #8b5cf6;
+    }
+    .planner-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ─── Quick Modal ───────────────────────────────────────── */
+    .quick-modal-wrap {
+      position: fixed; inset: 0; z-index: 300;
+      display: grid; place-items: center;
+      background: rgba(4,5,14,0.8);
+      backdrop-filter: blur(12px);
+    }
+    .quick-modal {
+      width: min(500px, 94vw); padding: 32px; border-radius: 28px;
+      animation: modalIn 0.25s cubic-bezier(0.16,1,0.3,1);
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(0.95) translateY(10px); }
+      to { opacity:1; transform:none; }
+    }
+    .qm-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
+    .qm-header h3 { margin:0; font-size:1.1rem; font-weight:700; }
+    .qm-close { background:transparent; color:#9aa3ff; font-size:1.4rem; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; line-height:1; }
+    .qm-close:hover { background:rgba(255,255,255,0.08); color:#fff; }
+    .qm-field { margin-bottom:14px; }
+    .qm-field label { display:block; font-size:0.82rem; color:#c7d1ff; font-weight:600; margin-bottom:5px; }
+    .qm-field input, .qm-field select, .qm-field textarea {
+      width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+      color:#fff; padding:10px 13px; border-radius:12px; font-size:0.88rem;
+      transition:border-color 0.2s; box-sizing:border-box; font-family:inherit;
+    }
+    .qm-field input:focus,.qm-field select:focus,.qm-field textarea:focus { outline:none; border-color:#8b5cf6; }
+    .qm-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .qm-field textarea { resize:vertical; min-height:80px; }
+
+    /* ─── Full Calendar in Dashboard ──────────────────────────── */
+    .dash-full-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .dash-full-cal-grid .cal-day-header {
+      text-align: center;
+      font-size: 0.7rem; font-weight: 800;
+      color: #6b7dff; padding: 4px 0;
+      letter-spacing: 0.5px;
+    }
+    .dash-full-cal-grid .cal-day-cell {
+      min-height: 64px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: rgba(255,255,255,0.02);
+      display: flex; flex-direction: column; gap: 3px;
+      overflow: hidden;
+    }
+    .dash-full-cal-grid .cal-day-cell:hover {
+      background: rgba(139,92,246,0.12);
+      border-color: rgba(139,92,246,0.3);
+    }
+    .dash-full-cal-grid .cal-day-cell.today {
+      background: rgba(139,92,246,0.2);
+      border-color: rgba(139,92,246,0.5);
+    }
+    .dash-full-cal-grid .cal-day-cell.selected {
+      background: rgba(59,130,246,0.2);
+      border-color: rgba(59,130,246,0.5);
+    }
+    .cal-day-num {
+      font-size: 0.8rem; font-weight: 700; color: #e8ecff;
+      line-height: 1;
+    }
+    .cal-day-cell.today .cal-day-num { color: #a78bfa; }
+    .cal-day-dots { display: flex; gap: 2px; flex-wrap: wrap; margin-top: 2px; }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .cal-day-mini-label {
+      font-size: 0.62rem; color: #9aa3ff;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    /* ─── Sidebar ──────────────────────────────────────────── */
+    .sidebar-user-email { font-size:0.72rem; color:#9aa3ff; margin:2px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* ─── Responsive ───────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .dash-right-col { grid-column: span 12 !important; }
+      .dash-left-col { grid-column: span 12 !important; }
+    }
+    @media (max-width: 800px) {
+      .life-os-shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="life-os-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark" style="display:grid;place-items:center;font-weight:800;font-size:1.3rem;">🚀</div>
+        <div>
+          <h1 style="font-size:1.15rem;font-weight:800;margin:0;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Life OS</h1>
+          <p style="font-size:0.75rem;color:#9aa3ff;margin:2px 0 0;">Your life. Your rules.</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a class="active" href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals &amp; Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">OS</div>
+        <div style="overflow:hidden;flex:1;">
+          <p style="margin:0;font-size:0.88rem;font-weight:700;" class="sidebar-user-name">Loading...</p>
+          <p class="sidebar-user-email">—</p>
+          <div style="display:flex;gap:10px;margin-top:4px;">
+            <a href="settings.html" style="font-size:0.72rem;color:#8b5cf6;font-weight:600;">Settings</a>
+            <button onclick="AuthManager.logout()" style="background:none;border:none;font-size:0.72rem;color:#f87171;font-weight:600;cursor:pointer;padding:0;">Logout</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Grid -->
+    <main class="main-grid" style="align-content:start;">
+
+      <!-- ── Header ── -->
+      <section class="glass-card" style="grid-column:span 12;padding:18px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 id="greeting" style="margin:0;font-size:1.4rem;font-weight:800;">Good Morning 🌅</h2>
+          <p id="dashboardSubtitle" style="margin:3px 0 0;color:#9aa3ff;font-size:0.85rem;"></p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#9aa3ff;padding:7px 12px;border-radius:11px;font-size:0.8rem;">
+            🕒 <span id="topLiveClock">--:--</span>
+          </div>
+          <div style="background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.2);color:#ffb800;padding:7px 12px;border-radius:11px;font-size:0.8rem;font-weight:700;">
+            🔥 <span id="topStreakVal">0</span> streak
+          </div>
+          <div style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.22);color:#c7d1ff;padding:7px 12px;border-radius:11px;font-size:0.8rem;font-weight:700;">
+            ⭐ Lvl <span id="topLvlVal">1</span>
+          </div>
+          <button id="btnQuickAddTask" class="btn-primary" style="width:auto;padding:8px 14px;font-size:0.8rem;">+ Task</button>
+          <button id="btnQuickAddReminder" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);padding:8px 14px;border-radius:12px;font-size:0.8rem;font-weight:600;">+ Reminder</button>
+          <button id="btnQuickAddJournal" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.25);padding:8px 14px;border-radius:12px;font-size:0.8rem;font-weight:600;">+ Journal</button>
+        </div>
+      </section>
+
+      <!-- ── LEFT COLUMN (8 cols): Focus + Timeline + AI/Reminder ── -->
+      <div class="dash-left-col" style="grid-column:span 7;display:flex;flex-direction:column;gap:20px;">
+
+        <!-- Current Focus -->
+        <section class="glass-card" style="padding:26px;background:linear-gradient(135deg,rgba(28,16,68,0.96),rgba(12,14,34,0.98));position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(139,92,246,0.2),transparent 70%);pointer-events:none;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.7rem;font-weight:800;color:#8b5cf6;letter-spacing:1px;">🎯 CURRENT FOCUS</span>
+            <span style="background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.3);color:#c7d1ff;padding:4px 10px;border-radius:8px;font-size:0.72rem;font-weight:700;">⭐ Lvl <span id="lvlNumText">1</span> • <span id="currentXpText">0 XP</span></span>
+          </div>
+          <h2 id="focusTaskTitle" style="margin:0 0 6px;font-size:1.6rem;font-weight:800;color:#fff;line-height:1.2;">No active task.</h2>
+          <div id="focusTimeMeta" style="font-size:0.83rem;color:#9aa3ff;margin-bottom:14px;">Click "+ Task" to add your first task for today.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+            <button id="centerpieceStartFocusBtn" class="btn-primary" style="width:auto;padding:9px 16px;font-size:0.83rem;display:none;">⏱️ Focus</button>
+            <button id="centerpieceCompleteBtn" style="background:rgba(16,185,129,0.2);color:#10b981;border:1px solid rgba(16,185,129,0.3);padding:9px 16px;border-radius:12px;font-weight:600;font-size:0.83rem;display:none;">✔ Done</button>
+            <button id="centerpieceSkipBtn" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);padding:9px 16px;border-radius:12px;font-weight:600;font-size:0.83rem;display:none;">⏭ Skip</button>
+            <button id="centerpieceEditBtn" style="background:rgba(255,255,255,0.07);color:#fff;border:1px solid rgba(255,255,255,0.1);padding:9px 16px;border-radius:12px;font-weight:600;font-size:0.83rem;display:none;">✏️ Edit</button>
+            <button id="createPlanBtn" class="btn-primary" style="width:auto;padding:9px 16px;font-size:0.83rem;display:none;">+ Create Task</button>
+          </div>
+          <div style="height:10px;background:rgba(255,255,255,0.07);border-radius:8px;overflow:hidden;margin-bottom:6px;">
+            <div id="dashProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#3b82f6,#10b981);transition:width 0.8s ease;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#9aa3ff;">
+            <span id="dashProgressPctText">0% today</span>
+            <span id="dashTaskCountDoneText">0 of 0 done</span>
+          </div>
+        </section>
+
+        <!-- Today's Timeline -->
+        <section class="glass-card" style="padding:22px;">
+          <div class="widget-header" style="margin-bottom:14px;">
+            <div>
+              <h3 style="margin:0;font-size:1rem;font-weight:700;">📋 Today's Timeline</h3>
+              <p style="margin:3px 0 0;color:#9aa3ff;font-size:0.8rem;">Check ✔ to complete. ⏱️ to focus.</p>
+            </div>
+            <button id="addTimelineTaskBtn" class="btn-primary" style="width:auto;padding:7px 14px;font-size:0.78rem;">+ Task</button>
+          </div>
+          <div id="todayTimelineList" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </section>
+
+        <!-- AI + Reminder row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <section class="glass-card" style="padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h4 style="margin:0;font-size:0.88rem;font-weight:700;">🧠 AI Recommendation</h4>
+              <span style="background:rgba(139,92,246,0.15);color:#8b5cf6;padding:2px 7px;border-radius:6px;font-size:0.65rem;font-weight:700;">LIVE</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,0.06);">
+              <h5 id="aiRecTitle" style="margin:0 0 5px;font-size:0.85rem;color:#fff;font-weight:700;"></h5>
+              <p id="aiRecMsg" style="margin:0 0 10px;font-size:0.78rem;color:#9aa3ff;line-height:1.5;"></p>
+              <button id="aiRecActionBtn" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);color:#fff;padding:7px 12px;border-radius:10px;font-size:0.78rem;font-weight:700;width:100%;"></button>
+            </div>
+          </section>
+          <section class="glass-card" style="padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <h4 style="margin:0;font-size:0.88rem;font-weight:700;">🔔 Next Reminder</h4>
+              <a href="reminders.html" style="font-size:0.72rem;color:#8b5cf6;font-weight:600;">All →</a>
+            </div>
+            <div style="background:rgba(245,158,11,0.07);padding:14px;border-radius:14px;border:1px solid rgba(245,158,11,0.18);">
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:6px;">
+                <h5 id="remTitle" style="margin:0;font-size:0.85rem;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h5>
+                <span id="remPriorityTag" class="reminder-priority medium" style="display:none;flex-shrink:0;font-size:0.65rem;"></span>
+              </div>
+              <p id="remSub" style="margin:5px 0 0;font-size:0.78rem;color:#f59e0b;"></p>
+            </div>
+          </section>
+        </div>
+
+      </div><!-- /.dash-left-col -->
+
+      <!-- ── RIGHT COLUMN (5 cols): Full Month Calendar + Day Planner ── -->
+      <div class="dash-right-col" style="grid-column:span 5;display:flex;flex-direction:column;gap:16px;">
+
+        <section class="glass-card" style="padding:22px;">
+          <!-- Calendar Header -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <button id="prevMonthMiniBtn" style="background:rgba(255,255,255,0.07);color:#9aa3ff;border:1px solid rgba(255,255,255,0.1);width:30px;height:30px;border-radius:9px;font-size:0.85rem;display:grid;place-items:center;cursor:pointer;">◀</button>
+            <div style="text-align:center;">
+              <div id="dashCalMonthTitle" style="font-size:0.88rem;font-weight:800;color:#fff;letter-spacing:0.5px;"></div>
+            </div>
+            <button id="nextMonthMiniBtn" style="background:rgba(255,255,255,0.07);color:#9aa3ff;border:1px solid rgba(255,255,255,0.1);width:30px;height:30px;border-radius:9px;font-size:0.85rem;display:grid;place-items:center;cursor:pointer;">▶</button>
+          </div>
+
+          <!-- Full calendar grid -->
+          <div id="dashCalGrid" class="dash-full-cal-grid"></div>
+
+          <!-- Legend -->
+          <div style="display:flex;justify-content:center;gap:14px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.68rem;color:#9aa3ff;">
+            <span><span style="color:#3b82f6;">●</span> Tasks</span>
+            <span><span style="color:#f59e0b;">●</span> Reminders</span>
+            <span><span style="color:#10b981;">●</span> Journal</span>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button id="todayMiniBtn" style="flex:1;background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.22);padding:6px;border-radius:9px;font-size:0.76rem;font-weight:600;">Today</button>
+            <a href="calendar.html" style="flex:1;background:rgba(255,255,255,0.05);color:#9aa3ff;border:1px solid rgba(255,255,255,0.09);padding:6px;border-radius:9px;font-size:0.76rem;font-weight:600;text-align:center;display:block;">Full Calendar →</a>
+          </div>
+        </section>
+
+        <!-- Selected day detail panel (replaces slide-in on desktop) -->
+        <section class="glass-card" id="dayDetailCard" style="padding:22px;display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+              <div style="font-size:0.65rem;font-weight:800;color:#6b7dff;letter-spacing:1px;margin-bottom:3px;">DAY DETAIL</div>
+              <h4 id="dayDetailTitle" style="margin:0;font-size:0.95rem;font-weight:800;color:#fff;"></h4>
+            </div>
+            <button id="closeDayDetail" style="background:rgba(255,255,255,0.07);color:#9aa3ff;border:1px solid rgba(255,255,255,0.1);width:28px;height:28px;border-radius:8px;font-size:0.85rem;display:grid;place-items:center;cursor:pointer;">✕</button>
+          </div>
+
+          <!-- Quick add buttons -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+            <button id="plannerAddTask" class="btn-primary" style="width:auto;padding:6px 12px;font-size:0.75rem;">+ Task</button>
+            <button id="plannerAddReminder" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.22);padding:6px 12px;border-radius:10px;font-size:0.75rem;font-weight:600;">+ Reminder</button>
+            <button id="plannerAddJournal" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.22);padding:6px 12px;border-radius:10px;font-size:0.75rem;font-weight:600;">+ Journal</button>
+          </div>
+
+          <!-- Day progress -->
+          <div id="plannerProgress" style="margin-bottom:14px;"></div>
+
+          <!-- Tasks -->
+          <div style="margin-bottom:14px;">
+            <div class="planner-section-label">📋 Tasks</div>
+            <div id="plannerTasksList" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+
+          <!-- Reminders -->
+          <div style="margin-bottom:14px;">
+            <div class="planner-section-label">🔔 Reminders</div>
+            <div id="plannerRemindersList" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+
+          <!-- Journal -->
+          <div>
+            <div class="planner-section-label">📖 Journal</div>
+            <div id="plannerJournalEntry" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+        </section>
+
+      </div><!-- /.dash-right-col -->
+
+    </main><!-- /.main-grid -->
+
+    <!-- FAB -->
+    <button class="fab" id="openLog" title="Quick add task (Ctrl+K)">+</button>
+  </div>
+
+  <!-- ═══════════════════════════ TASK MODAL ═══════════════════════════ -->
+  <div class="quick-modal-wrap hidden" id="taskQuickBackdrop">
+    <div class="glass-card quick-modal">
+      <div class="qm-header">
+        <h3 id="tqmTitle">Add Task</h3>
+        <button class="qm-close" id="closeTaskQuickModal">✕</button>
+      </div>
+      <form id="taskQuickForm" autocomplete="off">
+        <input type="hidden" id="tqmId" />
+        <div class="qm-field">
+          <label for="tqmTaskTitle">Task Title *</label>
+          <input type="text" id="tqmTaskTitle" required placeholder="e.g. Study TypeScript" />
+        </div>
+        <div class="qm-row">
+          <div class="qm-field">
+            <label for="tqmCategory">Category</label>
+            <select id="tqmCategory">
+              <option value="Work">Work</option>
+              <option value="Learning">Learning</option>
+              <option value="Health">Health</option>
+              <option value="Personal">Personal</option>
+              <option value="Routine">Routine</option>
+            </select>
+          </div>
+          <div class="qm-field">
+            <label for="tqmPriority">Priority</label>
+            <select id="tqmPriority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="qm-row">
+          <div class="qm-field">
+            <label for="tqmDate">Date</label>
+            <input type="date" id="tqmDate" />
+          </div>
+          <div class="qm-field">
+            <label for="tqmTime">Scheduled Time</label>
+            <input type="time" id="tqmTime" />
+          </div>
+        </div>
+        <div class="qm-row">
+          <div class="qm-field">
+            <label for="tqmDuration">Duration (mins)</label>
+            <input type="number" id="tqmDuration" value="30" min="5" />
+          </div>
+          <div class="qm-field">
+            <label for="tqmXP">XP Reward</label>
+            <input type="number" id="tqmXP" value="50" min="5" />
+          </div>
+        </div>
+        <div class="qm-field">
+          <label for="tqmNotes">Notes</label>
+          <textarea id="tqmNotes" placeholder="Optional details..."></textarea>
+        </div>
+        <button class="btn-primary" type="submit">💾 Save Task</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ REMINDER MODAL ═══════════════════════════ -->
+  <div class="quick-modal-wrap hidden" id="reminderQuickBackdrop">
+    <div class="glass-card quick-modal">
+      <div class="qm-header">
+        <h3>🔔 Add Reminder</h3>
+        <button class="qm-close" id="closeReminderQuickModal">✕</button>
+      </div>
+      <form id="reminderQuickForm" autocomplete="off">
+        <div class="qm-field">
+          <label for="rqmTitle">Reminder Title *</label>
+          <input type="text" id="rqmTitle" required placeholder="e.g. Submit Assignment" />
+        </div>
+        <div class="qm-row">
+          <div class="qm-field">
+            <label for="rqmDate">Date</label>
+            <input type="date" id="rqmDate" />
+          </div>
+          <div class="qm-field">
+            <label for="rqmTime">Time</label>
+            <input type="time" id="rqmTime" value="09:00" />
+          </div>
+        </div>
+        <div class="qm-field">
+          <label for="rqmPriority">Priority</label>
+          <select id="rqmPriority">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <button class="btn-primary" type="submit" style="margin-top:4px;">💾 Save Reminder</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ JOURNAL MODAL ═══════════════════════════ -->
+  <div class="quick-modal-wrap hidden" id="journalQuickBackdrop">
+    <div class="glass-card quick-modal">
+      <div class="qm-header">
+        <h3>📖 Journal Entry</h3>
+        <button class="qm-close" id="closeJournalQuickModal">✕</button>
+      </div>
+      <form id="journalQuickForm" autocomplete="off">
+        <div class="qm-row">
+          <div class="qm-field">
+            <label for="jqmDate">Date</label>
+            <input type="date" id="jqmDate" />
+          </div>
+          <div class="qm-field">
+            <label for="jqmMood">Mood</label>
+            <select id="jqmMood">
+              <option value="😊">😊 Happy</option>
+              <option value="🚀">🚀 Motivated</option>
+              <option value="💪">💪 Productive</option>
+              <option value="😤">😤 Frustrated</option>
+              <option value="😴">😴 Tired</option>
+              <option value="🧠">🧠 Focused</option>
+              <option value="😌">😌 Calm</option>
+              <option value="🌟">🌟 Excellent</option>
+            </select>
+          </div>
+        </div>
+        <div class="qm-field">
+          <label for="jqmContent">Entry *</label>
+          <textarea id="jqmContent" required placeholder="Write your reflections..." style="min-height:120px;"></textarea>
+        </div>
+        <button class="btn-primary" type="submit">💾 Save Entry</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

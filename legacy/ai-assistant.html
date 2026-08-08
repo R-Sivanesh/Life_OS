@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | AI Assistant</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a class="active" href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 28px; display:flex; flex-direction:column; height:calc(100vh - 48px);">
+        <div class="widget-header">
+          <div>
+            <h3>Google Gemini AI Assistant</h3>
+            <p>Your context-aware Life OS intelligence advisor for schedule, tasks, habits, and focus.</p>
+          </div>
+          <button id="clearAIChatBtn" style="background:rgba(255,91,121,0.15); color:#ff5b79; padding:8px 14px; border-radius:12px;">Clear History</button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin: 12px 0; flex-wrap:wrap;">
+          <button class="quick-ai-prompt" data-prompt="Prioritize my tasks for today" style="background:rgba(134,82,255,0.2); color:#fff; padding:6px 14px; border-radius:12px; font-size:0.85rem;">🎯 Prioritize Tasks</button>
+          <button class="quick-ai-prompt" data-prompt="Optimize my schedule for maximum productivity" style="background:rgba(58,164,255,0.2); color:#3aa4ff; padding:6px 14px; border-radius:12px; font-size:0.85rem;">⚡ Schedule Optimization</button>
+          <button class="quick-ai-prompt" data-prompt="Give me a motivational message based on my streak" style="background:rgba(26,219,119,0.2); color:#1adb77; padding:6px 14px; border-radius:12px; font-size:0.85rem;">🔥 Streak Boost</button>
+          <button class="quick-ai-prompt" data-prompt="Summarize my recent daily notes" style="background:rgba(255,184,0,0.2); color:#ffb800; padding:6px 14px; border-radius:12px; font-size:0.85rem;">📝 Summarize Notes</button>
+        </div>
+
+        <div id="aiChatContainer" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:14px; padding:16px; background:rgba(10,12,30,0.6); border-radius:20px; border:1px solid rgba(255,255,255,0.06); margin-bottom:16px;"></div>
+
+        <form id="aiChatForm" style="display:flex; gap:12px;">
+          <input type="text" id="aiInput" required placeholder="Ask Gemini AI anything about your schedule, habits, or notes..." style="flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:14px 18px; border-radius:18px; outline:none; font-size:1rem;" />
+          <button class="btn-primary" type="submit" style="width:auto; padding:14px 28px;">Send ✨</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ai-assistant.js"></script>
+</body>
+</html>

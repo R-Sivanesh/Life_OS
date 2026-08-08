@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Settings & Backup</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a class="active" href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 28px;">
+        <div class="widget-header">
+          <div>
+            <h3>Life OS Settings & Data Management</h3>
+            <p>Customize themes, configure API keys, and manage JSON backups.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-top: 20px;">
+          <!-- Theme Customization -->
+          <div class="glass-card" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+            <h4 style="margin:0;">🎨 Theme & Visual Identity</h4>
+            <label style="display:flex; flex-direction:column; gap:6px;">Accent Glow Theme
+              <select id="themeAccentSelect" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:12px;">
+                <option value="purple">Purple Neon & Blue Glow (Default)</option>
+                <option value="emerald">Cyber Emerald Glow</option>
+                <option value="rose">Rose Aura Glow</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- API Keys & Integrations -->
+          <div class="glass-card" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+            <h4 style="margin:0;">🔑 API & Database Credentials</h4>
+            <label style="display:flex; flex-direction:column; gap:6px;">Google Gemini API Key
+              <input type="password" id="geminiApiKeyInput" placeholder="AI-..." style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:12px;" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px;">Supabase Project URL
+              <input type="text" id="supabaseUrlInput" placeholder="https://xyz.supabase.co" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:12px;" />
+            </label>
+            <button id="saveApiKeysBtn" class="btn-primary" style="width:auto; align-self:flex-start; padding:8px 18px;">Save Credentials</button>
+          </div>
+
+          <!-- Backup & Restore System -->
+          <div class="glass-card" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+            <h4 style="margin:0;">💾 Backup & Restore System</h4>
+            <p style="margin:0; font-size:0.85rem; color:#9aa3ff;">Export all your tasks, routines, calendar events, journal entries, and settings to JSON.</p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="exportBackupBtn" style="background:rgba(26,219,119,0.2); color:#1adb77; padding:10px 18px; border-radius:14px; font-weight:600;">📥 Export JSON Backup</button>
+              <label style="background:rgba(58,164,255,0.2); color:#3aa4ff; padding:10px 18px; border-radius:14px; font-weight:600; cursor:pointer;">
+                📤 Import JSON Restore
+                <input type="file" id="importBackupInput" accept=".json" style="display:none;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Account Management -->
+          <div class="glass-card" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+            <h4 style="margin:0; color:#ff5b79;">⚠️ Danger Zone</h4>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="resetDataBtn" style="background:rgba(255,184,0,0.2); color:#ffb800; padding:10px 18px; border-radius:14px; font-weight:600;">Reset All Data</button>
+              <button id="logoutBtn" style="background:rgba(255,255,255,0.08); color:#fff; padding:10px 18px; border-radius:14px;">Logout</button>
+              <button id="deleteAccountBtn" style="background:rgba(255,91,121,0.2); color:#ff5b79; padding:10px 18px; border-radius:14px; font-weight:600;">Delete Account</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

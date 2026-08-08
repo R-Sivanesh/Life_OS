@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Tasks Management</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a class="active" href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 28px;">
+        <div class="widget-header">
+          <div>
+            <h3>Task Manager</h3>
+            <p>Track priorities, estimated vs actual time, and earn XP on completion.</p>
+          </div>
+          <button id="addTaskBtn" class="btn-primary" style="width: auto; padding: 10px 20px;">+ New Task</button>
+        </div>
+
+        <div style="display:flex; gap:16px; margin: 20px 0; flex-wrap:wrap;">
+          <button class="filter-btn active" data-filter="all" style="background:rgba(134,82,255,0.25); color:#fff; padding:8px 16px; border-radius:12px;">All Tasks</button>
+          <button class="filter-btn" data-filter="pending" style="background:rgba(255,255,255,0.08); color:#c7d1ff; padding:8px 16px; border-radius:12px;">Pending</button>
+          <button class="filter-btn" data-filter="completed" style="background:rgba(255,255,255,0.08); color:#c7d1ff; padding:8px 16px; border-radius:12px;">Completed</button>
+        </div>
+
+        <div id="tasksList" class="journey-timeline" style="gap: 14px;">
+          <!-- Tasks list rendered here -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal-backdrop hidden" id="taskModalBackdrop"></div>
+  <div class="daily-log-modal hidden glass-card" id="taskModal" style="width: min(560px, 92vw);">
+    <div class="modal-header">
+      <h2 id="taskModalTitle">Add New Task</h2>
+      <button id="closeTaskModal">×</button>
+    </div>
+    <form id="taskForm">
+      <input type="hidden" id="taskId" />
+      <div class="form-row">
+        <label>Task Title<input type="text" id="taskTitle" required placeholder="e.g. Build Life OS Calendar" /></label>
+      </div>
+      <div class="form-row">
+        <label>Category
+          <select id="taskCategory">
+            <option value="Work">Work</option>
+            <option value="Learning">Learning</option>
+            <option value="Personal">Personal</option>
+            <option value="Health">Health</option>
+            <option value="Routine">Routine</option>
+          </select>
+        </label>
+        <label>Priority
+          <select id="taskPriority">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Est. Time (mins)<input type="number" id="taskEstTime" value="30" min="5" /></label>
+        <label>Actual Time (mins)<input type="number" id="taskActTime" value="0" min="0" /></label>
+      </div>
+      <div class="form-row">
+        <label>Due Date<input type="date" id="taskDueDate" /></label>
+        <label>XP Reward<input type="number" id="taskXP" value="40" min="10" /></label>
+      </div>
+      <button class="btn-primary" type="submit" style="margin-top:16px;">Save Task</button>
+    </form>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/tasks.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+.score-card p,
+.score-card strong {
+  margin: 0;
+}
+
+#scoreChart,
+#activityChart,
+#consistencyChart {
+  width: 100%;
+  min-height: 260px;
+}

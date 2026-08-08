@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life OS | Journal & Reflection</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <div class="life-os-shell">
+    <aside class="sidebar glass-card">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Life OS</h1>
+          <p>Personal OS</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html"><span>🏠 Dashboard</span></a>
+        <a href="calendar.html"><span>📅 Planner</span></a>
+        <a href="routines.html"><span>⚡ Daily Routine</span></a>
+        <a class="active" href="journal.html"><span>📖 Journal</span></a>
+        <a href="ai-assistant.html"><span>🤖 AI Assistant</span></a>
+        <a href="reports.html"><span>📊 Reports</span></a>
+        <a href="tasks.html"><span>🎯 Goals & Habits</span></a>
+        <a href="settings.html"><span>⚙️ Settings</span></a>
+      </nav>
+      <div class="sidebar-footer glass-card small-card">
+        <div class="profile-circle">RS</div>
+        <div>
+          <h2>RS</h2>
+          <p>Keep building.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-grid">
+      <section class="glass-card" style="grid-column: span 12; padding: 28px;">
+        <div class="widget-header">
+          <div>
+            <h3>Daily Journal & Voice Reflections</h3>
+            <p>Track your daily mood, voice thoughts, image memories, and personal reflection.</p>
+          </div>
+          <button id="addJournalBtn" class="btn-primary" style="width: auto; padding: 10px 20px;">+ New Entry</button>
+        </div>
+
+        <div style="display:flex; gap:16px; margin: 20px 0; flex-wrap:wrap;">
+          <select id="journalMonthFilter" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px 14px; border-radius:12px; font-size:0.9rem;">
+            <option value="all">All Months</option>
+          </select>
+          <input id="journalSearch" type="search" placeholder="Search entries..." style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px 14px; border-radius:12px; font-size:0.9rem; flex:1; max-width:320px;" />
+        </div>
+
+        <div id="journalEntriesList" class="journey-timeline" style="gap: 16px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Journal Entry Modal -->
+  <div class="modal-backdrop hidden" id="journalModalBackdrop"></div>
+  <div class="daily-log-modal hidden glass-card" id="journalModal" style="width: min(620px, 92vw);">
+    <div class="modal-header">
+      <h2>New Journal Entry</h2>
+      <button id="closeJournalModal">×</button>
+    </div>
+    <form id="journalForm">
+      <div class="form-row">
+        <label>Mood
+          <div id="moodSelector" style="display:flex; gap:12px; margin-top:6px;">
+            <button type="button" class="mood-btn active" data-mood="😊" style="font-size:1.5rem; background:rgba(134,82,255,0.3); padding:8px 12px; border-radius:12px;">😊</button>
+            <button type="button" class="mood-btn" data-mood="🚀" style="font-size:1.5rem; background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:12px;">🚀</button>
+            <button type="button" class="mood-btn" data-mood="🧘" style="font-size:1.5rem; background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:12px;">🧘</button>
+            <button type="button" class="mood-btn" data-mood="💪" style="font-size:1.5rem; background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:12px;">💪</button>
+            <button type="button" class="mood-btn" data-mood="😔" style="font-size:1.5rem; background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:12px;">😔</button>
+          </div>
+        </label>
+      </div>
+
+      <div class="form-row" style="margin-top:16px;">
+        <label>Journal Content
+          <textarea id="journalText" rows="5" required placeholder="Reflect on your day, achievements, and goals..."></textarea>
+        </label>
+      </div>
+
+      <div class="form-row" style="margin-top:16px;">
+        <label>Voice Note
+          <div style="display:flex; gap:12px; align-items:center; margin-top:6px;">
+            <button type="button" id="recordVoiceBtn" style="background:rgba(255,91,121,0.2); color:#ff5b79; padding:10px 16px; border-radius:12px;">🎙️ Start Recording</button>
+            <span id="recordingStatus" style="font-size:0.85rem; color:#9aa3ff;">Not recording</span>
+          </div>
+          <audio id="voicePlayback" controls class="hidden" style="margin-top:10px; width:100%;"></audio>
+        </label>
+      </div>
+
+      <button class="btn-primary" type="submit" style="margin-top:20px;">Save Journal Entry</button>
+    </form>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/journal.js"></script>
+</body>
+</html>
