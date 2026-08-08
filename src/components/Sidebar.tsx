@@ -1,8 +1,6 @@
-import React from 'react';
-
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Home, Calendar, Zap, CheckCircle, Bell, Timer, Book, Bot, BarChart2, Target, Settings, LogOut } from 'lucide-react';
+import { Home, Calendar, Zap, CheckCircle, Bell, Timer, Book, BarChart2, Target, Settings, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [

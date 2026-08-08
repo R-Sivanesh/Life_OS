@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type User = {
   id: string;
@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation();
+
 
   // Helper to upsert profile in Supabase
   const upsertProfile = async (sessionUser: any) => {

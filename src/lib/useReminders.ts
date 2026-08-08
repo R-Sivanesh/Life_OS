@@ -75,6 +75,10 @@ export const useReminders = () => {
     await updateReminder(id, { completed: true });
   };
 
+  const uncompleteReminder = async (id: string) => {
+    await updateReminder(id, { completed: false });
+  };
+
   return {
     reminders,
     loading,
@@ -82,6 +86,7 @@ export const useReminders = () => {
     updateReminder,
     deleteReminder,
     completeReminder,
+    uncompleteReminder,
     refresh: fetchReminders
   };
 };

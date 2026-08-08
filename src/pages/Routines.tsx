@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRoutines } from '../lib/useRoutines';
 import { Zap, Plus, Trash2, Edit2, CheckCircle, Circle } from 'lucide-react';
 import { cn } from '../lib/utils';

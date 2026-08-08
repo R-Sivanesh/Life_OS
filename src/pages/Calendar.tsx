@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, subMonths, addMonths, isSameMonth, isSameDay, isToday } from 'date-fns';
-import { ChevronLeft, ChevronRight, Check, Plus, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { format, startOfWeek, addDays, startOfMonth, endOfMonth, endOfWeek, isSameMonth, isSameDay, isToday, addMonths, subMonths } from 'date-fns';
+import { ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';

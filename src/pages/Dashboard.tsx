@@ -1,12 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Clock, Check, Plus, AlertCircle, Edit2, Trash2 } from 'lucide-react';
-import { cn, openTaskModal, openReminderModal } from '../lib/utils';
-import { useTasks, type Task } from '../lib/useTasks';
-import { useReminders, type Reminder } from '../lib/useReminders';
+import { useState, useMemo, useEffect } from 'react';
+import { Check, Plus, Edit2, Trash2, Bell } from 'lucide-react';
+import { cn, openTaskModal } from '../lib/utils';
+import { useTasks } from '../lib/useTasks';
+import { useReminders } from '../lib/useReminders';
 import { useRoutines } from '../lib/useRoutines';
 import CalendarWidget from '../components/CalendarWidget';
 
-import { format, isSameDay, isToday } from 'date-fns';
+import { format, isToday } from 'date-fns';
 
 import { syncAllRoutines } from '../lib/routineSync';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,8 +15,8 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { tasks, completeTask, uncompleteTask, updateTask, deleteTask, refresh: refreshTasks } = useTasks();
-  const { reminders, completeReminder, refresh: refreshReminders } = useReminders();
+  const { tasks, completeTask, uncompleteTask, deleteTask, refresh: refreshTasks } = useTasks();
+  const { reminders, refresh: refreshReminders } = useReminders();
   const { routines } = useRoutines();
 
   useEffect(() => {

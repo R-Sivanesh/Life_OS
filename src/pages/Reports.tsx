@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
-import { useRoutines } from '../lib/useRoutines';
-import { Calendar, CheckCircle2, Clock, LayoutGrid, Target, TrendingUp, BarChart2, Zap, CircleDashed } from 'lucide-react';
+import { BarChart2, Calendar, CheckCircle2, Clock, LayoutGrid, Target, Zap, CircleDashed } from 'lucide-react';
 import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay, subDays } from 'date-fns';
 import { cn } from '../lib/utils';
 
 const Reports = () => {
   const { tasks, refresh: refreshTasks } = useTasks();
   const { reminders, refresh: refreshReminders } = useReminders();
-  const { routines } = useRoutines(); 
 
   useEffect(() => {
     refreshTasks();

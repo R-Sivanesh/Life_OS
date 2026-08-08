@@ -61,7 +61,7 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       </div>
       
       <div className="grid grid-cols-7 gap-1 text-center text-sm">
-        {calendarDays.map((day, i) => {
+        {calendarDays.map((day) => {
           const isCurrentMonth = isSameMonth(day, currentMonth);
           const isSelected = isSameDay(day, selectedDate);
           const isCurrentToday = isToday(day);

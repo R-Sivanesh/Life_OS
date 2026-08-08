@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useReminders } from '../lib/useReminders';
 import { Bell, Check, Edit2, Trash2, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';

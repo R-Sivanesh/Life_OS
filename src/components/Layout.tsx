@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { Plus, CheckSquare, Bell } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { GlobalAddModal } from './Modals';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';

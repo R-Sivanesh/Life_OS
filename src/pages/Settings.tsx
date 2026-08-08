@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, User, Bell, Shield, Moon, Database, AlertTriangle } from 'lucide-react';
 import { ResetTasksModal } from '../components/Modals';
 import { useAuth } from '../contexts/AuthContext';

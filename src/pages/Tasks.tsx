@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTasks } from '../lib/useTasks';
 import { Check, Edit2, Trash2, CheckCircle } from 'lucide-react';
 import { cn } from '../lib/utils';

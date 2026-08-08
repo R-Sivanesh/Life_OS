@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, Pause, Square, CheckCircle, Clock } from 'lucide-react';
 import { useTasks } from '../lib/useTasks';
 import { supabase } from '../lib/supabase';
@@ -16,7 +16,7 @@ const Focus = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [sessionDuration, setSessionDuration] = useState(25);
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (isActive && !isPaused) {
