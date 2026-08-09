@@ -1,72 +1,25 @@
-import React, { useState, useEffect } from 'react';
 import { Play, Pause, Square, CheckCircle, Clock } from 'lucide-react';
 import { useTasks } from '../lib/useTasks';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useFocus } from '../contexts/FocusContext';
 import { cn } from '../lib/utils';
 
 const Focus = () => {
-  const { user } = useAuth();
   const { tasks } = useTasks();
   const pendingTasks = tasks.filter(t => !t.completed);
   
-  const [selectedTaskId, setSelectedTaskId] = useState<string>('');
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes default
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [sessionDuration, setSessionDuration] = useState(25);
-  
-  const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (isActive && !isPaused) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            handleComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isActive, isPaused]);
-
-  const handleStart = () => {
-    setIsActive(true);
-    setIsPaused(false);
-  };
-
-  const handlePause = () => {
-    setIsPaused(true);
-  };
-
-  const handleReset = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setTimeLeft(sessionDuration * 60);
-  };
-
-  const handleComplete = async () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setTimeLeft(sessionDuration * 60);
-    
-    if (user && supabase) {
-      await supabase.from('focus_sessions').insert([{
-        user_id: user.id,
-        task_id: selectedTaskId || null,
-        duration_minutes: sessionDuration,
-        completed: true
-      }]);
-    }
-  };
+  const {
+    timeLeft,
+    isActive,
+    isPaused,
+    sessionDuration,
+    selectedTaskId,
+    setSessionDuration,
+    setSelectedTaskId,
+    handleStart,
+    handlePause,
+    handleReset,
+    handleComplete
+  } = useFocus();
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -135,7 +88,6 @@ const Focus = () => {
                   key={duration}
                   onClick={() => {
                     setSessionDuration(duration);
-                    setTimeLeft(duration * 60);
                   }}
                   className={cn(
                     "px-4 py-1.5 rounded-full text-xs font-medium transition-colors border",

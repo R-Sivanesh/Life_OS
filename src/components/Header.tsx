@@ -9,6 +9,7 @@ const Header = () => {
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const [time, setTime] = useState(new Date());
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -34,12 +35,12 @@ const Header = () => {
   };
 
   return (
-    <header className="h-24 px-8 flex items-center justify-between border-none bg-background">
+    <header className="h-16 px-8 flex items-center justify-between border-none bg-background pt-2">
       <div>
-        <h2 className="text-2xl font-bold text-gray-100 mb-1 flex items-center gap-2">
-          {getGreeting()}, {user?.name.toLowerCase()} <span className="text-2xl">👋</span>
+        <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+          {getGreeting()}, {user?.name.toLowerCase()} <span className="text-xl">👋</span>
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs text-gray-500">
           {format(time, 'EEEE, MMMM d, yyyy')}
         </p>
       </div>
@@ -70,12 +71,46 @@ const Header = () => {
           >
             <Moon className="w-5 h-5" />
           </button>
-          <button 
-            onClick={() => navigate('/settings')}
-            className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 ml-2 hover:bg-primary/30 transition-colors"
-          >
-            <span className="text-primary font-bold text-xs uppercase">{user?.name.slice(0, 2)}</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 ml-2 hover:bg-primary/30 transition-colors overflow-hidden"
+            >
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt={user?.name || ''} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-primary font-bold text-xs uppercase">{user?.name?.slice(0, 2)}</span>
+              )}
+            </button>
+            
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-48 glass-card rounded-xl border border-border/50 py-2 shadow-xl z-50 bg-surface">
+                <div className="px-4 py-2 border-b border-border/50">
+                  <p className="text-sm font-bold text-gray-100 truncate">{user?.name}</p>
+                </div>
+                <div className="py-1">
+                  <button 
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate('/profile');
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-400 hover:text-gray-100 hover:bg-surfaceHighlight transition-colors"
+                  >
+                    View Profile
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate('/settings');
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-400 hover:text-gray-100 hover:bg-surfaceHighlight transition-colors"
+                  >
+                    Settings
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

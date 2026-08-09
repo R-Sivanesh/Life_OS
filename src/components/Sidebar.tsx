@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Home, Calendar, Zap, CheckCircle, Bell, Timer, Book, BarChart2, Target, Settings, LogOut } from 'lucide-react';
+import { Home, Calendar, Zap, CheckCircle, Bell, Timer, Book, BarChart2, Target, Settings } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
@@ -17,7 +16,6 @@ const navItems = [
 ];
 
 const Sidebar = () => {
-  const { user, logout } = useAuth();
 
   return (
     <aside className="w-64 border-r border-border bg-surface flex flex-col h-full flex-shrink-0">
@@ -53,45 +51,6 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      {user && (
-        <div className="p-4 mt-auto">
-          <div className="glass-card p-4 rounded-2xl bg-surfaceHighlight/50 border border-border/50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center overflow-hidden">
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white font-bold text-sm">{user.name.slice(0, 2).toUpperCase()}</span>
-                )}
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-sm font-bold text-gray-100 truncate">{user.name}</p>
-                <p className="text-[10px] text-gray-500 truncate cursor-pointer hover:text-primary transition-colors">View Profile</p>
-              </div>
-            </div>
-
-            <div className="space-y-1 mb-4">
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-primary font-bold">Level 1</span>
-              </div>
-              <div className="flex justify-between text-[10px] text-gray-500 mb-1">
-                <span>0 / 500 XP</span>
-              </div>
-              <div className="h-1.5 w-full bg-surface rounded-full overflow-hidden">
-                <div className="h-full bg-primary w-[5%] rounded-full opacity-30" />
-              </div>
-            </div>
-
-            <button
-              onClick={logout}
-              className="w-full flex items-center gap-3 text-sm text-danger hover:bg-danger/10 py-2 px-2 rounded-lg transition-colors mt-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      )}
     </aside>
   );
 };

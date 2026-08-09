@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRoutines } from '../lib/useRoutines';
 import { Zap, Plus, Trash2, Edit2, CheckCircle, Circle } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, formatTimeDisplay } from '../lib/utils';
 import { AddRoutineModal } from '../components/Modals';
 
 const Routines = () => {
@@ -50,7 +50,7 @@ const Routines = () => {
               <div className="flex-1 min-w-0">
                 <h3 className={cn("font-bold truncate", routine.enabled ? "text-gray-100" : "text-gray-500 line-through")}>{routine.title}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-gray-500">{routine.time || 'Any time'} • {routine.duration_minutes || 0} min</span>
+                  <span className="text-xs text-gray-500">{routine.time ? formatTimeDisplay(routine.time) : 'Any time'} • {routine.duration_minutes || 0} min</span>
                   <span className="text-xs text-gray-600 bg-background px-2 py-0.5 rounded border border-border">
                     {routine.days?.join(', ') || 'Everyday'}
                   </span>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, User, Bell, Shield, Moon, Database, AlertTriangle } from 'lucide-react';
+import { Save, User, Bell, Shield, Moon, Database, AlertTriangle, LogOut } from 'lucide-react';
 import { ResetTasksModal } from '../components/Modals';
 import { useAuth } from '../contexts/AuthContext';
 import { useTasks } from '../lib/useTasks';
@@ -11,7 +11,7 @@ const Settings = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { tasks, batchUncompleteTasks } = useTasks();
 
   useEffect(() => {
@@ -77,8 +77,18 @@ const Settings = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-1">Display Name</label>
-              <input type="text" disabled value="fw" className="w-full max-w-md bg-surfaceHighlight border border-border rounded-xl px-4 py-2 text-sm text-gray-500 cursor-not-allowed" />
+              <input type="text" disabled value={user?.name || ''} className="w-full max-w-md bg-surfaceHighlight border border-border rounded-xl px-4 py-2 text-sm text-gray-500 cursor-not-allowed" />
               <p className="text-xs text-gray-500 mt-1">Managed via Supabase Auth</p>
+            </div>
+            
+            <div className="pt-2 mt-4 border-t border-border/50 max-w-md">
+              <button
+                onClick={logout}
+                className="flex items-center justify-center gap-2 w-full mt-4 px-4 py-2.5 text-sm font-bold text-danger bg-danger/10 hover:bg-danger/20 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
             </div>
           </div>
         </div>

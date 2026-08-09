@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { format, startOfWeek, addDays, startOfMonth, endOfMonth, endOfWeek, isSameMonth, isSameDay, isToday, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, formatTaskTimeRange, formatTimeDisplay } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 
@@ -18,8 +18,8 @@ const Calendar = () => {
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
-  const startDate = startOfWeek(monthStart);
-  const endDate = endOfWeek(monthEnd);
+  const startDate = startOfWeek(monthStart, { weekStartsOn: 0 });
+  const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
   const calendarDays = [];
   let day = startDate;
@@ -29,8 +29,18 @@ const Calendar = () => {
   }
 
   const selectedDateString = format(selectedDate, 'yyyy-MM-dd');
-  const selectedTasks = tasks.filter(t => t.date === selectedDateString);
-  const selectedReminders = reminders.filter(r => r.date === selectedDateString);
+  const selectedTasks = tasks.filter(t => t.date === selectedDateString).sort((a, b) => {
+    if (!a.start_time && b.start_time) return 1;
+    if (a.start_time && !b.start_time) return -1;
+    if (!a.start_time && !b.start_time) return 0;
+    return a.start_time!.localeCompare(b.start_time!);
+  });
+  const selectedReminders = reminders.filter(r => r.date === selectedDateString).sort((a, b) => {
+    if (!a.time && b.time) return 1;
+    if (a.time && !b.time) return -1;
+    if (!a.time && !b.time) return 0;
+    return a.time!.localeCompare(b.time!);
+  });
 
   return (
     <div className="flex flex-col xl:flex-row gap-6 w-full max-w-[1600px] mx-auto pb-12 h-full">
@@ -59,24 +69,31 @@ const Calendar = () => {
               <div key={d} className="py-3 text-center text-xs font-semibold text-gray-500">{d}</div>
             ))}
           </div>
-          <div className="grid grid-cols-7 flex-1 auto-rows-fr">
+          <div className="grid grid-cols-7 flex-1 auto-rows-fr overflow-y-auto no-scrollbar">
             {calendarDays.map(day => {
               const isCurrentMonth = isSameMonth(day, currentMonth);
               const isSelected = isSameDay(day, selectedDate);
               const isCurrentToday = isToday(day);
               const dayString = format(day, 'yyyy-MM-dd');
-              const dayTasks = tasks.filter(t => t.date === dayString && !t.completed);
-              const dayReminders = reminders.filter(r => r.date === dayString && !r.completed);
+              const dayTasks = tasks.filter(t => t.date === dayString && !t.completed).sort((a, b) => {
+                if (!a.start_time && b.start_time) return 1;
+                if (a.start_time && !b.start_time) return -1;
+                if (!a.start_time && !b.start_time) return 0;
+                return a.start_time!.localeCompare(b.start_time!);
+              });
+              const dayReminders = reminders.filter(r => r.date === dayString && !r.completed).sort((a, b) => {
+                if (!a.time && b.time) return 1;
+                if (a.time && !b.time) return -1;
+                if (!a.time && !b.time) return 0;
+                return a.time!.localeCompare(b.time!);
+              });
 
               return (
                 <div
                   key={day.toString()}
-                  onClick={() => {
-                    setSelectedDate(day);
-                    window.dispatchEvent(new CustomEvent('open-task-modal', { detail: { date: dayString } }));
-                  }}
+                  onClick={() => setSelectedDate(day)}
                   className={cn(
-                    "min-h-[100px] border-r border-b border-border/50 p-2 cursor-pointer transition-colors hover:bg-surfaceHighlight/30 flex flex-col gap-1 relative group",
+                    "min-h-[60px] md:min-h-[80px] border-r border-b border-border/50 p-1 md:p-2 cursor-pointer transition-colors hover:bg-surfaceHighlight/30 flex flex-col gap-1 relative group",
                     !isCurrentMonth ? "bg-background/30" : "",
                     isSelected ? "bg-primary/10 border-primary/30" : ""
                   )}
@@ -134,8 +151,11 @@ const Calendar = () => {
                       <Check className="w-3 h-3" strokeWidth={3} />
                     </button>
                     <div className="flex-1 min-w-0">
-                      <p className={cn("text-sm font-medium truncate transition-colors", task.completed ? "text-gray-500 line-through" : "text-gray-100")}>{task.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">{task.start_time || '--:--'} - {task.category}</p>
+                      <p className={cn("text-sm font-medium truncate transition-colors", task.completed ? "text-gray-500 line-through" : (task.category === 'Routine' ? "text-primary" : "text-gray-100"))}>
+                        {task.title}
+                        {task.category === 'Routine' && <span className="ml-2 text-[10px] uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded">Routine</span>}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{formatTaskTimeRange(task.start_time, task.end_time)}</p>
                     </div>
                   </div>
                 )) : (
@@ -154,7 +174,7 @@ const Calendar = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-gray-100 truncate">{rem.title}</h4>
-                      <p className="text-xs text-gray-500">{rem.time}</p>
+                      <p className="text-xs text-gray-500">{formatTimeDisplay(rem.time)}</p>
                     </div>
                   </div>
                 )) : (

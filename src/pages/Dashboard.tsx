@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Check, Plus, Edit2, Trash2, Bell } from 'lucide-react';
-import { cn, openTaskModal } from '../lib/utils';
+import { Check, Plus, Edit2, Trash2, Bell, Square, Play, Pause } from 'lucide-react';
+import { cn, openTaskModal, openReminderModal, formatTaskTimeRange, formatTimeDisplay } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 import { useRoutines } from '../lib/useRoutines';
 import CalendarWidget from '../components/CalendarWidget';
+import { useFocus } from '../contexts/FocusContext';
 
 import { format, isToday } from 'date-fns';
 
@@ -15,8 +16,43 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { tasks, completeTask, uncompleteTask, deleteTask, refresh: refreshTasks } = useTasks();
-  const { reminders, refresh: refreshReminders } = useReminders();
+  const [quote, setQuote] = useState('');
+  const [activeReminderMenu, setActiveReminderMenu] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = () => setActiveReminderMenu(null);
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const quotes = [
+      "Small progress every day becomes big results.",
+      "Discipline builds what motivation starts.",
+      "Keep moving. Your future self will thank you.",
+      "Focus on being productive instead of busy.",
+      "The secret of getting ahead is getting started."
+    ];
+    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+  }, []);
+  
+  const {
+    timeLeft,
+    isActive,
+    isPaused,
+    handleStart,
+    handlePause,
+    handleReset,
+  } = useFocus();
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const { tasks, completeTask, uncompleteTask, refresh: refreshTasks } = useTasks();
+  const { reminders, deleteReminder, refresh: refreshReminders } = useReminders();
   const { routines } = useRoutines();
 
   useEffect(() => {
@@ -27,7 +63,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Automatically sync routines to tasks once per day
     if (routines.length > 0 && user) {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
       const flagKey = `lifeos_routines_synced_${user.id}_${todayStr}`;
       if (!localStorage.getItem(flagKey)) {
         syncAllRoutines(routines, user.id).then(() => {
@@ -38,7 +74,7 @@ const Dashboard = () => {
     }
   }, [routines, user]);
 
-  const selectedDateString = format(selectedDate, 'yyyy-MM-dd');
+
   const todayString = format(new Date(), 'yyyy-MM-dd');
 
   // Stats calculation
@@ -46,16 +82,21 @@ const Dashboard = () => {
     return tasks.filter(t => t.date === todayString);
   }, [tasks, todayString]);
 
-  const completedToday = todayTasks.filter(t => t.completed).length;
+  const pendingToday = todayTasks.filter(t => !t.completed);
+  const completedTodayTasks = todayTasks.filter(t => t.completed);
+  
+  const completedToday = completedTodayTasks.length;
   const totalToday = todayTasks.length;
   const progressPercent = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
 
 
   // Selected date tasks/reminders
-  const selectedDateTasks = tasks.filter(t => t.date === selectedDateString).sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
   const upcomingReminders = reminders.filter(r => r.date >= todayString && !r.completed).sort((a, b) => {
     if (a.date !== b.date) return a.date.localeCompare(b.date);
-    return (a.time || '').localeCompare(b.time || '');
+    if (!a.time && b.time) return 1;
+    if (a.time && !b.time) return -1;
+    if (!a.time && !b.time) return 0;
+    return a.time!.localeCompare(b.time!);
   }).slice(0, 5);
 
   const getPriorityColor = (priority: string) => {
@@ -80,10 +121,10 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12 overflow-y-auto">
       {/* Top Stats Row */}
-      <div className={cn("glass-card flex items-center justify-between px-8 py-6 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
-        {/* Circle Progress */}
-        <div className="flex items-center gap-6">
-          <div className="relative w-24 h-24 flex-shrink-0 rounded-full border-[6px] border-surfaceHighlight/40 flex items-center justify-center">
+      <div className={cn("glass-card flex items-center justify-between px-6 py-4 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
+        {/* Circle Progress (LEFT) */}
+        <div className="flex items-center gap-6 flex-1">
+          <div className="relative w-20 h-20 flex-shrink-0 rounded-full border-[6px] border-surfaceHighlight/40 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
               <circle 
                 cx="50" cy="50" r="40" 
@@ -125,21 +166,55 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* Horizontal Progress */}
-        <div className="w-64">
-          <div className={cn("text-xs mb-2 text-right transition-colors duration-500", progressPercent === 100 && totalToday > 0 ? "text-primary font-bold animate-pulse" : "text-gray-400")}>
-            {progressPercent === 100 && totalToday > 0 ? "Amazing! All tasks completed today. 🎉" : "Keep going! You're doing great. 🚀"}
+        {/* Focus Timer (CENTER) */}
+        <div className="flex flex-col items-center justify-center flex-1 border-x border-border/50 px-6 mx-6">
+          <span className="text-[10px] font-bold text-primary tracking-widest uppercase mb-1">Focus</span>
+          <span className="text-3xl font-black text-gray-100 tabular-nums leading-none mb-3 tracking-tight">
+            {formatTime(timeLeft)}
+          </span>
+          
+          <div className="flex items-center gap-2">
+            {!isActive || isPaused ? (
+              <button onClick={handleStart} className="btn-primary px-5 py-2 rounded-xl text-xs font-bold shadow-glow flex items-center gap-2">
+                <Play className="w-3 h-3 fill-current" /> {isPaused ? 'Resume' : 'Start Focus'}
+              </button>
+            ) : (
+              <button onClick={handlePause} className="px-5 py-2 rounded-xl bg-warning/20 text-warning hover:bg-warning/30 transition-colors text-xs font-bold flex items-center gap-2">
+                <Pause className="w-3 h-3 fill-current" /> Pause
+              </button>
+            )}
+            
+            {(isActive || isPaused) && (
+              <button onClick={handleReset} className="px-4 py-2 rounded-xl bg-surfaceHighlight text-gray-400 hover:text-gray-100 flex items-center gap-2 transition-colors text-xs font-bold">
+                <Square className="w-3 h-3 fill-current" /> Stop
+              </button>
+            )}
+            
+            {!isActive && !isPaused && (
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surfaceHighlight/30 text-gray-400 text-xs font-medium">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                Ready to focus
+              </div>
+            )}
           </div>
-          <div className="h-2 w-full bg-surfaceHighlight rounded-full overflow-hidden">
-            <div className={cn("h-full bg-primary rounded-full transition-all duration-500", progressPercent === 100 && totalToday > 0 ? "shadow-[0_0_15px_rgba(59,130,246,0.8)]" : "shadow-glow")} style={{ width: `${progressPercent}%` }} />
-          </div>
+        </div>
+        
+        {/* Quote (RIGHT) */}
+        <div className="flex flex-col items-start justify-center flex-1 pl-4">
+           <div className="text-4xl text-primary/20 leading-none mb-1 font-serif">"</div>
+           <p className="text-sm text-gray-300 leading-relaxed font-medium pr-4">
+             {quote}
+           </p>
+           <p className="text-[11px] text-primary mt-3 flex items-center gap-2">
+             <span className="w-3 h-[1px] bg-primary"></span> Keep going!
+           </p>
         </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-12 gap-6">
+      {/* Main Grid Row 1 */}
+      <div className="grid grid-cols-12 gap-6 mb-6">
         
-        {/* Left Column - Today's Tasks & Reminders */}
+        {/* Left Column - Today's Tasks */}
         <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
           {/* Today's Tasks */}
           <div className="glass-card flex flex-col overflow-hidden">
@@ -150,86 +225,81 @@ const Dashboard = () => {
               </button>
             </div>
             
-            <div className="p-4 space-y-1 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
-              {todayTasks.length > 0 ? todayTasks.map(task => (
-                <div key={task.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-surfaceHighlight/50 transition-colors group border border-transparent">
-                  <button 
-                    onClick={() => task.completed ? uncompleteTask(task.id) : completeTask(task.id)}
-                    className={cn(
-                      "w-5 h-5 rounded-full flex items-center justify-center border transition-colors shrink-0",
-                      task.completed ? "bg-accent border-accent text-background" : "border-gray-500 hover:border-accent text-transparent hover:text-accent/50"
-                    )}
-                  >
-                    <Check className="w-3 h-3" strokeWidth={3} />
-                  </button>
-                  <div className="flex-1 flex items-center gap-4">
-                    <span className={cn("font-medium text-sm transition-colors flex-1", task.completed ? "text-gray-500 line-through" : "text-gray-100")}>
-                      {task.title}
-                    </span>
-                    <span className="w-32 text-xs text-gray-500 text-center">
-                      {task.start_time || '--:--'} {task.end_time ? `- ${task.end_time}` : ''}
-                    </span>
-                    <span className={cn("text-[10px] uppercase font-bold px-3 py-1 rounded-full border w-24 text-center", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
-                      {task.category}
-                    </span>
-                    <span className={cn("text-[10px] font-bold w-16 text-center", getPriorityColor(task.priority).split(' ')[0])}>
-                      {task.priority}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1.5 text-gray-500 hover:text-primary rounded-lg transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => deleteTask(task.id)} className="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+            <div className="p-4 space-y-6 custom-scrollbar pr-2">
+              {pendingToday.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] font-bold text-primary mb-3 uppercase tracking-wider">Pending ({pendingToday.length})</h4>
+                  <div className="space-y-1">
+                    {pendingToday.map(task => (
+                      <div key={task.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surfaceHighlight/50 transition-colors group border border-transparent">
+                        <button 
+                          onClick={() => completeTask(task.id)}
+                          className="w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0 border-gray-500 hover:border-accent text-transparent hover:text-accent/50"
+                        >
+                          <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                        </button>
+                        <div className="flex-1 flex items-center gap-4 min-w-0">
+                          <span className="w-32 text-xs text-primary/80 shrink-0">
+                            {formatTaskTimeRange(task.start_time, task.end_time)}
+                          </span>
+                          <span className="font-medium text-sm transition-colors flex-1 text-gray-100 truncate">
+                            {task.title}
+                          </span>
+                          <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
+                            {task.category}
+                          </span>
+                          <span className={cn("text-[10px] font-bold w-14 shrink-0 text-right", getPriorityColor(task.priority).split(' ')[0])}>
+                            {task.priority}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-gray-500 hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )) : (
+              )}
+
+              {completedTodayTasks.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] font-bold text-accent mb-3 uppercase tracking-wider">Completed ({completedTodayTasks.length})</h4>
+                  <div className="space-y-1">
+                    {completedTodayTasks.map(task => (
+                      <div key={task.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surfaceHighlight/50 transition-colors group border border-transparent">
+                        <button 
+                          onClick={() => uncompleteTask(task.id)}
+                          className="w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0 bg-accent border-accent text-background"
+                        >
+                          <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                        </button>
+                        <div className="flex-1 flex items-center gap-4 min-w-0">
+                          <span className="w-32 text-xs text-gray-600 shrink-0 line-through">
+                            {formatTaskTimeRange(task.start_time, task.end_time)}
+                          </span>
+                          <span className="font-medium text-sm transition-colors flex-1 text-gray-600 line-through truncate">
+                            {task.title}
+                          </span>
+                          <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center opacity-50", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
+                            {task.category}
+                          </span>
+                          <span className={cn("text-[10px] font-bold w-14 shrink-0 text-right opacity-50", getPriorityColor(task.priority).split(' ')[0])}>
+                            {task.priority}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-gray-500 hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {todayTasks.length === 0 && (
                 <div className="py-8 flex flex-col items-center justify-center text-gray-500">
                   <Check className="w-8 h-8 mb-2 opacity-20" />
                   <p className="text-sm">No tasks scheduled for today.</p>
-                </div>
-              )}
-              
-              <div className="pt-2 text-center">
-                <button className="text-xs text-primary hover:text-primary-hover font-medium py-2">
-                  View All Tasks &rarr;
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Reminders */}
-          <div className="glass-card flex flex-col overflow-hidden">
-            <div className="p-6 border-b border-border/50 flex justify-between items-center">
-              <h3 className="text-gray-100 font-bold">Upcoming Reminders</h3>
-              <button className="text-xs text-primary hover:text-primary-hover font-medium">
-                View All &rarr;
-              </button>
-            </div>
-            
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {upcomingReminders.length > 0 ? upcomingReminders.map(rem => (
-                <div key={rem.id} className="flex items-start gap-3 p-4 rounded-xl bg-surfaceHighlight/50 border border-border/50 relative group">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
-                    <Bell className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-gray-100 truncate">{rem.title}</h4>
-                    <p className="text-xs text-gray-500 mt-1">{isToday(new Date(rem.date)) ? 'Today' : format(new Date(rem.date), 'MMM d')}, {rem.time}</p>
-                  </div>
-                  <span className={cn("text-[10px] uppercase font-bold", getPriorityColor(rem.priority).split(' ')[0])}>
-                    {rem.priority}
-                  </span>
-                  
-                  <button className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-primary transition-all">
-                    <div className="flex flex-col gap-0.5">
-                      <div className="w-1 h-1 bg-current rounded-full" />
-                      <div className="w-1 h-1 bg-current rounded-full" />
-                      <div className="w-1 h-1 bg-current rounded-full" />
-                    </div>
-                  </button>
-                </div>
-              )) : (
-                <div className="col-span-full py-8 text-center text-sm text-gray-500">
-                  No upcoming reminders.
                 </div>
               )}
             </div>
@@ -247,83 +317,67 @@ const Dashboard = () => {
             reminders={reminders}
           />
 
-          {/* Selected Date Details */}
-          <div className="glass-card flex-1 flex flex-col overflow-hidden overflow-visible relative">
-            <div className="p-6 border-b border-border/50 flex justify-between items-center relative">
-              <h3 className="text-gray-100 font-bold">{format(selectedDate, 'EEEE, MMMM d, yyyy')}</h3>
+
+        </div>
+      </div>
+
+      {/* Main Grid Row 2 - Upcoming Reminders */}
+      <div className="glass-card flex flex-col overflow-hidden">
+        <div className="p-6 border-b border-border/50 flex justify-between items-center">
+          <h3 className="text-gray-100 font-bold">Upcoming Reminders</h3>
+          <button className="text-xs text-primary hover:text-primary-hover font-medium">
+            View All &rarr;
+          </button>
+        </div>
+        
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {upcomingReminders.length > 0 ? upcomingReminders.map(rem => (
+            <div key={rem.id} className="flex items-start gap-3 p-4 rounded-xl bg-surfaceHighlight/50 border border-border/50 relative group">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
+                <Bell className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-bold text-gray-100 truncate">{rem.title}</h4>
+                <p className="text-xs text-gray-500 mt-1">{isToday(new Date(rem.date)) ? 'Today' : format(new Date(rem.date), 'MMM d')}, {formatTimeDisplay(rem.time)}</p>
+              </div>
+              <span className={cn("text-[10px] uppercase font-bold", getPriorityColor(rem.priority).split(' ')[0])}>
+                {rem.priority}
+              </span>
               
-              <button 
-                onClick={() => openTaskModal(selectedDateString)}
-                className="btn-primary text-xs py-1.5 px-3 rounded-lg shadow-glow flex items-center gap-1"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-6 overflow-y-auto">
-              {/* Tasks Section */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-sm font-bold text-gray-100">Tasks</h4>
-                </div>
-                <div className="space-y-2">
-                  {selectedDateTasks.length > 0 ? selectedDateTasks.map(task => (
-                    <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl bg-surfaceHighlight/30 border border-border/50">
-                      <button 
-                        onClick={() => task.completed ? uncompleteTask(task.id) : completeTask(task.id)}
-                        className={cn(
-                          "w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0",
-                          task.completed ? "bg-accent border-accent text-background" : "border-gray-500 hover:border-accent text-transparent"
-                        )}
-                      >
-                        <Check className="w-2.5 h-2.5" strokeWidth={3} />
-                      </button>
-                      <span className={cn("font-medium text-xs flex-1 truncate", task.completed ? "text-gray-500 line-through" : "text-gray-100")}>
-                        {task.title}
-                      </span>
-                      <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                        {task.start_time || '--:--'}
-                      </span>
-                      <span className={cn("text-[10px] uppercase font-bold", getPriorityColor(task.priority).split(' ')[0])}>
-                        {task.priority}
-                      </span>
-                    </div>
-                  )) : (
-                    <p className="text-xs text-gray-500 text-center py-2">No tasks</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Reminders Section */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-sm font-bold text-gray-100">Reminders</h4>
-                </div>
-                <div className="space-y-2">
-                  {reminders.filter(r => r.date === selectedDateString && !r.completed).map(rem => (
-                    <div key={rem.id} className="flex items-center gap-3 p-3 rounded-xl bg-surfaceHighlight/30 border border-border/50">
-                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary">
-                        <Bell className="w-3 h-3" />
-                      </div>
-                      <span className="font-medium text-xs flex-1 text-gray-100 truncate">
-                        {rem.title}
-                      </span>
-                      <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                        {rem.time}
-                      </span>
-                      <span className={cn("text-[10px] uppercase font-bold", getPriorityColor(rem.priority).split(' ')[0])}>
-                        {rem.priority}
-                      </span>
-                    </div>
-                  ))}
-                  {reminders.filter(r => r.date === selectedDateString && !r.completed).length === 0 && (
-                    <p className="text-xs text-gray-500 text-center py-2">No reminders</p>
-                  )}
-                </div>
+              <div className="relative">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setActiveReminderMenu(activeReminderMenu === rem.id ? null : rem.id); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-primary transition-all"
+                >
+                  <div className="flex flex-col gap-0.5 pointer-events-none">
+                    <div className="w-1 h-1 bg-current rounded-full" />
+                    <div className="w-1 h-1 bg-current rounded-full" />
+                    <div className="w-1 h-1 bg-current rounded-full" />
+                  </div>
+                </button>
+                {activeReminderMenu === rem.id && (
+                  <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-surfaceHighlight border border-border rounded-xl shadow-xl z-20 py-1 flex flex-col overflow-hidden">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); openReminderModal(undefined, rem); setActiveReminderMenu(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-surface transition-colors flex items-center gap-2"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" /> Edit
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); deleteReminder(rem.id); setActiveReminderMenu(null); }}
+                      className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors flex items-center gap-2"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-
+          )) : (
+            <div className="col-span-full py-8 text-center text-sm text-gray-500">
+              No upcoming reminders.
+            </div>
+          )}
         </div>
       </div>
     </div>

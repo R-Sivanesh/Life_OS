@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { Task } from '../lib/useTasks';
-import type { Reminder } from '../lib/useReminders';
 import { X, Clock, Calendar as CalendarIcon, Tag, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
@@ -9,11 +8,14 @@ interface GlobalAddModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveTask?: (task: Partial<Task>) => void;
-  onSaveReminder?: (reminder: Partial<Reminder>) => void;
+  onUpdateTask?: (id: string, task: Partial<Task>) => void;
+  onSaveReminder?: (reminder: any) => void;
+  onUpdateReminder?: (id: string, reminder: any) => void;
   initialDate?: Date | string;
+  initialTask?: any;
 }
 
-export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose, onSaveTask, onSaveReminder, initialDate }) => {
+export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose, onSaveTask, onUpdateTask, onSaveReminder, onUpdateReminder, initialDate, initialTask }) => {
   const [type, setType] = useState<'task' | 'reminder'>('task');
   
   // Shared fields
@@ -26,16 +28,60 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
   const [category, setCategory] = useState('General');
+  const [noSpecificTime, setNoSpecificTime] = useState(false);
   
   // Reminder specific fields
   const [reminderTime, setReminderTime] = useState('12:00');
   const [recurring, setRecurring] = useState('None');
 
   React.useEffect(() => {
-    if (initialDate) {
-      setDate(typeof initialDate === 'string' && initialDate.includes('-') ? initialDate : format(new Date(initialDate), 'yyyy-MM-dd'));
+    if (isOpen) {
+      if (initialTask && initialTask._type !== 'reminder_new') {
+        const isReminder = initialTask._type === 'reminder';
+        setType(isReminder ? 'reminder' : 'task');
+        setTitle(initialTask.title || '');
+        setDate(initialTask.date || format(new Date(), 'yyyy-MM-dd'));
+        setPriority(initialTask.priority ? initialTask.priority.charAt(0).toUpperCase() + initialTask.priority.slice(1) : 'Medium');
+        
+        if (isReminder) {
+          setRecurring(initialTask.recurring || 'None');
+          if (initialTask.time) {
+            setReminderTime(initialTask.time.slice(0, 5));
+            setNoSpecificTime(false);
+          } else {
+            setNoSpecificTime(true);
+            setReminderTime('12:00');
+          }
+        } else {
+          setDescription(initialTask.description || '');
+          setCategory(initialTask.category || 'General');
+          if (initialTask.start_time) {
+            setStartTime(initialTask.start_time.slice(0, 5));
+            setEndTime(initialTask.end_time ? initialTask.end_time.slice(0, 5) : '10:00');
+            setNoSpecificTime(false);
+          } else {
+            setNoSpecificTime(true);
+          }
+        }
+      } else {
+        if (initialTask && initialTask._type === 'reminder_new') {
+          setType('reminder');
+        } else {
+          setType('task');
+        }
+        setTitle('');
+        setDescription('');
+        setDate(initialDate ? (typeof initialDate === 'string' && initialDate.includes('-') ? initialDate : format(new Date(initialDate), 'yyyy-MM-dd')) : format(new Date(), 'yyyy-MM-dd'));
+        setPriority('Medium');
+        setCategory('General');
+        setStartTime('09:00');
+        setEndTime('10:00');
+        setReminderTime('12:00');
+        setRecurring('None');
+        setNoSpecificTime(false);
+      }
     }
-  }, [initialDate]);
+  }, [isOpen, initialTask, initialDate]);
 
   if (!isOpen) return null;
 
@@ -43,25 +89,37 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
     e.preventDefault();
     if (!title.trim()) return;
 
-    if (type === 'task' && onSaveTask) {
-      onSaveTask({
+    if (type === 'task') {
+      const taskPayload: any = {
         title,
         description,
         date,
-        start_time: startTime,
-        end_time: endTime,
+        start_time: noSpecificTime ? null : startTime,
+        end_time: noSpecificTime ? null : endTime,
         priority: priority.toLowerCase(),
         category,
         estimated_minutes: 60
-      });
+      };
+      
+      if (initialTask && onUpdateTask) {
+        onUpdateTask(initialTask.id as string, taskPayload);
+      } else if (onSaveTask) {
+        onSaveTask(taskPayload);
+      }
     } else if (type === 'reminder' && onSaveReminder) {
-      onSaveReminder({
+      const reminderPayload: any = {
         title,
         date,
-        time: reminderTime,
+        time: noSpecificTime ? null : reminderTime,
         priority: priority.toLowerCase(),
         recurring: recurring === 'None' ? undefined : recurring
-      });
+      };
+      
+      if (initialTask && initialTask._type === 'reminder' && onUpdateReminder) {
+        onUpdateReminder(initialTask.id as string, reminderPayload);
+      } else {
+        onSaveReminder(reminderPayload);
+      }
     }
 
     setTitle('');
@@ -74,23 +132,25 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
       <div className="glass-card w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center p-4 border-b border-border bg-surfaceHighlight/50">
           <h2 className="text-lg font-bold text-gray-100 flex items-center gap-2">
-            Add New 
-            <div className="flex bg-surface rounded-lg p-0.5 ml-2 border border-border">
-              <button 
-                type="button"
-                onClick={() => setType('task')}
-                className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'task' ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
-              >
-                Task
-              </button>
-              <button 
-                type="button"
-                onClick={() => setType('reminder')}
-                className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'reminder' ? "bg-warning text-white" : "text-gray-400 hover:text-gray-200")}
-              >
-                Reminder
-              </button>
-            </div>
+            {initialTask && initialTask._type !== 'reminder_new' ? `Edit ${initialTask._type === 'reminder' ? 'Reminder' : 'Task'}` : 'Add New'}
+            {(!initialTask || initialTask._type === 'reminder_new') && (
+              <div className="flex bg-surface rounded-lg p-0.5 ml-2 border border-border">
+                <button 
+                  type="button"
+                  onClick={() => setType('task')}
+                  className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'task' ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
+                >
+                  Task
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setType('reminder')}
+                  className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'reminder' ? "bg-warning text-white" : "text-gray-400 hover:text-gray-200")}
+                >
+                  Reminder
+                </button>
+              </div>
+            )}
           </h2>
           <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-100 transition-colors">
             <X className="w-5 h-5" />
@@ -130,40 +190,60 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
               </div>
             </div>
 
+            <div className="col-span-full sm:col-span-2 flex items-center mb-1">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-400 hover:text-gray-200 transition-colors">
+                <input 
+                  type="checkbox" 
+                  checked={noSpecificTime} 
+                  onChange={e => setNoSpecificTime(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded text-primary bg-background border-border focus:ring-primary/50 cursor-pointer"
+                />
+                No specific time
+              </label>
+            </div>
+
             {type === 'task' ? (
               <>
-                <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Start Time</label>
-                  <div className="relative">
-                    <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                    <input 
-                      type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
-                      className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">End Time</label>
-                  <div className="relative">
-                    <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                    <input 
-                      type="time" value={endTime} onChange={e => setEndTime(e.target.value)}
-                      className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                </div>
+                {!noSpecificTime && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-400 mb-1">Start Time</label>
+                      <div className="relative">
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <input 
+                          type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
+                          className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-400 mb-1">End Time</label>
+                      <div className="relative">
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <input 
+                          type="time" value={endTime} onChange={e => setEndTime(e.target.value)}
+                          className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             ) : (
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Time</label>
-                <div className="relative">
-                  <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                  <input 
-                    type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)}
-                    className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
+              <>
+                {!noSpecificTime && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1">Time</label>
+                    <div className="relative">
+                      <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                      <input 
+                        type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)}
+                        className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
           
@@ -222,7 +302,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
               Cancel
             </button>
             <button type="submit" className={cn("text-sm", type === 'task' ? "btn-primary" : "btn-warning")}>
-              Save {type === 'task' ? 'Task' : 'Reminder'}
+              {initialTask ? 'Save Changes' : `Save ${type === 'task' ? 'Task' : 'Reminder'}`}
             </button>
           </div>
         </form>
@@ -314,20 +394,35 @@ export const AddRoutineModal = ({
   onSave: (routine: any) => void 
 }) => {
   const [title, setTitle] = useState('');
-  const [time, setTime] = useState('08:00');
-  const [duration, setDuration] = useState('30');
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('10:00');
+  const [noSpecificTime, setNoSpecificTime] = useState(false);
   const [priority, setPriority] = useState('Medium');
+  const [errorMsg, setErrorMsg] = useState('');
   
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    
+    let finalStartTime = startTime;
+    let finalDuration = 30;
+
+    if (!noSpecificTime) {
+      const startMinutes = parseInt(startTime.split(':')[0]) * 60 + parseInt(startTime.split(':')[1]);
+      const endMinutes = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
+      
+      if (endMinutes <= startMinutes) {
+        setErrorMsg('End Time must be after Start Time');
+        return;
+      }
+      finalDuration = endMinutes - startMinutes;
+    }
+
     onSave({
       title,
-      time,
-      duration_minutes: parseInt(duration) || 30,
+      time: noSpecificTime ? null : finalStartTime,
+      duration_minutes: noSpecificTime ? null : finalDuration,
       priority: priority.toLowerCase(),
       enabled: true,
       days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] // default all days
@@ -335,9 +430,11 @@ export const AddRoutineModal = ({
     
     // Reset
     setTitle('');
-    setTime('08:00');
-    setDuration('30');
+    setStartTime('09:00');
+    setEndTime('10:00');
+    setNoSpecificTime(false);
     setPriority('Medium');
+    setErrorMsg('');
     onClose();
   };
 
@@ -366,26 +463,43 @@ export const AddRoutineModal = ({
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Time</label>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
               <input 
-                type="time" 
-                value={time} onChange={e => setTime(e.target.value)}
-                required
-                className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                type="checkbox" 
+                id="noSpecificTimeRoutine" 
+                checked={noSpecificTime} 
+                onChange={e => setNoSpecificTime(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-600 bg-surface text-primary focus:ring-primary focus:ring-offset-surfaceHighlight"
               />
+              <label htmlFor="noSpecificTimeRoutine" className="text-xs text-gray-300 select-none cursor-pointer">
+                No specific time
+              </label>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Duration (min)</label>
-              <input 
-                type="number" 
-                min="5" step="5"
-                value={duration} onChange={e => setDuration(e.target.value)}
-                required
-                className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary transition-all"
-              />
-            </div>
+
+            {!noSpecificTime && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1">Start Time</label>
+                  <input 
+                    type="time" 
+                    value={startTime} onChange={e => { setStartTime(e.target.value); setErrorMsg(''); }}
+                    required={!noSpecificTime}
+                    className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1">End Time</label>
+                  <input 
+                    type="time" 
+                    value={endTime} onChange={e => { setEndTime(e.target.value); setErrorMsg(''); }}
+                    required={!noSpecificTime}
+                    className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                  />
+                </div>
+              </div>
+            )}
+            {errorMsg && <p className="text-danger text-xs">{errorMsg}</p>}
           </div>
           
           <div>

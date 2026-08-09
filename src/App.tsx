@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { FocusProvider } from './contexts/FocusContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -14,6 +15,7 @@ import AIAssistant from './pages/AIAssistant';
 import Reports from './pages/Reports';
 import Goals from './pages/Goals';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -36,21 +38,24 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-          <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-          <Route path="/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-          <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
-          <Route path="/routine" element={<ProtectedRoute><Routines /></ProtectedRoute>} />
-          <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
-          <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
-          <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        </Routes>
+        <FocusProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+            <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+            <Route path="/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+            <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
+            <Route path="/routine" element={<ProtectedRoute><Routines /></ProtectedRoute>} />
+            <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
+            <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          </Routes>
+        </FocusProvider>
       </AuthProvider>
     </Router>
   );

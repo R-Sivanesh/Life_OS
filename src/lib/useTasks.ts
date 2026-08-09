@@ -5,14 +5,14 @@ import { useAuth } from '../contexts/AuthContext';
 export type Task = {
   id: string;
   user_id?: string;
-  routine_id?: string;
+  recurring?: string;
   title: string;
   description?: string;
   category: string;
   priority: string;
   date?: string;
-  start_time?: string;
-  end_time?: string;
+  start_time?: string | null;
+  end_time?: string | null;
   estimated_minutes?: number;
   actual_minutes?: number;
   completed: boolean;
@@ -41,33 +41,25 @@ export const useTasks = () => {
       fetchedTasks = data;
     }
 
-    // Sort tasks: Overdue -> High -> Nearest Time -> Medium -> Low
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    const currentTime = now.toTimeString().slice(0, 5);
+    const sortTasksChronologically = (a: Task, b: Task) => {
+      const dateA = a.date || '9999-99-99';
+      const dateB = b.date || '9999-99-99';
+      if (dateA !== dateB) return dateA.localeCompare(dateB);
 
-    const getPriorityWeight = (p: string) => {
-      if (p === 'high') return 3;
-      if (p === 'medium') return 2;
-      return 1;
+      const hasTimeA = Boolean(a.start_time);
+      const hasTimeB = Boolean(b.start_time);
+      
+      if (hasTimeA && hasTimeB) {
+        return (a.start_time as string).localeCompare(b.start_time as string);
+      }
+      
+      if (hasTimeA && !hasTimeB) return -1;
+      if (!hasTimeA && hasTimeB) return 1;
+      
+      return 0;
     };
 
-    fetchedTasks.sort((a, b) => {
-      const aIsOverdue = !a.completed && (a.date! < today || (a.date === today && a.end_time! < currentTime));
-      const bIsOverdue = !b.completed && (b.date! < today || (b.date === today && b.end_time! < currentTime));
-
-      if (aIsOverdue && !bIsOverdue) return -1;
-      if (!aIsOverdue && bIsOverdue) return 1;
-
-      const pWeightA = getPriorityWeight(a.priority);
-      const pWeightB = getPriorityWeight(b.priority);
-
-      if (pWeightA !== pWeightB) return pWeightB - pWeightA; // High to Low
-
-      const aTime = a.start_time || '23:59';
-      const bTime = b.start_time || '23:59';
-      return aTime.localeCompare(bTime);
-    });
+    fetchedTasks.sort(sortTasksChronologically);
 
     setTasks(fetchedTasks);
     setLoading(false);
@@ -90,8 +82,25 @@ export const useTasks = () => {
     };
 
     const { data, error } = await supabase.from('tasks').insert([newTask]).select();
-    if (!error && data) {
-      setTasks(prev => [data[0], ...prev]);
+    if (error) {
+      console.error('Error adding task:', error);
+      alert('Error saving task: ' + JSON.stringify(error));
+      return;
+    }
+    if (data) {
+      setTasks(prev => [...prev, data[0]].sort((a, b) => {
+        const dateA = a.date || '9999-99-99';
+        const dateB = b.date || '9999-99-99';
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+        const hasTimeA = Boolean(a.start_time);
+        const hasTimeB = Boolean(b.start_time);
+        if (hasTimeA && hasTimeB) return (a.start_time as string).localeCompare(b.start_time as string);
+        if (hasTimeA && !hasTimeB) return -1;
+        if (!hasTimeA && hasTimeB) return 1;
+        return 0;
+      }));
+      // Dispatch event so other components know a task was added
+      window.dispatchEvent(new Event('lifeos_tasks_updated'));
       return data[0];
     }
   };
@@ -100,7 +109,17 @@ export const useTasks = () => {
     if (!supabase) return;
     const { error } = await supabase.from('tasks').update(updates).eq('id', id);
     if (!error) {
-      setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+      setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t).sort((a, b) => {
+        const dateA = a.date || '9999-99-99';
+        const dateB = b.date || '9999-99-99';
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+        const hasTimeA = Boolean(a.start_time);
+        const hasTimeB = Boolean(b.start_time);
+        if (hasTimeA && hasTimeB) return (a.start_time as string).localeCompare(b.start_time as string);
+        if (hasTimeA && !hasTimeB) return -1;
+        if (!hasTimeA && hasTimeB) return 1;
+        return 0;
+      }));
     }
   };
 
@@ -137,7 +156,17 @@ export const useTasks = () => {
       .in('id', ids);
       
     if (!error) {
-      setTasks(prev => prev.map(t => ids.includes(t.id) ? { ...t, completed: false, status: 'pending', completed_at: undefined } : t));
+      setTasks(prev => prev.map(t => ids.includes(t.id) ? { ...t, completed: false, status: 'pending', completed_at: undefined } : t).sort((a, b) => {
+        const dateA = a.date || '9999-99-99';
+        const dateB = b.date || '9999-99-99';
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+        const hasTimeA = Boolean(a.start_time);
+        const hasTimeB = Boolean(b.start_time);
+        if (hasTimeA && hasTimeB) return (a.start_time as string).localeCompare(b.start_time as string);
+        if (hasTimeA && !hasTimeB) return -1;
+        if (!hasTimeA && hasTimeB) return 1;
+        return 0;
+      }));
     }
   };
 

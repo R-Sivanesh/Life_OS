@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useReminders } from '../lib/useReminders';
 import { Bell, Check, Edit2, Trash2, AlertCircle } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, formatTimeDisplay, openReminderModal } from '../lib/utils';
 import { format } from 'date-fns';
 
 const Reminders = () => {
@@ -13,12 +13,18 @@ const Reminders = () => {
 
   const pendingReminders = reminders.filter(r => !r.completed).sort((a, b) => {
     if (a.date !== b.date) return a.date.localeCompare(b.date);
-    return (a.time || '').localeCompare(b.time || '');
+    if (!a.time && b.time) return 1;
+    if (a.time && !b.time) return -1;
+    if (!a.time && !b.time) return 0;
+    return a.time!.localeCompare(b.time!);
   });
   
   const completedReminders = reminders.filter(r => r.completed).sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date);
-    return (b.time || '').localeCompare(a.time || '');
+    if (!a.time && b.time) return 1;
+    if (a.time && !b.time) return -1;
+    if (!a.time && !b.time) return 0;
+    return b.time!.localeCompare(a.time!); // Note: completed sorts reverse for time
   });
 
   const getPriorityColor = (priority: string) => {
@@ -60,13 +66,13 @@ const Reminders = () => {
                   <span className="font-medium text-sm text-gray-100 block truncate">{rem.title}</span>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-gray-500">{rem.date ? format(new Date(rem.date), 'MMM d, yyyy') : 'No date'}</span>
-                    {rem.time && <span className="text-xs text-gray-500">• {rem.time}</span>}
+                    {rem.time && <span className="text-xs text-gray-500">• {formatTimeDisplay(rem.time)}</span>}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 shrink-0 items-end">
                   <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border", getPriorityColor(rem.priority))}>{rem.priority}</span>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1 text-gray-500 hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => openReminderModal(undefined, rem)} className="p-1 text-gray-500 hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
                     <button onClick={() => deleteReminder(rem.id)} className="p-1 text-gray-500 hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>

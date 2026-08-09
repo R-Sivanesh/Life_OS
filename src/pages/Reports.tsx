@@ -3,7 +3,7 @@ import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 import { BarChart2, Calendar, CheckCircle2, Clock, LayoutGrid, Target, Zap, CircleDashed } from 'lucide-react';
 import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay, subDays } from 'date-fns';
-import { cn } from '../lib/utils';
+import { cn, formatTimeDisplay } from '../lib/utils';
 
 const Reports = () => {
   const { tasks, refresh: refreshTasks } = useTasks();
@@ -76,8 +76,8 @@ const Reports = () => {
       items.push({
         id: `t_${t.id}`,
         title: t.title,
-        time: t.start_time || '00:00',
-        formattedTime: t.start_time ? format(new Date(`${todayStr}T${t.start_time}`), 'hh:mm a') : 'Anytime',
+        time: t.start_time || '23:59',
+        formattedTime: t.start_time ? formatTimeDisplay(t.start_time) : 'No specific time',
         statusColor
       });
     });
@@ -87,7 +87,7 @@ const Reports = () => {
         id: `r_${r.id}`,
         title: r.title,
         time: r.time || '00:00',
-        formattedTime: r.time ? format(new Date(`${todayStr}T${r.time}`), 'hh:mm a') : 'Anytime',
+        formattedTime: r.time ? formatTimeDisplay(r.time) : 'Anytime',
         statusColor: r.completed ? 'bg-emerald-500' : (r.time && r.time < nowTime ? 'bg-red-500' : 'bg-amber-500')
       });
     });

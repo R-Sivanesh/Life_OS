@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import type { Routine } from './useRoutines';
 import type { Task } from './useTasks';
+import { format } from 'date-fns';
 
 const getUpcomingDates = () => {
   const dates = [];
@@ -26,16 +27,16 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
   const dates = getUpcomingDates();
   
   let existingTasks: Task[] = [];
-  const todayStr = dates[0].toISOString().split('T')[0];
+  const todayStr = format(dates[0], 'yyyy-MM-dd');
   const { data } = await supabase
     .from('tasks')
     .select('*')
-    .eq('routine_id', routine.id)
+    .eq('recurring', routine.id)
     .eq('user_id', userId)
     .gte('date', todayStr);
   if (data) existingTasks = data;
 
-  const requiredDates = dates.filter(d => shouldRunOnDate(routine, d)).map(d => d.toISOString().split('T')[0]);
+  const requiredDates = dates.filter(d => shouldRunOnDate(routine, d)).map(d => format(d, 'yyyy-MM-dd'));
   
   const tasksToDelete = existingTasks.filter(t => t.date && !requiredDates.includes(t.date) && !t.completed);
   const tasksToUpdate = existingTasks.filter(t => t.date && requiredDates.includes(t.date) && !t.completed);
@@ -71,7 +72,7 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
   if (tasksToInsertDates.length > 0) {
     const newTasks = tasksToInsertDates.map(date => ({
       user_id: userId,
-      routine_id: routine.id,
+      recurring: routine.id,
       title: routine.title,
       category: 'Routine',
       priority: routine.priority || 'medium',
@@ -88,11 +89,11 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
 
 export const deleteRoutineTasks = async (routineId: string, userId: string) => {
   if (!userId || !supabase) return;
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
   
   await supabase.from('tasks')
     .delete()
-    .eq('routine_id', routineId)
+    .eq('recurring', routineId)
     .eq('user_id', userId)
     .gte('date', todayStr)
     .eq('completed', false);
