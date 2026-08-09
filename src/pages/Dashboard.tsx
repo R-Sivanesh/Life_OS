@@ -103,18 +103,18 @@ const Dashboard = () => {
     switch (priority.toLowerCase()) {
       case 'high': return 'text-danger bg-danger/10 border-danger/20';
       case 'medium': return 'text-warning bg-warning/10 border-warning/20';
-      case 'low': return 'text-accent bg-accent/10 border-accent/20';
-      default: return 'text-gray-400 bg-surfaceHighlight border-border';
+      case 'low': return 'text-cyan bg-cyan/10 border-cyan/20';
+      default: return 'text-text-cyan bg-surface-elevated border-border';
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'health': return 'text-accent';
+      case 'health': return 'text-success';
       case 'learning': return 'text-primary';
-      case 'work': return 'text-secondary';
+      case 'work': return 'text-cyan';
       case 'personal': return 'text-warning';
-      default: return 'text-gray-400';
+      default: return 'text-text-cyan';
     }
   };
 
@@ -124,7 +124,7 @@ const Dashboard = () => {
       <div className={cn("glass-card flex items-center justify-between px-6 py-4 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
         {/* Circle Progress (LEFT) */}
         <div className="flex items-center gap-6 flex-1">
-          <div className="relative w-20 h-20 flex-shrink-0 rounded-full border-[6px] border-surfaceHighlight/40 flex items-center justify-center">
+          <div className="relative w-20 h-20 flex-shrink-0 rounded-full border-[6px] border-surface-elevated/40 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
               <circle 
                 cx="50" cy="50" r="40" 
@@ -147,20 +147,20 @@ const Dashboard = () => {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-black text-gray-100">{progressPercent}%</span>
+              <span className="text-xl font-black text-text-primary">{progressPercent}%</span>
             </div>
           </div>
           <div className="flex gap-8">
             <div>
-              <p className="text-xs text-gray-500 mb-1">Completed</p>
-              <p className="text-2xl font-bold text-accent">{completedToday}</p>
+              <p className="text-xs text-text-muted mb-1">Completed</p>
+              <p className="text-2xl font-bold text-success">{completedToday}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Total Tasks</p>
-              <p className="text-2xl font-bold text-secondary">{totalToday}</p>
+              <p className="text-xs text-text-muted mb-1">Total Tasks</p>
+              <p className="text-2xl font-bold text-cyan">{totalToday}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Remaining</p>
+              <p className="text-xs text-text-muted mb-1">Remaining</p>
               <p className="text-2xl font-bold text-warning">{totalToday - completedToday}</p>
             </div>
           </div>
@@ -169,7 +169,7 @@ const Dashboard = () => {
         {/* Focus Timer (CENTER) */}
         <div className="flex flex-col items-center justify-center flex-1 border-x border-border/50 px-6 mx-6">
           <span className="text-[10px] font-bold text-primary tracking-widest uppercase mb-1">Focus</span>
-          <span className="text-3xl font-black text-gray-100 tabular-nums leading-none mb-3 tracking-tight">
+          <span className="text-3xl font-black text-text-primary tabular-nums leading-none mb-3 tracking-tight">
             {formatTime(timeLeft)}
           </span>
           
@@ -185,13 +185,13 @@ const Dashboard = () => {
             )}
             
             {(isActive || isPaused) && (
-              <button onClick={handleReset} className="px-4 py-2 rounded-xl bg-surfaceHighlight text-gray-400 hover:text-gray-100 flex items-center gap-2 transition-colors text-xs font-bold">
+              <button onClick={handleReset} className="px-4 py-2 rounded-xl bg-surface-elevated text-text-cyan hover:text-text-primary flex items-center gap-2 transition-colors text-xs font-bold">
                 <Square className="w-3 h-3 fill-current" /> Stop
               </button>
             )}
             
             {!isActive && !isPaused && (
-              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surfaceHighlight/30 text-gray-400 text-xs font-medium">
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-elevated/30 text-text-cyan text-xs font-medium">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Ready to focus
               </div>
@@ -202,7 +202,7 @@ const Dashboard = () => {
         {/* Quote (RIGHT) */}
         <div className="flex flex-col items-start justify-center flex-1 pl-4">
            <div className="text-4xl text-primary/20 leading-none mb-1 font-serif">"</div>
-           <p className="text-sm text-gray-300 leading-relaxed font-medium pr-4">
+           <p className="text-sm text-text-cyan leading-relaxed font-medium pr-4">
              {quote}
            </p>
            <p className="text-[11px] text-primary mt-3 flex items-center gap-2">
@@ -219,7 +219,7 @@ const Dashboard = () => {
           {/* Today's Tasks */}
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="p-6 border-b border-border/50 flex justify-between items-center">
-              <h3 className="text-gray-100 font-bold">Today's Tasks</h3>
+              <h3 className="text-text-primary font-bold">Today's Tasks</h3>
               <button onClick={() => openTaskModal(todayString)} className="btn-primary text-xs py-1.5 px-3 rounded-lg shadow-glow flex items-center gap-1">
                 <Plus className="w-3.5 h-3.5" /> Add Task
               </button>
@@ -231,10 +231,10 @@ const Dashboard = () => {
                   <h4 className="text-[10px] font-bold text-primary mb-3 uppercase tracking-wider">Pending ({pendingToday.length})</h4>
                   <div className="space-y-1">
                     {pendingToday.map(task => (
-                      <div key={task.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surfaceHighlight/50 transition-colors group border border-transparent">
+                      <div key={task.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-elevated/50 transition-colors group border border-transparent">
                         <button 
                           onClick={() => completeTask(task.id)}
-                          className="w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0 border-gray-500 hover:border-accent text-transparent hover:text-accent/50"
+                          className="w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0 border-border hover:border-success text-transparent hover:text-success/50"
                         >
                           <Check className="w-2.5 h-2.5" strokeWidth={3} />
                         </button>
@@ -242,7 +242,7 @@ const Dashboard = () => {
                           <span className="w-32 text-xs text-primary/80 shrink-0">
                             {formatTaskTimeRange(task.start_time, task.end_time)}
                           </span>
-                          <span className="font-medium text-sm transition-colors flex-1 text-gray-100 truncate">
+                          <span className="font-medium text-sm transition-colors flex-1 text-text-primary truncate">
                             {task.title}
                           </span>
                           <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
@@ -253,7 +253,7 @@ const Dashboard = () => {
                           </span>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-gray-500 hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-text-muted hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
                         </div>
                       </div>
                     ))}
@@ -263,21 +263,21 @@ const Dashboard = () => {
 
               {completedTodayTasks.length > 0 && (
                 <div>
-                  <h4 className="text-[10px] font-bold text-accent mb-3 uppercase tracking-wider">Completed ({completedTodayTasks.length})</h4>
+                  <h4 className="text-[10px] font-bold text-success mb-3 uppercase tracking-wider">Completed ({completedTodayTasks.length})</h4>
                   <div className="space-y-1">
                     {completedTodayTasks.map(task => (
-                      <div key={task.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surfaceHighlight/50 transition-colors group border border-transparent">
+                      <div key={task.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-elevated/50 transition-colors group border border-transparent">
                         <button 
                           onClick={() => uncompleteTask(task.id)}
-                          className="w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0 bg-accent border-accent text-background"
+                          className="w-4 h-4 rounded-full flex items-center justify-center border transition-colors shrink-0 bg-success border-success text-background"
                         >
                           <Check className="w-2.5 h-2.5" strokeWidth={3} />
                         </button>
                         <div className="flex-1 flex items-center gap-4 min-w-0">
-                          <span className="w-32 text-xs text-gray-600 shrink-0 line-through">
+                          <span className="w-32 text-xs text-text-muted shrink-0 line-through">
                             {formatTaskTimeRange(task.start_time, task.end_time)}
                           </span>
-                          <span className="font-medium text-sm transition-colors flex-1 text-gray-600 line-through truncate">
+                          <span className="font-medium text-sm transition-colors flex-1 text-text-muted line-through truncate">
                             {task.title}
                           </span>
                           <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center opacity-50", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
@@ -288,7 +288,7 @@ const Dashboard = () => {
                           </span>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-gray-500 hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-text-muted hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
                         </div>
                       </div>
                     ))}
@@ -297,7 +297,7 @@ const Dashboard = () => {
               )}
 
               {todayTasks.length === 0 && (
-                <div className="py-8 flex flex-col items-center justify-center text-gray-500">
+                <div className="py-8 flex flex-col items-center justify-center text-text-muted">
                   <Check className="w-8 h-8 mb-2 opacity-20" />
                   <p className="text-sm">No tasks scheduled for today.</p>
                 </div>
@@ -324,7 +324,7 @@ const Dashboard = () => {
       {/* Main Grid Row 2 - Upcoming Reminders */}
       <div className="glass-card flex flex-col overflow-hidden">
         <div className="p-6 border-b border-border/50 flex justify-between items-center">
-          <h3 className="text-gray-100 font-bold">Upcoming Reminders</h3>
+          <h3 className="text-text-primary font-bold">Upcoming Reminders</h3>
           <button className="text-xs text-primary hover:text-primary-hover font-medium">
             View All &rarr;
           </button>
@@ -332,13 +332,13 @@ const Dashboard = () => {
         
         <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {upcomingReminders.length > 0 ? upcomingReminders.map(rem => (
-            <div key={rem.id} className="flex items-start gap-3 p-4 rounded-xl bg-surfaceHighlight/50 border border-border/50 relative group">
+            <div key={rem.id} className="flex items-start gap-3 p-4 rounded-xl bg-surface-elevated/50 border border-border/50 relative group">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
                 <Bell className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-gray-100 truncate">{rem.title}</h4>
-                <p className="text-xs text-gray-500 mt-1">{isToday(new Date(rem.date)) ? 'Today' : format(new Date(rem.date), 'MMM d')}, {formatTimeDisplay(rem.time)}</p>
+                <h4 className="text-sm font-bold text-text-primary truncate">{rem.title}</h4>
+                <p className="text-xs text-text-muted mt-1">{isToday(new Date(rem.date)) ? 'Today' : format(new Date(rem.date), 'MMM d')}, {formatTimeDisplay(rem.time)}</p>
               </div>
               <span className={cn("text-[10px] uppercase font-bold", getPriorityColor(rem.priority).split(' ')[0])}>
                 {rem.priority}
@@ -347,7 +347,7 @@ const Dashboard = () => {
               <div className="relative">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setActiveReminderMenu(activeReminderMenu === rem.id ? null : rem.id); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-primary transition-all"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-primary transition-all"
                 >
                   <div className="flex flex-col gap-0.5 pointer-events-none">
                     <div className="w-1 h-1 bg-current rounded-full" />
@@ -356,10 +356,10 @@ const Dashboard = () => {
                   </div>
                 </button>
                 {activeReminderMenu === rem.id && (
-                  <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-surfaceHighlight border border-border rounded-xl shadow-xl z-20 py-1 flex flex-col overflow-hidden">
+                  <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-surface-elevated border border-border rounded-xl shadow-xl z-20 py-1 flex flex-col overflow-hidden">
                     <button 
                       onClick={(e) => { e.stopPropagation(); openReminderModal(undefined, rem); setActiveReminderMenu(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-surface transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-surface transition-colors flex items-center gap-2"
                     >
                       <Edit2 className="w-3.5 h-3.5" /> Edit
                     </button>
@@ -374,7 +374,7 @@ const Dashboard = () => {
               </div>
             </div>
           )) : (
-            <div className="col-span-full py-8 text-center text-sm text-gray-500">
+            <div className="col-span-full py-8 text-center text-sm text-text-muted">
               No upcoming reminders.
             </div>
           )}

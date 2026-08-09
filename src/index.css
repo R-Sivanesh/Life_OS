@@ -2,8 +2,38 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  :root {
+    --background: #02040A;
+    --sidebar: #030712;
+    --surface: #050A14;
+    --surface-secondary: #071020;
+    --surface-elevated: #09152A;
+    --surface-selected: #0B1D3A;
+    
+    --border: #0D2345;
+    --border-strong: #12396B;
+    
+    --text-primary: #F4F8FF;
+    --text-secondary: #8FA6C6;
+    --text-muted: #526987;
+    
+    --primary: #1683FF;
+    --primary-hover: #2495FF;
+    
+    --cyan: #00B8FF;
+    --cyan-hover: #0096CC;
+    
+    --success: #10B981;
+    --success-hover: #059669;
+    
+    --warning: #F59E0B;
+    
+    --danger: #F43F5E;
+    --danger-hover: #E11D48;
+  }
+
   body {
-    @apply bg-background text-gray-100 font-sans antialiased overflow-hidden selection:bg-primary selection:text-white;
+    @apply bg-background text-text-primary font-sans antialiased overflow-hidden selection:bg-primary selection:text-white;
   }
 }
 
@@ -13,7 +43,7 @@
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-glow;
+    @apply bg-gradient-to-r from-primary to-cyan text-white font-semibold rounded-xl px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-glow;
   }
 }
 
@@ -23,12 +53,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B132B;
+  background: var(--surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1A2A50;
+  background: var(--surface-elevated);
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1E3A8A;
+  background: var(--surface-selected);
 }

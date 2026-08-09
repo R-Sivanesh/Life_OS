@@ -22,9 +22,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (loading) return (
     <div className="h-screen w-screen flex flex-col items-center justify-center bg-background relative overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan/20 blur-[120px] pointer-events-none" />
       
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow mb-6 animate-pulse">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-cyan flex items-center justify-center shadow-glow mb-6 animate-pulse">
         <span className="text-3xl font-black text-white">L</span>
       </div>
       <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />

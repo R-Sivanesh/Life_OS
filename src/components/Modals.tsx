@@ -130,68 +130,68 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="glass-card w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex justify-between items-center p-4 border-b border-border bg-surfaceHighlight/50">
-          <h2 className="text-lg font-bold text-gray-100 flex items-center gap-2">
+        <div className="flex justify-between items-center p-4 border-b border-border bg-surface-elevated/50">
+          <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
             {initialTask && initialTask._type !== 'reminder_new' ? `Edit ${initialTask._type === 'reminder' ? 'Reminder' : 'Task'}` : 'Add New'}
             {(!initialTask || initialTask._type === 'reminder_new') && (
               <div className="flex bg-surface rounded-lg p-0.5 ml-2 border border-border">
                 <button 
                   type="button"
                   onClick={() => setType('task')}
-                  className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'task' ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
+                  className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'task' ? "bg-primary text-white" : "text-text-cyan hover:text-text-primary")}
                 >
                   Task
                 </button>
                 <button 
                   type="button"
                   onClick={() => setType('reminder')}
-                  className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'reminder' ? "bg-warning text-white" : "text-gray-400 hover:text-gray-200")}
+                  className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", type === 'reminder' ? "bg-warning text-white" : "text-text-cyan hover:text-text-primary")}
                 >
                   Reminder
                 </button>
               </div>
             )}
           </h2>
-          <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-100 transition-colors">
+          <button onClick={onClose} className="p-1 text-text-muted hover:text-text-primary transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-1">{type === 'task' ? 'Task Name' : 'Reminder Title'}</label>
+            <label className="block text-xs font-medium text-text-cyan mb-1">{type === 'task' ? 'Task Name' : 'Reminder Title'}</label>
             <input 
               type="text" value={title} onChange={e => setTitle(e.target.value)} required
               placeholder={type === 'task' ? "e.g. Learn Backend Development" : "e.g. Call Mom"} 
-              className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-gray-100 placeholder-gray-600 focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
           {type === 'task' && (
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Description (optional)</label>
+              <label className="block text-xs font-medium text-text-cyan mb-1">Description (optional)</label>
               <textarea 
                 value={description} onChange={e => setDescription(e.target.value)}
                 placeholder="Add details..." rows={2}
-                className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-gray-100 placeholder-gray-600 focus:outline-none focus:border-primary transition-colors resize-none"
+                className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors resize-none"
               />
             </div>
           )}
           
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Date</label>
+              <label className="block text-xs font-medium text-text-cyan mb-1">Date</label>
               <div className="relative">
-                <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input 
                   type="date" value={date} onChange={e => setDate(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                  className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             <div className="col-span-full sm:col-span-2 flex items-center mb-1">
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-400 hover:text-gray-200 transition-colors">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-text-cyan hover:text-text-primary transition-colors">
                 <input 
                   type="checkbox" 
                   checked={noSpecificTime} 
@@ -207,22 +207,22 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
                 {!noSpecificTime && (
                   <>
                     <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1">Start Time</label>
+                      <label className="block text-xs font-medium text-text-cyan mb-1">Start Time</label>
                       <div className="relative">
-                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input 
                           type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
-                          className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                          className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1">End Time</label>
+                      <label className="block text-xs font-medium text-text-cyan mb-1">End Time</label>
                       <div className="relative">
-                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input 
                           type="time" value={endTime} onChange={e => setEndTime(e.target.value)}
-                          className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                          className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                         />
                       </div>
                     </div>
@@ -233,12 +233,12 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
               <>
                 {!noSpecificTime && (
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1">Time</label>
+                    <label className="block text-xs font-medium text-text-cyan mb-1">Time</label>
                     <div className="relative">
-                      <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                      <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                       <input 
                         type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)}
-                        className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+                        className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -249,12 +249,12 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
           
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Priority</label>
+              <label className="block text-xs font-medium text-text-cyan mb-1">Priority</label>
               <div className="relative">
-                <AlertCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <AlertCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <select 
                   value={priority} onChange={e => setPriority(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-3 text-sm text-gray-100 focus:outline-none focus:border-primary appearance-none"
+                  className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-3 text-sm text-text-primary focus:outline-none focus:border-primary appearance-none"
                 >
                   <option>High</option>
                   <option>Medium</option>
@@ -265,12 +265,12 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
 
             {type === 'task' ? (
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Category</label>
+                <label className="block text-xs font-medium text-text-cyan mb-1">Category</label>
                 <div className="relative">
-                  <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                   <select 
                     value={category} onChange={e => setCategory(e.target.value)}
-                    className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-3 text-sm text-gray-100 focus:outline-none focus:border-primary appearance-none"
+                    className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-3 text-sm text-text-primary focus:outline-none focus:border-primary appearance-none"
                   >
                     <option>Work</option>
                     <option>Health</option>
@@ -283,10 +283,10 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
               </div>
             ) : (
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Repeat</label>
+                <label className="block text-xs font-medium text-text-cyan mb-1">Repeat</label>
                 <select 
                   value={recurring} onChange={e => setRecurring(e.target.value)}
-                  className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-sm text-gray-100 focus:outline-none focus:border-primary appearance-none"
+                  className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-sm text-text-primary focus:outline-none focus:border-primary appearance-none"
                 >
                   <option>None</option>
                   <option>Daily</option>
@@ -298,7 +298,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
           </div>
           
           <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-border">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-surfaceHighlight transition-colors">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-text-cyan hover:text-text-primary hover:bg-surface-elevated transition-colors">
               Cancel
             </button>
             <button type="submit" className={cn("text-sm", type === 'task' ? "btn-primary" : "btn-warning")}>
@@ -333,45 +333,45 @@ export const ResetTasksModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-surfaceHighlight border border-border w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-surface-elevated border border-border w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center p-6 border-b border-border/50">
-          <h2 className="text-lg font-bold text-gray-100 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
             <span className="text-warning text-xl">⚠️</span> Reset Completed Tasks
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-200 transition-colors">
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-3">Which tasks do you want to reset?</label>
+            <label className="block text-sm font-medium text-text-cyan mb-3">Which tasks do you want to reset?</label>
             <div className="flex flex-col gap-3">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <input type="radio" checked={scope === 'today'} onChange={() => setScope('today')} className="w-4 h-4 text-primary bg-background border-border focus:ring-primary/50" />
-                <span className="text-gray-300 group-hover:text-gray-100 transition-colors">Today's Completed Tasks</span>
+                <span className="text-text-cyan group-hover:text-text-primary transition-colors">Today's Completed Tasks</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer group">
                 <input type="radio" checked={scope === 'all'} onChange={() => setScope('all')} className="w-4 h-4 text-warning bg-background border-border focus:ring-warning/50" />
-                <span className="text-gray-300 group-hover:text-gray-100 transition-colors">All Completed Tasks (Entire History)</span>
+                <span className="text-text-cyan group-hover:text-text-primary transition-colors">All Completed Tasks (Entire History)</span>
               </label>
             </div>
           </div>
           
           <div className="pt-2">
-            <label className="block text-sm font-medium text-gray-400 mb-1">Enter your password to confirm</label>
+            <label className="block text-sm font-medium text-text-cyan mb-1">Enter your password to confirm</label>
             <input 
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-warning focus:ring-1 focus:ring-warning transition-all"
+              className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-warning focus:ring-1 focus:ring-warning transition-all"
             />
           </div>
           
           <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-border">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-surface transition-colors">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-text-cyan hover:text-text-primary hover:bg-surface transition-colors">
               Cancel
             </button>
             <button type="submit" disabled={!password} className="btn-warning text-sm disabled:opacity-50 disabled:cursor-not-allowed">
@@ -387,24 +387,75 @@ export const ResetTasksModal = ({
 export const AddRoutineModal = ({ 
   isOpen, 
   onClose, 
-  onSave 
+  onSave,
+  initialRoutine
 }: { 
   isOpen: boolean, 
   onClose: () => void, 
-  onSave: (routine: any) => void 
+  onSave: (routine: any, id?: string) => void,
+  initialRoutine?: any
 }) => {
   const [title, setTitle] = useState('');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
   const [noSpecificTime, setNoSpecificTime] = useState(false);
   const [priority, setPriority] = useState('Medium');
+  const [days, setDays] = useState<string[]>(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
   const [errorMsg, setErrorMsg] = useState('');
   
+  React.useEffect(() => {
+    if (isOpen) {
+      if (initialRoutine) {
+        setTitle(initialRoutine.title || '');
+        setPriority(initialRoutine.priority ? initialRoutine.priority.charAt(0).toUpperCase() + initialRoutine.priority.slice(1) : 'Medium');
+        setDays(initialRoutine.days || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+        if (initialRoutine.time) {
+          setStartTime(initialRoutine.time.slice(0, 5));
+          if (initialRoutine.duration_minutes) {
+            const [h, m] = initialRoutine.time.split(':').map(Number);
+            const date = new Date();
+            date.setHours(h, m + initialRoutine.duration_minutes, 0);
+            setEndTime(date.toTimeString().slice(0, 5));
+          } else {
+            setEndTime('10:00');
+          }
+          setNoSpecificTime(false);
+        } else {
+          setNoSpecificTime(true);
+          setStartTime('09:00');
+          setEndTime('10:00');
+        }
+      } else {
+        setTitle('');
+        setStartTime('09:00');
+        setEndTime('10:00');
+        setNoSpecificTime(false);
+        setPriority('Medium');
+        setDays(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+      }
+      setErrorMsg('');
+    }
+  }, [isOpen, initialRoutine]);
+
   if (!isOpen) return null;
+
+  const toggleDay = (day: string) => {
+    setDays(prev => 
+      prev.includes(day) 
+        ? prev.filter(d => d !== day)
+        : [...prev, day]
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+    
+    if (days.length === 0) {
+      setErrorMsg('Please select at least one day');
+      return;
+    }
+
     let finalStartTime = startTime;
     let finalDuration = 30;
 
@@ -424,42 +475,35 @@ export const AddRoutineModal = ({
       time: noSpecificTime ? null : finalStartTime,
       duration_minutes: noSpecificTime ? null : finalDuration,
       priority: priority.toLowerCase(),
-      enabled: true,
-      days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] // default all days
-    });
+      enabled: initialRoutine ? initialRoutine.enabled : true,
+      days: days
+    }, initialRoutine?.id);
     
-    // Reset
-    setTitle('');
-    setStartTime('09:00');
-    setEndTime('10:00');
-    setNoSpecificTime(false);
-    setPriority('Medium');
-    setErrorMsg('');
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-surfaceHighlight border border-border w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-surface-elevated border border-border w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center p-6 border-b border-border/50">
-          <h2 className="text-lg font-bold text-gray-100 flex items-center gap-2">
-            New Daily Routine
+          <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+            {initialRoutine ? 'Edit Daily Routine' : 'New Daily Routine'}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-200 transition-colors">
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-1">Routine Title</label>
+            <label className="block text-xs font-medium text-text-cyan mb-1">Routine Title</label>
             <input 
               type="text" 
               value={title} onChange={e => setTitle(e.target.value)}
               placeholder="e.g. Morning Workout"
               autoFocus
               required
-              className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             />
           </div>
           
@@ -470,9 +514,9 @@ export const AddRoutineModal = ({
                 id="noSpecificTimeRoutine" 
                 checked={noSpecificTime} 
                 onChange={e => setNoSpecificTime(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-600 bg-surface text-primary focus:ring-primary focus:ring-offset-surfaceHighlight"
+                className="w-4 h-4 rounded border-border bg-surface text-primary focus:ring-primary focus:ring-offset-surface-elevated"
               />
-              <label htmlFor="noSpecificTimeRoutine" className="text-xs text-gray-300 select-none cursor-pointer">
+              <label htmlFor="noSpecificTimeRoutine" className="text-xs text-text-cyan select-none cursor-pointer">
                 No specific time
               </label>
             </div>
@@ -480,21 +524,21 @@ export const AddRoutineModal = ({
             {!noSpecificTime && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">Start Time</label>
+                  <label className="block text-xs font-medium text-text-cyan mb-1">Start Time</label>
                   <input 
                     type="time" 
                     value={startTime} onChange={e => { setStartTime(e.target.value); setErrorMsg(''); }}
                     required={!noSpecificTime}
-                    className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                    className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1">End Time</label>
+                  <label className="block text-xs font-medium text-text-cyan mb-1">End Time</label>
                   <input 
                     type="time" 
                     value={endTime} onChange={e => { setEndTime(e.target.value); setErrorMsg(''); }}
                     required={!noSpecificTime}
-                    className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                    className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -503,19 +547,38 @@ export const AddRoutineModal = ({
           </div>
           
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-1">Priority</label>
+            <label className="block text-xs font-medium text-text-cyan mb-1">Priority</label>
             <select 
               value={priority} onChange={e => setPriority(e.target.value)}
-              className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary appearance-none"
+              className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary appearance-none"
             >
               <option>High</option>
               <option>Medium</option>
               <option>Low</option>
             </select>
           </div>
+
+          <div>
+            <label className="block text-xs font-medium text-text-cyan mb-2">Days</label>
+            <div className="flex justify-between gap-1">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <button 
+                  key={day}
+                  type="button"
+                  onClick={() => toggleDay(day)}
+                  className={cn(
+                    "px-1 sm:px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex-1 text-center",
+                    days.includes(day) ? "bg-primary text-white border-primary" : "bg-surface border border-border text-text-muted hover:text-text-primary hover:border-primary/50"
+                  )}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+          </div>
           
           <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-border">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-gray-100 hover:bg-surface transition-colors">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-text-cyan hover:text-text-primary hover:bg-surface transition-colors">
               Cancel
             </button>
             <button type="submit" disabled={!title} className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed">

@@ -49,15 +49,15 @@ const Login = () => {
     <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan/20 blur-[120px] pointer-events-none" />
 
       <div className="glass-card w-full max-w-md p-8 relative z-10">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-glow mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-cyan flex items-center justify-center shadow-glow mb-4">
             <span className="text-3xl font-black text-white">L</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-100 tracking-tight">Life OS</h1>
-          <p className="text-gray-500 text-sm mt-1">Your life. Your rules.</p>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Life OS</h1>
+          <p className="text-text-muted text-sm mt-1">Your life. Your rules.</p>
         </div>
 
         {error && (
@@ -69,14 +69,14 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-500 ml-1">Name</label>
+              <label className="text-xs font-medium text-text-muted ml-1">Name</label>
               <div className="relative">
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full bg-surfaceHighlight border border-border rounded-xl py-2.5 px-4 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-surface-elevated border border-border rounded-xl py-2.5 px-4 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
                   placeholder="John Doe"
                 />
               </div>
@@ -84,36 +84,36 @@ const Login = () => {
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-500 ml-1">Email</label>
+            <label className="text-xs font-medium text-text-muted ml-1">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-surfaceHighlight border border-border rounded-xl py-2.5 pl-10 pr-4 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                className="w-full bg-surface-elevated border border-border rounded-xl py-2.5 pl-10 pr-4 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
                 placeholder="you@example.com"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-500 ml-1">Password</label>
+            <label className="text-xs font-medium text-text-muted ml-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-surfaceHighlight border border-border rounded-xl py-2.5 pl-10 pr-10 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                className="w-full bg-surface-elevated border border-border rounded-xl py-2.5 pl-10 pr-10 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-100 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -122,15 +122,15 @@ const Login = () => {
 
           {!isLogin && (
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-500 ml-1">Confirm Password</label>
+              <label className="text-xs font-medium text-text-muted ml-1">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full bg-surfaceHighlight border border-border rounded-xl py-2.5 pl-10 pr-10 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-surface-elevated border border-border rounded-xl py-2.5 pl-10 pr-10 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
                   placeholder="••••••••"
                 />
               </div>
@@ -143,9 +143,9 @@ const Login = () => {
                 <input
                   type="checkbox"
                   defaultChecked={true}
-                  className="rounded border-gray-600 bg-surfaceHighlight text-primary focus:ring-primary focus:ring-offset-background"
+                  className="rounded border-border bg-surface-elevated text-primary focus:ring-primary focus:ring-offset-background"
                 />
-                <span className="text-sm text-gray-500 group-hover:text-gray-300 transition-colors">Remember Me</span>
+                <span className="text-sm text-text-muted group-hover:text-text-cyan transition-colors">Remember Me</span>
               </label>
               <button 
                 type="button" 
@@ -169,7 +169,7 @@ const Login = () => {
             
             <div className="relative flex items-center py-2">
               <div className="flex-grow border-t border-border"></div>
-              <span className="flex-shrink-0 mx-4 text-gray-500 text-xs uppercase tracking-wider">or</span>
+              <span className="flex-shrink-0 mx-4 text-text-muted text-xs uppercase tracking-wider">or</span>
               <div className="flex-grow border-t border-border"></div>
             </div>
 
@@ -177,7 +177,7 @@ const Login = () => {
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full bg-surfaceHighlight hover:bg-surfaceHighlight/80 border border-border rounded-xl py-3 px-4 text-gray-100 font-medium transition-colors flex items-center justify-center gap-3"
+              className="w-full bg-surface-elevated hover:bg-surface-elevated/80 border border-border rounded-xl py-3 px-4 text-text-primary font-medium transition-colors flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -190,7 +190,7 @@ const Login = () => {
           </div>
         </form>
 
-        <div className="mt-8 text-center text-sm text-gray-500">
+        <div className="mt-8 text-center text-sm text-text-muted">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
             onClick={() => { setIsLogin(!isLogin); setError(''); }}

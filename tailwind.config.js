@@ -7,28 +7,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#040914',
-        surface: '#0B132B',
-        surfaceHighlight: '#1A2A50',
-        border: '#1E3A8A',
+        background: 'var(--background)',
+        sidebar: 'var(--sidebar)',
+        surface: 'var(--surface)',
+        'surface-secondary': 'var(--surface-secondary)',
+        'surface-elevated': 'var(--surface-elevated)',
+        'surface-selected': 'var(--surface-selected)',
+        border: 'var(--border)',
+        'border-strong': 'var(--border-strong)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted': 'var(--text-muted)',
         primary: {
-          DEFAULT: '#3B82F6',
-          hover: '#2563EB',
+          DEFAULT: 'var(--primary)',
+          hover: 'var(--primary-hover)',
         },
-        secondary: {
-          DEFAULT: '#06B6D4',
-          hover: '#0891B2',
+        cyan: {
+          DEFAULT: 'var(--cyan)',
+          hover: 'var(--cyan-hover)',
         },
-        accent: {
-          DEFAULT: '#10b981',
-          hover: '#059669',
+        success: {
+          DEFAULT: 'var(--success)',
+          hover: 'var(--success-hover)',
         },
         danger: {
-          DEFAULT: '#f43f5e',
-          hover: '#e11d48',
+          DEFAULT: 'var(--danger)',
+          hover: 'var(--danger-hover)',
         },
         warning: {
-          DEFAULT: '#f59e0b',
+          DEFAULT: 'var(--warning)',
         }
       },
       fontFamily: {

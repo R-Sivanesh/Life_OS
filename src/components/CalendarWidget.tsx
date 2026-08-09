@@ -44,19 +44,19 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   return (
     <div className="glass-card p-6 border-border">
       <div className="flex justify-between items-center mb-6">
-        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-surfaceHighlight rounded-lg text-gray-500 transition-colors">
+        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-surface-elevated rounded-lg text-text-muted transition-colors">
           <ChevronLeft className="w-5 h-5"/>
         </button>
-        <h3 className="text-gray-100 font-bold text-lg">{format(currentMonth, 'MMMM yyyy')}</h3>
+        <h3 className="text-text-primary font-bold text-lg">{format(currentMonth, 'MMMM yyyy')}</h3>
         <div className="flex gap-2">
-          <button onClick={() => setCurrentMonth(new Date())} className="text-xs px-3 py-1 rounded bg-surfaceHighlight hover:bg-border text-gray-100 transition-colors">Today</button>
-          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-surfaceHighlight rounded-lg text-gray-500 transition-colors">
+          <button onClick={() => setCurrentMonth(new Date())} className="text-xs px-3 py-1 rounded bg-surface-elevated hover:bg-border text-text-primary transition-colors">Today</button>
+          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-surface-elevated rounded-lg text-text-muted transition-colors">
             <ChevronRight className="w-5 h-5"/>
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-gray-500 font-medium">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-text-muted font-medium">
         {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => <div key={d}>{d}</div>)}
       </div>
       
@@ -79,14 +79,14 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
               }}
               className={cn(
                 "aspect-square flex items-center justify-center rounded-full cursor-pointer transition-all relative",
-                !isCurrentMonth ? "text-gray-600" : "text-gray-300 hover:bg-surfaceHighlight",
-                isSelected && !isCurrentToday && "bg-surfaceHighlight border border-border text-gray-100 font-bold",
+                !isCurrentMonth ? "text-text-muted" : "text-text-cyan hover:bg-surface-elevated",
+                isSelected && !isCurrentToday && "bg-surface-elevated border border-border text-text-primary font-bold",
                 isCurrentToday && "bg-primary text-white font-bold shadow-glow"
               )}>
               {format(day, 'd')}
               
               <div className="absolute bottom-1 flex gap-0.5">
-                {hasTasks && <div className="w-1 h-1 rounded-full bg-accent" />}
+                {hasTasks && <div className="w-1 h-1 rounded-full bg-success" />}
                 {hasReminders && <div className="w-1 h-1 rounded-full bg-warning" />}
               </div>
             </div>
@@ -94,10 +94,10 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         })}
       </div>
       
-      <div className="mt-4 pt-4 border-t border-border flex justify-between text-[10px] text-gray-500">
-        <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-accent" /> Task</span>
+      <div className="mt-4 pt-4 border-t border-border flex justify-between text-[10px] text-text-muted">
+        <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-success" /> Task</span>
         <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-warning" /> Reminder</span>
-        <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-secondary" /> Event</span>
+        <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-cyan" /> Event</span>
         <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Journal</span>
       </div>
     </div>

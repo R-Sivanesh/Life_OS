@@ -25,7 +25,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-100">My Profile</h1>
+        <h1 className="text-2xl font-bold text-text-primary">My Profile</h1>
       </div>
 
       <div className="glass-card p-8 flex flex-col gap-8 max-w-3xl">
@@ -38,42 +38,42 @@ const Profile = () => {
             )}
           </div>
           <div>
-            <h2 className="text-3xl font-black text-gray-100">{user.name}</h2>
-            <p className="text-gray-400 flex items-center gap-2 mt-1">
+            <h2 className="text-3xl font-black text-text-primary">{user.name}</h2>
+            <p className="text-text-cyan flex items-center gap-2 mt-1">
               <Shield className="w-4 h-4 text-primary" /> Member
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <div className="bg-surfaceHighlight/50 border border-border/50 rounded-2xl p-5 flex items-start gap-4">
+          <div className="bg-surface-elevated/50 border border-border/50 rounded-2xl p-5 flex items-start gap-4">
             <div className="p-3 bg-primary/10 rounded-xl">
               <User className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Full Name</p>
-              <p className="text-lg font-bold text-gray-100 mt-1">{user.name}</p>
+              <p className="text-sm font-medium text-text-muted">Full Name</p>
+              <p className="text-lg font-bold text-text-primary mt-1">{user.name}</p>
             </div>
           </div>
 
-          <div className="bg-surfaceHighlight/50 border border-border/50 rounded-2xl p-5 flex items-start gap-4">
-            <div className="p-3 bg-secondary/10 rounded-xl">
-              <Mail className="w-6 h-6 text-secondary" />
+          <div className="bg-surface-elevated/50 border border-border/50 rounded-2xl p-5 flex items-start gap-4">
+            <div className="p-3 bg-cyan/10 rounded-xl">
+              <Mail className="w-6 h-6 text-cyan" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Email Address</p>
-              <p className="text-lg font-bold text-gray-100 mt-1">{user.email}</p>
+              <p className="text-sm font-medium text-text-muted">Email Address</p>
+              <p className="text-lg font-bold text-text-primary mt-1">{user.email}</p>
             </div>
           </div>
 
           {createdAt && (
-            <div className="bg-surfaceHighlight/50 border border-border/50 rounded-2xl p-5 flex items-start gap-4">
-              <div className="p-3 bg-accent/10 rounded-xl">
-                <Calendar className="w-6 h-6 text-accent" />
+            <div className="bg-surface-elevated/50 border border-border/50 rounded-2xl p-5 flex items-start gap-4">
+              <div className="p-3 bg-success/10 rounded-xl">
+                <Calendar className="w-6 h-6 text-success" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Account Created</p>
-                <p className="text-lg font-bold text-gray-100 mt-1">
+                <p className="text-sm font-medium text-text-muted">Account Created</p>
+                <p className="text-lg font-bold text-text-primary mt-1">
                   {format(new Date(createdAt), 'MMMM d, yyyy')}
                 </p>
               </div>

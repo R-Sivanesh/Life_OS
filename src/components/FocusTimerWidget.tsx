@@ -53,13 +53,13 @@ const FocusTimerWidget = () => {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-4xl font-black text-gray-100 tabular-nums tracking-tighter" style={{ textShadow: '0 0 20px rgba(59,130,246,0.3)' }}>
+            <span className="text-4xl font-black text-text-primary tabular-nums tracking-tighter" style={{ textShadow: '0 0 20px rgba(59,130,246,0.3)' }}>
               {formatTime(timeLeft)}
             </span>
           </div>
         </div>
 
-        <p className="text-sm font-medium text-gray-400 mt-6 mb-6 h-5">
+        <p className="text-sm font-medium text-text-cyan mt-6 mb-6 h-5">
           {!isActive && !isPaused && 'Ready to focus'}
           {isActive && !isPaused && <span className="text-primary animate-pulse">Focus Session</span>}
           {isActive && isPaused && <span className="text-warning">Paused</span>}
@@ -85,7 +85,7 @@ const FocusTimerWidget = () => {
           {(isActive || isPaused) && (
             <button 
               onClick={handleReset} 
-              className="w-10 h-10 rounded-xl bg-surfaceHighlight text-gray-400 hover:text-gray-100 flex items-center justify-center transition-colors shrink-0"
+              className="w-10 h-10 rounded-xl bg-surface-elevated text-text-cyan hover:text-text-primary flex items-center justify-center transition-colors shrink-0"
               title="Stop Session"
             >
               <Square className="w-4 h-4 fill-current" />

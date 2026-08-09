@@ -33,7 +33,7 @@ const Focus = () => {
         <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-glow">
           <Clock className="w-5 h-5" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-100">Focus Session</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Focus Session</h1>
       </div>
 
       <div className="glass-card flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
@@ -41,12 +41,12 @@ const Focus = () => {
         
         <div className="w-full max-w-md space-y-8 relative z-10">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Select Task to Focus On</label>
+            <label className="text-sm font-medium text-text-cyan">Select Task to Focus On</label>
             <select 
               value={selectedTaskId} 
               onChange={e => setSelectedTaskId(e.target.value)}
               disabled={isActive}
-              className="w-full bg-surface border border-border rounded-xl py-3 px-4 text-gray-100 focus:outline-none focus:border-primary disabled:opacity-50 appearance-none"
+              className="w-full bg-surface border border-border rounded-xl py-3 px-4 text-text-primary focus:outline-none focus:border-primary disabled:opacity-50 appearance-none"
             >
               <option value="">No specific task (General Focus)</option>
               {pendingTasks.map(task => (
@@ -56,7 +56,7 @@ const Focus = () => {
           </div>
 
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="text-[120px] font-black leading-none tracking-tighter text-gray-100 tabular-nums shadow-primary/20" style={{ textShadow: '0 0 40px rgba(59,130,246,0.3)' }}>
+            <div className="text-[120px] font-black leading-none tracking-tighter text-text-primary tabular-nums shadow-primary/20" style={{ textShadow: '0 0 40px rgba(59,130,246,0.3)' }}>
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -72,11 +72,11 @@ const Focus = () => {
               </button>
             )}
             
-            <button onClick={handleReset} className="w-16 h-16 rounded-2xl bg-surfaceHighlight text-gray-400 hover:text-gray-100 flex items-center justify-center transition-colors">
+            <button onClick={handleReset} className="w-16 h-16 rounded-2xl bg-surface-elevated text-text-cyan hover:text-text-primary flex items-center justify-center transition-colors">
               <Square className="w-6 h-6 fill-current" />
             </button>
             
-            <button onClick={handleComplete} disabled={!isActive && timeLeft === sessionDuration * 60} className="w-16 h-16 rounded-2xl bg-accent/20 text-accent hover:bg-accent/30 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onClick={handleComplete} disabled={!isActive && timeLeft === sessionDuration * 60} className="w-16 h-16 rounded-2xl bg-success/20 text-success hover:bg-success/30 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               <CheckCircle className="w-6 h-6" />
             </button>
           </div>
@@ -91,7 +91,7 @@ const Focus = () => {
                   }}
                   className={cn(
                     "px-4 py-1.5 rounded-full text-xs font-medium transition-colors border",
-                    sessionDuration === duration ? "bg-primary/20 text-primary border-primary/30" : "bg-surfaceHighlight text-gray-500 border-transparent hover:text-gray-300"
+                    sessionDuration === duration ? "bg-primary/20 text-primary border-primary/30" : "bg-surface-elevated text-text-muted border-transparent hover:text-text-cyan"
                   )}
                 >
                   {duration} min

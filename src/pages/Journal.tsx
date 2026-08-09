@@ -21,14 +21,14 @@ const Journal = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12 h-full">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-100">Journal</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Journal</h1>
         <button onClick={handleSave} className="btn-primary flex items-center gap-2">
           <Save className="w-4 h-4" /> {isSaved ? 'Saved!' : 'Save Entry'}
         </button>
       </div>
       
       <div className="glass-card p-6 flex flex-col gap-4 flex-1 min-h-[500px]">
-        <h2 className="text-lg font-bold text-gray-100 border-b border-border/50 pb-4">
+        <h2 className="text-lg font-bold text-text-primary border-b border-border/50 pb-4">
           {format(new Date(), 'EEEE, MMMM d, yyyy')}
         </h2>
         
@@ -36,7 +36,7 @@ const Journal = () => {
           value={entry}
           onChange={e => setEntry(e.target.value)}
           placeholder="How was your day? What's on your mind?"
-          className="flex-1 w-full bg-transparent border-none resize-none text-gray-100 placeholder-gray-600 focus:outline-none p-2"
+          className="flex-1 w-full bg-transparent border-none resize-none text-text-primary placeholder-text-muted focus:outline-none p-2"
         />
       </div>
     </div>

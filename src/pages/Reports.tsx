@@ -40,7 +40,7 @@ const Reports = () => {
     { label: 'Completed', value: todayCompleted, color: '#10B981', displayColor: 'bg-emerald-500' }, 
     { label: 'Pending', value: todayPending, color: '#F59E0B', displayColor: 'bg-amber-500' }, 
     { label: 'Overdue', value: todayOverdue, color: '#EF4444', displayColor: 'bg-red-500' }, 
-    { label: 'Skipped', value: todaySkipped, color: '#6B7280', displayColor: 'bg-gray-500' }, 
+    { label: 'Skipped', value: todaySkipped, color: '#526987', displayColor: 'bg-text-muted' }, 
   ];
 
   let currentOffset = 25; 
@@ -155,19 +155,19 @@ const Reports = () => {
         <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-glow">
           <BarChart2 className="w-5 h-5" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-100">Reports</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Reports</h1>
       </div>
 
       {/* 1. TOP SUMMARY CARDS */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="glass-card p-5 border-l-4 border-l-surfaceHighlight flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-surfaceHighlight flex items-center justify-center flex-shrink-0 text-gray-400">
+        <div className="glass-card p-5 border-l-4 border-l-surface-elevated flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-surface-elevated flex items-center justify-center flex-shrink-0 text-text-cyan">
             <LayoutGrid className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-gray-400 text-xs font-medium mb-1">Total Tasks</div>
-            <div className="text-2xl font-black text-gray-100">{totalTasks}</div>
-            <div className="text-[10px] text-gray-500 mt-1">All time</div>
+            <div className="text-text-cyan text-xs font-medium mb-1">Total Tasks</div>
+            <div className="text-2xl font-black text-text-primary">{totalTasks}</div>
+            <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
 
@@ -176,9 +176,9 @@ const Reports = () => {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-gray-400 text-xs font-medium mb-1">Completed</div>
+            <div className="text-text-cyan text-xs font-medium mb-1">Completed</div>
             <div className="text-2xl font-black text-emerald-500">{completedTasks}</div>
-            <div className="text-[10px] text-gray-500 mt-1">All time</div>
+            <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
 
@@ -187,9 +187,9 @@ const Reports = () => {
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-gray-400 text-xs font-medium mb-1">Pending</div>
+            <div className="text-text-cyan text-xs font-medium mb-1">Pending</div>
             <div className="text-2xl font-black text-amber-500">{pendingTasks}</div>
-            <div className="text-[10px] text-gray-500 mt-1">All time</div>
+            <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
 
@@ -198,9 +198,9 @@ const Reports = () => {
             <Target className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-gray-400 text-xs font-medium mb-1">Completion Rate</div>
+            <div className="text-text-cyan text-xs font-medium mb-1">Completion Rate</div>
             <div className="text-2xl font-black text-primary">{overallRate}%</div>
-            <div className="text-[10px] text-gray-500 mt-1">All time</div>
+            <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
 
@@ -209,9 +209,9 @@ const Reports = () => {
             <Zap className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-gray-400 text-xs font-medium mb-1">Focus Time</div>
+            <div className="text-text-cyan text-xs font-medium mb-1">Focus Time</div>
             <div className="text-2xl font-black text-blue-500">{focusHours}h {focusMins}m</div>
-            <div className="text-[10px] text-gray-500 mt-1">All time</div>
+            <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
       </div>
@@ -219,12 +219,12 @@ const Reports = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* 2. ACTIVITY STATUS (TODAY) */}
         <div className="glass-card p-6 flex flex-col">
-          <h3 className="text-sm font-bold text-gray-100 mb-6">Activity Status (Today)</h3>
+          <h3 className="text-sm font-bold text-text-primary mb-6">Activity Status (Today)</h3>
           
           <div className="flex-1 flex flex-col items-center justify-center gap-6 pb-4">
             <div className="relative w-48 h-48">
               {todayTotal === 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted">
                   <CircleDashed className="w-12 h-12 mb-2 opacity-20" />
                   <span className="text-xs">No tasks today</span>
                 </div>
@@ -251,8 +251,8 @@ const Reports = () => {
                     })}
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-black text-gray-100">{todayTotal}</span>
-                    <span className="text-xs text-gray-400">Total</span>
+                    <span className="text-3xl font-black text-text-primary">{todayTotal}</span>
+                    <span className="text-xs text-text-cyan">Total</span>
                   </div>
                 </>
               )}
@@ -263,10 +263,10 @@ const Reports = () => {
                 <div key={i} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className={cn("w-2 h-2 rounded-full flex-shrink-0", d.displayColor)} />
-                    <span className="text-gray-400">{d.label}</span>
+                    <span className="text-text-cyan">{d.label}</span>
                   </div>
-                  <div className="text-gray-200 ml-2 whitespace-nowrap">
-                    {d.value} <span className="text-gray-600">({todayTotal > 0 ? Math.round((d.value/todayTotal)*100) : 0}%)</span>
+                  <div className="text-text-primary ml-2 whitespace-nowrap">
+                    {d.value} <span className="text-text-muted">({todayTotal > 0 ? Math.round((d.value/todayTotal)*100) : 0}%)</span>
                   </div>
                 </div>
               ))}
@@ -278,45 +278,45 @@ const Reports = () => {
         <div className="glass-card flex flex-col lg:col-span-2 overflow-hidden relative">
           <div className="grid grid-cols-1 md:grid-cols-2 h-full">
             <div className="p-6 border-r border-border/50 flex flex-col">
-              <h3 className="text-sm font-bold text-gray-100 mb-6">Today's Breakdown</h3>
+              <h3 className="text-sm font-bold text-text-primary mb-6">Today's Breakdown</h3>
               
               <div className="flex flex-col gap-4 flex-1 justify-center pb-4">
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-sm text-gray-400 flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500"/> Tasks Completed</span>
-                  <span className="font-bold text-gray-100">{todayCompleted}</span>
+                  <span className="text-sm text-text-cyan flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500"/> Tasks Completed</span>
+                  <span className="font-bold text-text-primary">{todayCompleted}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-sm text-gray-400 flex items-center gap-2"><CircleDashed className="w-4 h-4 text-primary"/> Tasks Remaining</span>
-                  <span className="font-bold text-gray-100">{todayRemaining}</span>
+                  <span className="text-sm text-text-cyan flex items-center gap-2"><CircleDashed className="w-4 h-4 text-primary"/> Tasks Remaining</span>
+                  <span className="font-bold text-text-primary">{todayRemaining}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-sm text-gray-400 flex items-center gap-2"><Target className="w-4 h-4 text-blue-500"/> Completion Rate</span>
-                  <span className="font-bold text-gray-100">{todayRate}%</span>
+                  <span className="text-sm text-text-cyan flex items-center gap-2"><Target className="w-4 h-4 text-blue-500"/> Completion Rate</span>
+                  <span className="font-bold text-text-primary">{todayRate}%</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-sm text-gray-400 flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500"/> Focus Time</span>
-                  <span className="font-bold text-gray-100">{todayFocusFormatted}</span>
+                  <span className="text-sm text-text-cyan flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500"/> Focus Time</span>
+                  <span className="font-bold text-text-primary">{todayFocusFormatted}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span className="text-sm text-gray-400 flex items-center gap-2"><Zap className="w-4 h-4 text-warning"/> Routine Completion</span>
-                  <span className="font-bold text-gray-100">{routineCompletionRate}%</span>
+                  <span className="text-sm text-text-cyan flex items-center gap-2"><Zap className="w-4 h-4 text-warning"/> Routine Completion</span>
+                  <span className="font-bold text-text-primary">{routineCompletionRate}%</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-gray-400 flex items-center gap-2"><Calendar className="w-4 h-4 text-rose-500"/> Reminders Completed</span>
-                  <span className="font-bold text-gray-100">{todayRemindersCompleted}</span>
+                  <span className="text-sm text-text-cyan flex items-center gap-2"><Calendar className="w-4 h-4 text-rose-500"/> Reminders Completed</span>
+                  <span className="font-bold text-text-primary">{todayRemindersCompleted}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-6 flex flex-col h-full bg-surfaceHighlight/10">
+            <div className="p-6 flex flex-col h-full bg-surface-elevated/10">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-bold text-gray-100">Today Activity Timeline</h3>
+                <h3 className="text-sm font-bold text-text-primary">Today Activity Timeline</h3>
                 <span className="text-[10px] text-primary cursor-pointer hover:underline">View All</span>
               </div>
               
               <div className="flex-1 overflow-y-auto pr-2 space-y-4 max-h-[280px] custom-scrollbar">
                 {timelineItems.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-sm text-gray-500">
+                  <div className="h-full flex items-center justify-center text-sm text-text-muted">
                     No activities scheduled for today.
                   </div>
                 ) : (
@@ -327,8 +327,8 @@ const Reports = () => {
                         <div className="w-[1px] h-8 bg-border/50 mt-1" />
                       </div>
                       <div className="flex flex-col pb-2">
-                        <span className="text-[11px] font-medium text-gray-500 mb-0.5">{item.formattedTime}</span>
-                        <span className="text-sm text-gray-200 line-clamp-1">{item.title}</span>
+                        <span className="text-[11px] font-medium text-text-muted mb-0.5">{item.formattedTime}</span>
+                        <span className="text-sm text-text-primary line-clamp-1">{item.title}</span>
                       </div>
                     </div>
                   ))
@@ -343,8 +343,8 @@ const Reports = () => {
         {/* 4. WEEKLY PERFORMANCE */}
         <div className="glass-card p-6 flex flex-col h-[340px]">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-sm font-bold text-gray-100">Weekly Performance</h3>
-            <select className="bg-surfaceHighlight border border-border/50 rounded-lg text-xs text-gray-300 px-3 py-1.5 focus:outline-none focus:border-primary cursor-pointer">
+            <h3 className="text-sm font-bold text-text-primary">Weekly Performance</h3>
+            <select className="bg-surface-elevated border border-border/50 rounded-lg text-xs text-text-cyan px-3 py-1.5 focus:outline-none focus:border-primary cursor-pointer">
               <option>This Week</option>
             </select>
           </div>
@@ -370,7 +370,7 @@ const Reports = () => {
                   </div>
                   <div className={cn(
                     "text-xs font-medium uppercase mt-1",
-                    isSameDay(data.date, today) ? "text-primary font-bold" : "text-gray-500"
+                    isSameDay(data.date, today) ? "text-primary font-bold" : "text-text-muted"
                   )}>
                     {data.label}
                   </div>
@@ -383,17 +383,17 @@ const Reports = () => {
         {/* 5. PRODUCTIVITY TREND */}
         <div className="glass-card p-6 flex flex-col h-[340px]">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-sm font-bold text-gray-100">Productivity Trend</h3>
-            <div className="flex bg-surfaceHighlight border border-border/50 rounded-lg overflow-hidden">
+            <h3 className="text-sm font-bold text-text-primary">Productivity Trend</h3>
+            <div className="flex bg-surface-elevated border border-border/50 rounded-lg overflow-hidden">
               <button 
                 onClick={() => setTrendRange(7)}
-                className={cn("px-3 py-1.5 text-xs font-medium transition-colors", trendRange === 7 ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
+                className={cn("px-3 py-1.5 text-xs font-medium transition-colors", trendRange === 7 ? "bg-primary text-white" : "text-text-cyan hover:text-text-primary")}
               >
                 7 Days
               </button>
               <button 
                 onClick={() => setTrendRange(30)}
-                className={cn("px-3 py-1.5 text-xs font-medium transition-colors", trendRange === 30 ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
+                className={cn("px-3 py-1.5 text-xs font-medium transition-colors", trendRange === 30 ? "bg-primary text-white" : "text-text-cyan hover:text-text-primary")}
               >
                 30 Days
               </button>
@@ -402,7 +402,7 @@ const Reports = () => {
           
           <div className="flex-1 relative w-full h-full pb-6 pl-8">
             {/* Y-Axis Labels */}
-            <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-gray-500 font-medium">
+            <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-text-muted font-medium">
               <span>100%</span>
               <span>75%</span>
               <span>50%</span>
@@ -468,7 +468,7 @@ const Reports = () => {
             </div>
 
             {/* X-Axis Labels */}
-            <div className="absolute left-8 right-0 bottom-0 flex justify-between text-[10px] font-medium text-gray-500 pt-2">
+            <div className="absolute left-8 right-0 bottom-0 flex justify-between text-[10px] font-medium text-text-muted pt-2">
               {trendData.map((d, i) => {
                 if (trendRange === 30 && i % 5 !== 0 && i !== trendData.length - 1) return null;
                 return <span key={i}>{d.label}</span>;

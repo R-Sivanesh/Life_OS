@@ -35,38 +35,38 @@ const Tasks = () => {
     switch (priority.toLowerCase()) {
       case 'high': return 'text-danger bg-danger/10 border-danger/20';
       case 'medium': return 'text-warning bg-warning/10 border-warning/20';
-      case 'low': return 'text-accent bg-accent/10 border-accent/20';
-      default: return 'text-gray-400 bg-surfaceHighlight border-border';
+      case 'low': return 'text-cyan bg-cyan/10 border-cyan/20';
+      default: return 'text-text-cyan bg-surface-elevated border-border';
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'health': return 'text-accent';
+      case 'health': return 'text-success';
       case 'learning': return 'text-primary';
-      case 'work': return 'text-secondary';
+      case 'work': return 'text-cyan';
       case 'personal': return 'text-warning';
-      default: return 'text-gray-400';
+      default: return 'text-text-cyan';
     }
   };
 
   const renderTask = (task: any, isCompleted: boolean) => (
-    <div key={task.id} className={cn("flex items-center gap-4 p-4 rounded-xl group transition-colors", isCompleted ? "bg-surface border border-transparent" : "bg-surfaceHighlight border border-border hover:border-primary/50")}>
+    <div key={task.id} className={cn("flex items-center gap-4 p-4 rounded-xl group transition-colors", isCompleted ? "bg-surface border border-transparent" : "bg-surface-elevated border border-border hover:border-primary/50")}>
       <button 
         onClick={() => isCompleted ? uncompleteTask(task.id) : completeTask(task.id)}
-        className={cn("w-5 h-5 rounded flex items-center justify-center border shrink-0 transition-colors", isCompleted ? "bg-accent border-accent text-background" : "border-gray-500 hover:border-accent text-transparent hover:text-accent/50")}
+        className={cn("w-5 h-5 rounded flex items-center justify-center border shrink-0 transition-colors", isCompleted ? "bg-success border-success text-background" : "border-border hover:border-success text-transparent hover:text-success/50")}
       >
         <Check className="w-3 h-3" strokeWidth={3} />
       </button>
       <div className={cn("flex-1 min-w-0", isCompleted ? "opacity-50" : "")}>
-        <span className={cn("font-medium text-sm block truncate", isCompleted ? "text-gray-500 line-through" : "text-gray-100")}>{task.title}</span>
+        <span className={cn("font-medium text-sm block truncate", isCompleted ? "text-text-muted line-through" : "text-text-primary")}>{task.title}</span>
         <div className="flex items-center gap-2 mt-1">
           {isCompleted ? (
-            <span className="text-xs text-gray-500">{task.completed_at ? `Completed on ${format(new Date(task.completed_at), 'MMM d')}` : ''}</span>
+            <span className="text-xs text-text-muted">{task.completed_at ? `Completed on ${format(new Date(task.completed_at), 'MMM d')}` : ''}</span>
           ) : (
             <>
-              <span className="text-xs text-gray-500">{task.date ? format(new Date(task.date), 'MMM d, yyyy') : 'No date'}</span>
-              <span className="text-xs text-gray-500">• {formatTaskTimeRange(task.start_time, task.end_time)}</span>
+              <span className="text-xs text-text-muted">{task.date ? format(new Date(task.date), 'MMM d, yyyy') : 'No date'}</span>
+              <span className="text-xs text-text-muted">• {formatTaskTimeRange(task.start_time, task.end_time)}</span>
             </>
           )}
         </div>
@@ -75,12 +75,12 @@ const Tasks = () => {
         {!isCompleted && (
           <div className="flex gap-2">
             <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border", getPriorityColor(task.priority))}>{task.priority}</span>
-            <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded bg-surfaceHighlight", getCategoryColor(task.category))}>{task.category}</span>
+            <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded bg-surface-elevated", getCategoryColor(task.category))}>{task.category}</span>
           </div>
         )}
         <div className={cn("flex items-center gap-2 transition-opacity opacity-0 group-hover:opacity-100")}>
-          {!isCompleted && <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-gray-500 hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>}
-          <button onClick={() => deleteTask(task.id)} className={cn("p-1 transition-colors", isCompleted ? "text-gray-600 hover:text-danger" : "text-gray-500 hover:text-danger")}><Trash2 className="w-3.5 h-3.5" /></button>
+          {!isCompleted && <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>}
+          <button onClick={() => deleteTask(task.id)} className={cn("p-1 transition-colors", isCompleted ? "text-text-muted hover:text-danger" : "text-text-muted hover:text-danger")}><Trash2 className="w-3.5 h-3.5" /></button>
         </div>
       </div>
     </div>
@@ -93,19 +93,19 @@ const Tasks = () => {
           <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-glow">
             <CheckCircle className="w-5 h-5" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-100">Tasks</h1>
+          <h1 className="text-2xl font-bold text-text-primary">Tasks</h1>
         </div>
 
         <div className="flex items-center gap-2 bg-surface p-1 rounded-xl w-fit border border-border">
           <button 
             onClick={() => setView('today')}
-            className={cn("px-4 py-2 rounded-lg text-sm font-medium transition-colors", view === 'today' ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
+            className={cn("px-4 py-2 rounded-lg text-sm font-medium transition-colors", view === 'today' ? "bg-primary text-white" : "text-text-cyan hover:text-text-primary")}
           >
             Today's Tasks
           </button>
           <button 
             onClick={() => setView('other')}
-            className={cn("px-4 py-2 rounded-lg text-sm font-medium transition-colors", view === 'other' ? "bg-primary text-white" : "text-gray-400 hover:text-gray-200")}
+            className={cn("px-4 py-2 rounded-lg text-sm font-medium transition-colors", view === 'other' ? "bg-primary text-white" : "text-text-cyan hover:text-text-primary")}
           >
             Other Tasks
           </button>
@@ -114,15 +114,15 @@ const Tasks = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="glass-card flex-1 flex flex-col overflow-hidden h-[calc(100vh-14rem)]">
-          <div className="p-6 border-b border-border bg-surfaceHighlight/30 sticky top-0 z-10">
-            <h3 className="text-gray-100 font-bold">Pending Tasks</h3>
+          <div className="p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
+            <h3 className="text-text-primary font-bold">Pending Tasks</h3>
           </div>
           <div className="p-4 overflow-y-auto space-y-6">
             {view === 'today' && pendingTasks.length > 0 && (
               <>
                 {pendingNormal.length > 0 && (
                   <div>
-                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Normal Tasks</h4>
+                    <h4 className="text-[10px] font-bold text-text-cyan uppercase tracking-wider mb-2">Normal Tasks</h4>
                     <div className="space-y-2">
                        {pendingNormal.map(task => renderTask(task, false))}
                     </div>
@@ -130,7 +130,7 @@ const Tasks = () => {
                 )}
                 {pendingRoutines.length > 0 && (
                   <div className={pendingNormal.length > 0 ? "mt-4" : ""}>
-                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Daily Routines</h4>
+                    <h4 className="text-[10px] font-bold text-text-cyan uppercase tracking-wider mb-2">Daily Routines</h4>
                     <div className="space-y-2">
                        {pendingRoutines.map(task => renderTask(task, false))}
                     </div>
@@ -144,21 +144,21 @@ const Tasks = () => {
               </div>
             )}
             {pendingTasks.length === 0 && (
-              <p className="text-gray-500 text-center py-8">No pending tasks! 🎉</p>
+              <p className="text-text-muted text-center py-8">No pending tasks! 🎉</p>
             )}
           </div>
         </div>
 
         <div className="glass-card flex-1 flex flex-col overflow-hidden h-[calc(100vh-14rem)] opacity-70 hover:opacity-100 transition-opacity">
-          <div className="p-6 border-b border-border bg-surfaceHighlight/30 sticky top-0 z-10">
-            <h3 className="text-gray-100 font-bold">Completed Tasks</h3>
+          <div className="p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
+            <h3 className="text-text-primary font-bold">Completed Tasks</h3>
           </div>
           <div className="p-4 overflow-y-auto space-y-6">
             {view === 'today' && completedTasks.length > 0 && (
               <>
                 {completedNormal.length > 0 && (
                   <div>
-                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Normal Tasks</h4>
+                    <h4 className="text-[10px] font-bold text-text-cyan uppercase tracking-wider mb-2">Normal Tasks</h4>
                     <div className="space-y-2">
                        {completedNormal.map(task => renderTask(task, true))}
                     </div>
@@ -166,7 +166,7 @@ const Tasks = () => {
                 )}
                 {completedRoutines.length > 0 && (
                   <div className={completedNormal.length > 0 ? "mt-4" : ""}>
-                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Daily Routines</h4>
+                    <h4 className="text-[10px] font-bold text-text-cyan uppercase tracking-wider mb-2">Daily Routines</h4>
                     <div className="space-y-2">
                        {completedRoutines.map(task => renderTask(task, true))}
                     </div>
@@ -180,7 +180,7 @@ const Tasks = () => {
               </div>
             )}
             {completedTasks.length === 0 && (
-              <p className="text-gray-600 text-center py-8">No completed tasks yet.</p>
+              <p className="text-text-muted text-center py-8">No completed tasks yet.</p>
             )}
           </div>
         </div>

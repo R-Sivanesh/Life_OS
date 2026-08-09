@@ -37,37 +37,37 @@ const Header = () => {
   return (
     <header className="h-16 px-8 flex items-center justify-between border-none bg-background pt-2">
       <div>
-        <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
           {getGreeting()}, {user?.name.toLowerCase()} <span className="text-xl">👋</span>
         </h2>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-text-muted">
           {format(time, 'EEEE, MMMM d, yyyy')}
         </p>
       </div>
 
       <div className="flex items-center gap-6">
         <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-primary transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-primary transition-colors" />
           <input 
             ref={searchRef}
             type="text" 
             placeholder="Search tasks, notes, etc..." 
-            className="w-72 bg-surfaceHighlight/50 border border-border/50 rounded-full py-2 pl-9 pr-14 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-primary transition-all"
+            className="w-72 bg-surface-elevated/50 border border-border/50 rounded-full py-2 pl-9 pr-14 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-all"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
-            <kbd className="hidden sm:inline-block border border-border/50 bg-background rounded px-1.5 text-[10px] text-gray-500 font-sans">⌘</kbd>
-            <kbd className="hidden sm:inline-block border border-border/50 bg-background rounded px-1.5 text-[10px] text-gray-500 font-sans">K</kbd>
+            <kbd className="hidden sm:inline-block border border-border/50 bg-background rounded px-1.5 text-[10px] text-text-muted font-sans">⌘</kbd>
+            <kbd className="hidden sm:inline-block border border-border/50 bg-background rounded px-1.5 text-[10px] text-text-muted font-sans">K</kbd>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="relative p-2 text-gray-500 hover:text-gray-100 rounded-full transition-colors">
+          <button className="relative p-2 text-text-muted hover:text-text-primary rounded-full transition-colors">
             <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-gray-100 rounded-full"></span>
+            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-text-primary rounded-full"></span>
           </button>
           <button 
             onClick={() => navigate('/settings')}
-            className="p-2 text-gray-500 hover:text-gray-100 rounded-full transition-colors"
+            className="p-2 text-text-muted hover:text-text-primary rounded-full transition-colors"
           >
             <Moon className="w-5 h-5" />
           </button>
@@ -86,7 +86,7 @@ const Header = () => {
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 glass-card rounded-xl border border-border/50 py-2 shadow-xl z-50 bg-surface">
                 <div className="px-4 py-2 border-b border-border/50">
-                  <p className="text-sm font-bold text-gray-100 truncate">{user?.name}</p>
+                  <p className="text-sm font-bold text-text-primary truncate">{user?.name}</p>
                 </div>
                 <div className="py-1">
                   <button 
@@ -94,7 +94,7 @@ const Header = () => {
                       setIsProfileOpen(false);
                       navigate('/profile');
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-400 hover:text-gray-100 hover:bg-surfaceHighlight transition-colors"
+                    className="w-full text-left px-4 py-2 text-sm text-text-cyan hover:text-text-primary hover:bg-surface-elevated transition-colors"
                   >
                     View Profile
                   </button>
@@ -103,7 +103,7 @@ const Header = () => {
                       setIsProfileOpen(false);
                       navigate('/settings');
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-400 hover:text-gray-100 hover:bg-surfaceHighlight transition-colors"
+                    className="w-full text-left px-4 py-2 text-sm text-text-cyan hover:text-text-primary hover:bg-surface-elevated transition-colors"
                   >
                     Settings
                   </button>

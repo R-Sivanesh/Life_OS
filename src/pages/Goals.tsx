@@ -29,7 +29,7 @@ const Goals = () => {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12">
-      <h1 className="text-2xl font-bold text-gray-100">Goals & Habits</h1>
+      <h1 className="text-2xl font-bold text-text-primary">Goals & Habits</h1>
       
       <div className="glass-card p-6 flex flex-col gap-6 max-w-2xl">
         <form onSubmit={addGoal} className="flex gap-3">
@@ -38,7 +38,7 @@ const Goals = () => {
             value={newGoal} 
             onChange={e => setNewGoal(e.target.value)} 
             placeholder="What is your new goal?"
-            className="flex-1 bg-surfaceHighlight border border-border rounded-xl px-4 py-2 text-sm text-gray-100 focus:outline-none focus:border-primary"
+            className="flex-1 bg-surface-elevated border border-border rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
           />
           <button type="submit" className="btn-primary flex items-center gap-2">
             <Plus className="w-4 h-4" /> Add Goal
@@ -47,20 +47,20 @@ const Goals = () => {
 
         <div className="space-y-2">
           {goals.map(goal => (
-            <div key={goal.id} className="flex items-center gap-3 p-3 bg-surfaceHighlight/50 border border-border/50 rounded-xl">
+            <div key={goal.id} className="flex items-center gap-3 p-3 bg-surface-elevated/50 border border-border/50 rounded-xl">
               <button 
                 onClick={() => toggleGoal(goal.id)}
-                className={cn("w-5 h-5 rounded-full border flex items-center justify-center transition-colors", goal.completed ? "bg-accent border-accent text-background" : "border-gray-500")}
+                className={cn("w-5 h-5 rounded-full border flex items-center justify-center transition-colors", goal.completed ? "bg-success border-success text-background" : "border-border")}
               >
                 {goal.completed && <Check className="w-3 h-3" strokeWidth={3} />}
               </button>
-              <span className={cn("text-sm font-medium", goal.completed ? "text-gray-500 line-through" : "text-gray-100")}>
+              <span className={cn("text-sm font-medium", goal.completed ? "text-text-muted line-through" : "text-text-primary")}>
                 {goal.title}
               </span>
             </div>
           ))}
           {goals.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-4">No goals added yet. Set your sights high!</p>
+            <p className="text-sm text-text-muted text-center py-4">No goals added yet. Set your sights high!</p>
           )}
         </div>
       </div>
