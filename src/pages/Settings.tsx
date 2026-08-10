@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Save, User, Bell, Shield, Moon, Database, AlertTriangle, LogOut } from 'lucide-react';
+import { Save, User, Bell, Shield, Moon, Database, AlertTriangle, LogOut, Quote, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
 import { ResetTasksModal } from '../components/Modals';
 import { useAuth } from '../contexts/AuthContext';
 import { useTasks } from '../lib/useTasks';
 import { supabase } from '../lib/supabase';
+import { useQuotes } from '../lib/useQuotes';
+import { useDeleteModal } from '../contexts/DeleteModalContext';
 
 const Settings = () => {
   const [notifications, setNotifications] = useState(true);
@@ -13,6 +15,13 @@ const Settings = () => {
 
   const { user, logout } = useAuth();
   const { tasks, batchUncompleteTasks } = useTasks();
+  
+  // Quotes State
+  const { quotes, addQuote, updateQuote, deleteQuote } = useQuotes();
+  const { confirmDelete } = useDeleteModal();
+  const [newQuoteText, setNewQuoteText] = useState('');
+  const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
+  const [editingQuoteText, setEditingQuoteText] = useState('');
 
   useEffect(() => {
     const savedNotifs = localStorage.getItem('lifeos_settings_notifs');
@@ -28,7 +37,6 @@ const Settings = () => {
   const handleResetTasks = async (scope: 'today' | 'all', password: string) => {
     if (!user) return;
     
-    // Verify password via Supabase
     if (supabase) {
       const { error } = await supabase.auth.signInWithPassword({
         email: user.email,
@@ -40,7 +48,6 @@ const Settings = () => {
       }
     }
     
-    // Get task IDs to reset
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
     
@@ -57,6 +64,31 @@ const Settings = () => {
       alert('No completed tasks found to reset.');
     }
     setIsResetModalOpen(false);
+  };
+
+  const handleAddQuote = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newQuoteText.trim()) return;
+    addQuote(newQuoteText);
+    setNewQuoteText('');
+  };
+
+  const startEditQuote = (quote: any) => {
+    setEditingQuoteId(quote.id);
+    setEditingQuoteText(quote.text);
+  };
+
+  const saveEditQuote = () => {
+    if (editingQuoteId && editingQuoteText.trim()) {
+      updateQuote(editingQuoteId, editingQuoteText);
+    }
+    setEditingQuoteId(null);
+  };
+
+  const handleDeleteQuote = (id: string, text: string) => {
+    confirmDelete(`Quote: "${text.length > 30 ? text.substring(0, 30) + '...' : text}"`, () => {
+      deleteQuote(id);
+    });
   };
 
   return (
@@ -89,6 +121,70 @@ const Settings = () => {
                 <LogOut className="w-4 h-4" />
                 Logout
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Motivational Quotes */}
+        <div>
+          <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+            <Quote className="w-5 h-5 text-warning" /> Motivational Quotes
+          </h2>
+          <div className="space-y-4 max-w-xl">
+            <p className="text-xs text-text-cyan">
+              These quotes will be displayed on your Dashboard and change automatically.
+            </p>
+            
+            <form onSubmit={handleAddQuote} className="flex gap-2">
+              <input 
+                type="text" 
+                value={newQuoteText} 
+                onChange={e => setNewQuoteText(e.target.value)}
+                placeholder="Add a new quote..." 
+                className="flex-1 bg-surface-elevated border border-border rounded-xl px-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
+              />
+              <button type="submit" disabled={!newQuoteText.trim()} className="btn-primary px-4 flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Add
+              </button>
+            </form>
+
+            <div className="space-y-2 mt-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+              {quotes.map(quote => (
+                <div key={quote.id} className="flex items-center justify-between p-3 bg-surface-elevated/50 border border-border/50 rounded-xl group">
+                  {editingQuoteId === quote.id ? (
+                    <div className="flex-1 flex gap-2 mr-2">
+                      <input 
+                        type="text" 
+                        value={editingQuoteText} 
+                        onChange={e => setEditingQuoteText(e.target.value)}
+                        className="flex-1 bg-surface border border-primary/50 rounded-lg px-3 py-1 text-sm text-text-primary focus:outline-none focus:border-primary"
+                        autoFocus
+                      />
+                      <button onClick={saveEditQuote} className="p-1.5 bg-success/20 text-success rounded-lg hover:bg-success/30 transition-colors">
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setEditingQuoteId(null)} className="p-1.5 bg-surface-elevated text-text-muted rounded-lg hover:text-text-primary transition-colors">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm text-text-primary italic flex-1 pr-4">"{quote.text}"</p>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => startEditQuote(quote)} className="p-1.5 text-text-muted hover:text-primary transition-colors rounded-lg bg-background/50">
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleDeleteQuote(quote.id, quote.text)} className="p-1.5 text-text-muted hover:text-danger transition-colors rounded-lg bg-background/50">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+              {quotes.length === 0 && (
+                <p className="text-sm text-text-muted text-center py-4 border border-dashed border-border/50 rounded-xl">No quotes added yet.</p>
+              )}
             </div>
           </div>
         </div>

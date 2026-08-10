@@ -3,9 +3,11 @@ import { useTasks } from '../lib/useTasks';
 import { Check, Edit2, Trash2, CheckCircle } from 'lucide-react';
 import { cn, openTaskModal, formatTaskTimeRange } from '../lib/utils';
 import { format } from 'date-fns';
+import { useDeleteModal } from '../contexts/DeleteModalContext';
 
 const Tasks = () => {
   const { tasks, completeTask, uncompleteTask, deleteTask, refresh } = useTasks();
+  const { confirmDelete } = useDeleteModal();
 
   useEffect(() => {
     refresh();
@@ -80,7 +82,7 @@ const Tasks = () => {
         )}
         <div className={cn("flex items-center gap-2 transition-opacity opacity-0 group-hover:opacity-100")}>
           {!isCompleted && <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>}
-          <button onClick={() => deleteTask(task.id)} className={cn("p-1 transition-colors", isCompleted ? "text-text-muted hover:text-danger" : "text-text-muted hover:text-danger")}><Trash2 className="w-3.5 h-3.5" /></button>
+          <button onClick={() => confirmDelete(task.title, () => deleteTask(task.id))} className={cn("p-1 transition-colors", isCompleted ? "text-text-muted hover:text-danger" : "text-text-muted hover:text-danger")}><Trash2 className="w-3.5 h-3.5" /></button>
         </div>
       </div>
     </div>

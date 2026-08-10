@@ -112,6 +112,15 @@ CREATE TABLE IF NOT EXISTS public.habits (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 9. Motivational Quotes Table
+CREATE TABLE IF NOT EXISTS public.motivational_quotes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    text TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Set up Row Level Security (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
@@ -121,56 +130,99 @@ ALTER TABLE public.focus_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.journal_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.habits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.motivational_quotes ENABLE ROW LEVEL SECURITY;
 
 -- Create Policies
 
 -- Profiles
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own profile" ON public.profiles;
 CREATE POLICY "Users can delete their own profile" ON public.profiles FOR DELETE USING (auth.uid() = user_id);
 
 -- Tasks
+DROP POLICY IF EXISTS "Users can view their own tasks" ON public.tasks;
 CREATE POLICY "Users can view their own tasks" ON public.tasks FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own tasks" ON public.tasks;
 CREATE POLICY "Users can insert their own tasks" ON public.tasks FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own tasks" ON public.tasks;
 CREATE POLICY "Users can update their own tasks" ON public.tasks FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own tasks" ON public.tasks;
 CREATE POLICY "Users can delete their own tasks" ON public.tasks FOR DELETE USING (auth.uid() = user_id);
 
 -- Reminders
+DROP POLICY IF EXISTS "Users can view their own reminders" ON public.reminders;
 CREATE POLICY "Users can view their own reminders" ON public.reminders FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own reminders" ON public.reminders;
 CREATE POLICY "Users can insert their own reminders" ON public.reminders FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own reminders" ON public.reminders;
 CREATE POLICY "Users can update their own reminders" ON public.reminders FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own reminders" ON public.reminders;
 CREATE POLICY "Users can delete their own reminders" ON public.reminders FOR DELETE USING (auth.uid() = user_id);
 
 -- Daily Routines
+DROP POLICY IF EXISTS "Users can view their own routines" ON public.daily_routines;
 CREATE POLICY "Users can view their own routines" ON public.daily_routines FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own routines" ON public.daily_routines;
 CREATE POLICY "Users can insert their own routines" ON public.daily_routines FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own routines" ON public.daily_routines;
 CREATE POLICY "Users can update their own routines" ON public.daily_routines FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own routines" ON public.daily_routines;
 CREATE POLICY "Users can delete their own routines" ON public.daily_routines FOR DELETE USING (auth.uid() = user_id);
 
 -- Focus Sessions
+DROP POLICY IF EXISTS "Users can view their own focus sessions" ON public.focus_sessions;
 CREATE POLICY "Users can view their own focus sessions" ON public.focus_sessions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own focus sessions" ON public.focus_sessions;
 CREATE POLICY "Users can insert their own focus sessions" ON public.focus_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own focus sessions" ON public.focus_sessions;
 CREATE POLICY "Users can update their own focus sessions" ON public.focus_sessions FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own focus sessions" ON public.focus_sessions;
 CREATE POLICY "Users can delete their own focus sessions" ON public.focus_sessions FOR DELETE USING (auth.uid() = user_id);
 
 -- Journal Entries
+DROP POLICY IF EXISTS "Users can view their own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can view their own journal entries" ON public.journal_entries FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can insert their own journal entries" ON public.journal_entries FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can update their own journal entries" ON public.journal_entries FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own journal entries" ON public.journal_entries;
 CREATE POLICY "Users can delete their own journal entries" ON public.journal_entries FOR DELETE USING (auth.uid() = user_id);
 
 -- Goals
+DROP POLICY IF EXISTS "Users can view their own goals" ON public.goals;
 CREATE POLICY "Users can view their own goals" ON public.goals FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own goals" ON public.goals;
 CREATE POLICY "Users can insert their own goals" ON public.goals FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own goals" ON public.goals;
 CREATE POLICY "Users can update their own goals" ON public.goals FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own goals" ON public.goals;
 CREATE POLICY "Users can delete their own goals" ON public.goals FOR DELETE USING (auth.uid() = user_id);
 
 -- Habits
+DROP POLICY IF EXISTS "Users can view their own habits" ON public.habits;
 CREATE POLICY "Users can view their own habits" ON public.habits FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own habits" ON public.habits;
 CREATE POLICY "Users can insert their own habits" ON public.habits FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own habits" ON public.habits;
 CREATE POLICY "Users can update their own habits" ON public.habits FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own habits" ON public.habits;
 CREATE POLICY "Users can delete their own habits" ON public.habits FOR DELETE USING (auth.uid() = user_id);
+
+-- Motivational Quotes
+DROP POLICY IF EXISTS "Users can view their own quotes" ON public.motivational_quotes;
+CREATE POLICY "Users can view their own quotes" ON public.motivational_quotes FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own quotes" ON public.motivational_quotes;
+CREATE POLICY "Users can insert their own quotes" ON public.motivational_quotes FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own quotes" ON public.motivational_quotes;
+CREATE POLICY "Users can update their own quotes" ON public.motivational_quotes FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own quotes" ON public.motivational_quotes;
+CREATE POLICY "Users can delete their own quotes" ON public.motivational_quotes FOR DELETE USING (auth.uid() = user_id);
 
 -- Function to handle new user profile creation automatically
 CREATE OR REPLACE FUNCTION public.handle_new_user() 

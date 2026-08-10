@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useReminders } from '../lib/useReminders';
+import { useDeleteModal } from '../contexts/DeleteModalContext';
 import { Bell, Check, Edit2, Trash2, AlertCircle } from 'lucide-react';
 import { cn, formatTimeDisplay, openReminderModal } from '../lib/utils';
 import { format } from 'date-fns';
 
 const Reminders = () => {
   const { reminders, completeReminder, uncompleteReminder, deleteReminder, refresh } = useReminders();
+  const { confirmDelete } = useDeleteModal();
 
   useEffect(() => {
     refresh();
@@ -73,7 +75,7 @@ const Reminders = () => {
                   <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border", getPriorityColor(rem.priority))}>{rem.priority}</span>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openReminderModal(undefined, rem)} className="p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => deleteReminder(rem.id)} className="p-1 text-text-muted hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id))} className="p-1 text-text-muted hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               </div>
@@ -100,7 +102,7 @@ const Reminders = () => {
                   <span className="font-medium text-sm text-text-muted line-through block truncate">{rem.title}</span>
                   <span className="text-xs text-text-muted">{rem.date ? format(new Date(rem.date), 'MMM d, yyyy') : ''}</span>
                 </div>
-                <button onClick={() => deleteReminder(rem.id)} className="p-1 text-text-muted hover:text-danger transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button onClick={() => confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id))} className="p-1 text-text-muted hover:text-danger transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             )) : (
               <p className="text-text-muted text-center py-8">No past reminders yet.</p>

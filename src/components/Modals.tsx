@@ -590,3 +590,46 @@ export const AddRoutineModal = ({
     </div>
   );
 };
+
+export const GlobalDeleteModal = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm,
+  itemName 
+}: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  onConfirm: () => void,
+  itemName?: string
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+      <div className="bg-surface-elevated border border-border w-full max-w-sm rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center p-5 border-b border-border/50">
+          <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-danger" /> Delete this item?
+          </h2>
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 flex flex-col gap-2">
+          {itemName && <p className="text-text-primary font-medium text-center">"{itemName}"</p>}
+          <p className="text-text-cyan text-sm text-center">This action cannot be undone.</p>
+        </div>
+        
+        <div className="flex justify-end gap-3 p-4 bg-surface/50 border-t border-border">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-text-cyan hover:text-text-primary hover:bg-surface-elevated transition-colors">
+            Cancel
+          </button>
+          <button type="button" onClick={onConfirm} className="text-sm font-bold bg-danger text-white px-4 py-2 rounded-xl hover:bg-danger/90 transition-colors shadow-lg shadow-danger/20">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

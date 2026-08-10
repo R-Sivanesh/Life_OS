@@ -3,9 +3,11 @@ import { useRoutines } from '../lib/useRoutines';
 import { Zap, Plus, Trash2, Edit2, CheckCircle, Circle } from 'lucide-react';
 import { cn, formatTimeDisplay } from '../lib/utils';
 import { AddRoutineModal } from '../components/Modals';
+import { useDeleteModal } from '../contexts/DeleteModalContext';
 
 const Routines = () => {
   const { routines, addRoutine, updateRoutine, deleteRoutine, refresh } = useRoutines();
+  const { confirmDelete } = useDeleteModal();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoutine, setSelectedRoutine] = useState<any>(null);
   
@@ -60,7 +62,7 @@ const Routines = () => {
 
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => { setSelectedRoutine(routine); setIsModalOpen(true); }} className="p-2 text-text-muted hover:text-primary transition-colors bg-background rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => deleteRoutine(routine.id)} className="p-2 text-text-muted hover:text-danger transition-colors bg-background rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => confirmDelete(`Routine: ${routine.title}`, () => deleteRoutine(routine.id))} className="p-2 text-text-muted hover:text-danger transition-colors bg-background rounded-lg"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           )) : (

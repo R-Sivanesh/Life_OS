@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Check, Plus, Edit2, Trash2, Bell, Square, Play, Pause } from 'lucide-react';
 import { cn, openTaskModal, openReminderModal, formatTaskTimeRange, formatTimeDisplay } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
@@ -6,6 +6,8 @@ import { useReminders } from '../lib/useReminders';
 import { useRoutines } from '../lib/useRoutines';
 import CalendarWidget from '../components/CalendarWidget';
 import { useFocus } from '../contexts/FocusContext';
+import { useQuotes } from '../lib/useQuotes';
+import { useDeleteModal } from '../contexts/DeleteModalContext';
 
 import { format, isToday } from 'date-fns';
 
@@ -16,8 +18,12 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [quote, setQuote] = useState('');
+  const [quote, setQuote] = useState('Hope.');
   const [activeReminderMenu, setActiveReminderMenu] = useState<string | null>(null);
+
+  const { confirmDelete } = useDeleteModal();
+  const { quotes } = useQuotes();
+  const lastQuoteIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const handleClickOutside = () => setActiveReminderMenu(null);
@@ -26,15 +32,28 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const quotes = [
-      "Small progress every day becomes big results.",
-      "Discipline builds what motivation starts.",
-      "Keep moving. Your future self will thank you.",
-      "Focus on being productive instead of busy.",
-      "The secret of getting ahead is getting started."
-    ];
-    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
-  }, []);
+    if (!quotes || quotes.length === 0) return;
+
+    const setNextQuote = () => {
+      if (quotes.length === 1) {
+        setQuote(quotes[0].text);
+        lastQuoteIdRef.current = quotes[0].id;
+        return;
+      }
+      
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * quotes.length);
+      } while (quotes[nextIndex].id === lastQuoteIdRef.current);
+      
+      setQuote(quotes[nextIndex].text);
+      lastQuoteIdRef.current = quotes[nextIndex].id;
+    };
+
+    setNextQuote();
+    const interval = setInterval(setNextQuote, 30000);
+    return () => clearInterval(interval);
+  }, [quotes]);
   
   const {
     timeLeft,
@@ -364,7 +383,7 @@ const Dashboard = () => {
                       <Edit2 className="w-3.5 h-3.5" /> Edit
                     </button>
                     <button 
-                      onClick={(e) => { e.stopPropagation(); deleteReminder(rem.id); setActiveReminderMenu(null); }}
+                      onClick={(e) => { e.stopPropagation(); confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id)); setActiveReminderMenu(null); }}
                       className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors flex items-center gap-2"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> Delete

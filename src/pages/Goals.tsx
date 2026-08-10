@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useDeleteModal } from '../contexts/DeleteModalContext';
 
 const Goals = () => {
   const [goals, setGoals] = useState<{id: string, title: string, completed: boolean}[]>([]);
   const [newGoal, setNewGoal] = useState('');
+  const { confirmDelete } = useDeleteModal();
 
   useEffect(() => {
     const saved = localStorage.getItem('lifeos_goals');
@@ -27,6 +29,10 @@ const Goals = () => {
     saveGoals(goals.map(g => g.id === id ? { ...g, completed: !g.completed } : g));
   };
 
+  const deleteGoal = (id: string) => {
+    saveGoals(goals.filter(g => g.id !== id));
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12">
       <h1 className="text-2xl font-bold text-text-primary">Goals & Habits</h1>
@@ -47,16 +53,22 @@ const Goals = () => {
 
         <div className="space-y-2">
           {goals.map(goal => (
-            <div key={goal.id} className="flex items-center gap-3 p-3 bg-surface-elevated/50 border border-border/50 rounded-xl">
+            <div key={goal.id} className="flex items-center gap-3 p-3 bg-surface-elevated/50 border border-border/50 rounded-xl group transition-all hover:bg-surface-elevated">
               <button 
                 onClick={() => toggleGoal(goal.id)}
-                className={cn("w-5 h-5 rounded-full border flex items-center justify-center transition-colors", goal.completed ? "bg-success border-success text-background" : "border-border")}
+                className={cn("w-5 h-5 rounded-full border flex items-center justify-center transition-colors shrink-0", goal.completed ? "bg-success border-success text-background" : "border-border")}
               >
                 {goal.completed && <Check className="w-3 h-3" strokeWidth={3} />}
               </button>
-              <span className={cn("text-sm font-medium", goal.completed ? "text-text-muted line-through" : "text-text-primary")}>
+              <span className={cn("text-sm font-medium flex-1 truncate", goal.completed ? "text-text-muted line-through" : "text-text-primary")}>
                 {goal.title}
               </span>
+              <button 
+                onClick={() => confirmDelete(`Goal: ${goal.title}`, () => deleteGoal(goal.id))} 
+                className="p-1.5 text-text-muted hover:text-danger transition-colors opacity-0 group-hover:opacity-100 rounded-lg bg-background/50 shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           ))}
           {goals.length === 0 && (

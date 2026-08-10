@@ -1,31 +1,161 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Search, Bell, Moon } from 'lucide-react';
-import { format } from 'date-fns';
+import { Bell, Check } from 'lucide-react';
+import { format, isToday, parse, parseISO } from 'date-fns';
+import { useTasks } from '../lib/useTasks';
+import { useReminders } from '../lib/useReminders';
+import { useRoutines } from '../lib/useRoutines';
 
 const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const searchRef = useRef<HTMLInputElement>(null);
   const [time, setTime] = useState(new Date());
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [lastReadTime, setLastReadTime] = useState<number>(() => parseInt(localStorage.getItem('lastReadNotifications') || '0', 10));
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const { tasks } = useTasks();
+  const { reminders } = useReminders();
+  const { routines } = useRoutines();
 
+  // Update time every minute
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 60000); // update every minute
+    const timer = setInterval(() => setTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
+
+  // Generate notifications based on tasks, reminders, routines
+  useEffect(() => {
+    const newNotifications: any[] = [];
+    const now = new Date();
+
+    // Helper to safely parse time
+    const parseTime = (timeStr: string) => {
+      try {
+        return parse(timeStr, 'HH:mm:ss', new Date());
+      } catch (e) {
+        return null;
+      }
+    };
+
+    // 1. Tasks
+    tasks?.forEach(task => {
+      if (task.completed) return;
+      if (task.date && isToday(parseISO(task.date))) {
+        if (task.start_time) {
+          const taskTime = parseTime(task.start_time);
+          if (taskTime) {
+            const minutesUntil = Math.round((taskTime.getTime() - now.getTime()) / 60000);
+            
+            if (minutesUntil > 0 && minutesUntil <= 60) {
+              newNotifications.push({
+                id: `task-${task.id}`,
+                title: 'Upcoming Task',
+                message: `${task.title} starts in ${minutesUntil} minutes`,
+                time: taskTime,
+                type: 'task'
+              });
+            } else if (minutesUntil <= 0 && minutesUntil >= -120) { // within last 2 hours
+              newNotifications.push({
+                id: `task-${task.id}`,
+                title: 'Task Due',
+                message: `${task.title} started at ${format(taskTime, 'h:mm a')}`,
+                time: taskTime,
+                type: 'task'
+              });
+            }
+          }
+        }
+      }
+    });
+
+    // 2. Reminders
+    reminders?.forEach(reminder => {
+      if (reminder.completed) return;
+      if (reminder.date && isToday(parseISO(reminder.date))) {
+        if (reminder.time) {
+          const reminderTime = parseTime(reminder.time);
+          if (reminderTime) {
+            const minutesUntil = Math.round((reminderTime.getTime() - now.getTime()) / 60000);
+            
+            if (minutesUntil > 0 && minutesUntil <= 60) {
+              newNotifications.push({
+                id: `reminder-${reminder.id}`,
+                title: 'Upcoming Reminder',
+                message: `${reminder.title} reminder at ${format(reminderTime, 'h:mm a')}`,
+                time: reminderTime,
+                type: 'reminder'
+              });
+            } else if (minutesUntil <= 0 && minutesUntil >= -120) { // within last 2 hours
+              newNotifications.push({
+                id: `reminder-${reminder.id}`,
+                title: 'Reminder Due',
+                message: `${reminder.title} was at ${format(reminderTime, 'h:mm a')}`,
+                time: reminderTime,
+                type: 'reminder'
+              });
+            }
+          }
+        } else {
+          // All-day reminder for today
+          newNotifications.push({
+            id: `reminder-${reminder.id}`,
+            title: 'Reminder Today',
+            message: reminder.title,
+            time: new Date(new Date().setHours(0, 0, 0, 0)),
+            type: 'reminder'
+          });
+        }
+      }
+    });
+
+    // 3. Routines
+    routines?.forEach(routine => {
+      if (!routine.enabled) return;
+      if (routine.time) {
+        const routineTime = parseTime(routine.time);
+        if (routineTime) {
+          const dayName = format(now, 'E'); // e.g. 'Mon', 'Tue'
+          if (routine.days.includes(dayName)) {
+            const minutesUntil = Math.round((routineTime.getTime() - now.getTime()) / 60000);
+            
+            if (minutesUntil > 0 && minutesUntil <= 60) {
+              newNotifications.push({
+                id: `routine-${routine.id}`,
+                title: 'Routine Starting Soon',
+                message: `${routine.title} starts at ${format(routineTime, 'h:mm a')}`,
+                time: routineTime,
+                type: 'routine'
+              });
+            }
+          }
+        }
+      }
+    });
+
+    // Sort descending by time
+    newNotifications.sort((a, b) => b.time.getTime() - a.time.getTime());
+    
+    // Deduplicate (in case multiple updates trigger it)
+    const uniqueNotifications = Array.from(new Map(newNotifications.map(item => [item.id, item])).values());
+    
+    setNotifications(uniqueNotifications);
+  }, [tasks, reminders, routines, time]);
+
+  const unreadCount = notifications.filter(n => n.time.getTime() > lastReadTime).length;
+
+  const handleOpenNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+    if (isProfileOpen) setIsProfileOpen(false);
+  };
+
+  const markAllAsRead = () => {
+    const nowTime = Date.now();
+    setLastReadTime(nowTime);
+    localStorage.setItem('lastReadNotifications', nowTime.toString());
+  };
 
   const getGreeting = () => {
     const hour = time.getHours();
@@ -35,7 +165,7 @@ const Header = () => {
   };
 
   return (
-    <header className="h-16 px-8 flex items-center justify-between border-none bg-background pt-2">
+    <header className="h-16 px-8 flex items-center justify-between border-none bg-background pt-2 relative z-50">
       <div>
         <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
           {getGreeting()}, {user?.name.toLowerCase()} <span className="text-xl">👋</span>
@@ -46,34 +176,66 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-6">
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-primary transition-colors" />
-          <input 
-            ref={searchRef}
-            type="text" 
-            placeholder="Search tasks, notes, etc..." 
-            className="w-72 bg-surface-elevated/50 border border-border/50 rounded-full py-2 pl-9 pr-14 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-all"
-          />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
-            <kbd className="hidden sm:inline-block border border-border/50 bg-background rounded px-1.5 text-[10px] text-text-muted font-sans">⌘</kbd>
-            <kbd className="hidden sm:inline-block border border-border/50 bg-background rounded px-1.5 text-[10px] text-text-muted font-sans">K</kbd>
-          </div>
-        </div>
-
         <div className="flex items-center gap-4">
-          <button className="relative p-2 text-text-muted hover:text-text-primary rounded-full transition-colors">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-text-primary rounded-full"></span>
-          </button>
-          <button 
-            onClick={() => navigate('/settings')}
-            className="p-2 text-text-muted hover:text-text-primary rounded-full transition-colors"
-          >
-            <Moon className="w-5 h-5" />
-          </button>
+          
           <div className="relative">
             <button 
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              onClick={handleOpenNotifications}
+              className="relative p-2 text-text-muted hover:text-text-primary rounded-full transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 bg-text-primary rounded-full"></span>
+              )}
+            </button>
+            
+            {isNotificationsOpen && (
+              <div className="absolute right-0 mt-2 w-80 glass-card rounded-xl border border-border/50 py-2 shadow-xl bg-surface">
+                <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+                  <p className="text-sm font-bold text-text-primary">Notifications</p>
+                  {unreadCount > 0 && (
+                    <button 
+                      onClick={markAllAsRead}
+                      className="text-xs text-text-cyan hover:text-text-primary flex items-center gap-1 transition-colors"
+                    >
+                      <Check className="w-3 h-3" />
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-[300px] overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((notification) => {
+                      const isUnread = notification.time.getTime() > lastReadTime;
+                      return (
+                        <div 
+                          key={notification.id} 
+                          className={`px-4 py-3 border-b border-border/30 last:border-0 hover:bg-surface-elevated transition-colors ${isUnread ? 'bg-primary/5' : ''}`}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-xs font-semibold text-text-cyan">{notification.title}</span>
+                            <span className="text-[10px] text-text-muted">{format(notification.time, 'h:mm a')}</span>
+                          </div>
+                          <p className="text-sm text-text-primary">{notification.message}</p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="px-4 py-8 text-center text-text-muted text-sm">
+                      No new notifications
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <button 
+              onClick={() => {
+                setIsProfileOpen(!isProfileOpen);
+                if (isNotificationsOpen) setIsNotificationsOpen(false);
+              }}
               className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 ml-2 hover:bg-primary/30 transition-colors overflow-hidden"
             >
               {user?.avatar_url ? (
@@ -84,7 +246,7 @@ const Header = () => {
             </button>
             
             {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-48 glass-card rounded-xl border border-border/50 py-2 shadow-xl z-50 bg-surface">
+              <div className="absolute right-0 mt-2 w-48 glass-card rounded-xl border border-border/50 py-2 shadow-xl bg-surface">
                 <div className="px-4 py-2 border-b border-border/50">
                   <p className="text-sm font-bold text-text-primary truncate">{user?.name}</p>
                 </div>
@@ -118,3 +280,4 @@ const Header = () => {
 };
 
 export default Header;
+
