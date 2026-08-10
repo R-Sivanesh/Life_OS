@@ -118,7 +118,7 @@ const Header = () => {
         const routineTime = parseTime(routine.time);
         if (routineTime) {
           const dayName = format(now, 'E'); // e.g. 'Mon', 'Tue'
-          if (routine.days.includes(dayName)) {
+          if ((routine.days ?? []).includes(dayName)) {
             const minutesUntil = Math.round((routineTime.getTime() - now.getTime()) / 60000);
             
             if (minutesUntil > 0 && minutesUntil <= 60) {
