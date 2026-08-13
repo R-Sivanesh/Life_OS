@@ -29,7 +29,7 @@ const Profile = () => {
       </div>
 
       <div className="glass-card p-8 flex flex-col gap-8 max-w-3xl">
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
           <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center border-4 border-primary/30 overflow-hidden shadow-glow">
             {user.avatar_url ? (
               <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />

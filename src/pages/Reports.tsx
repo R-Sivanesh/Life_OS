@@ -159,14 +159,14 @@ const Reports = () => {
       </div>
 
       {/* 1. TOP SUMMARY CARDS */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
         <div className="glass-card p-5 border-l-4 border-l-surface-elevated flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-surface-elevated flex items-center justify-center flex-shrink-0 text-text-cyan">
             <LayoutGrid className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-text-cyan text-xs font-medium mb-1">Total Tasks</div>
-            <div className="text-2xl font-black text-text-primary">{totalTasks}</div>
+            <div className="text-text-cyan text-[10px] sm:text-xs font-medium mb-1">Total Tasks</div>
+            <div className="text-xl sm:text-2xl font-black text-text-primary">{totalTasks}</div>
             <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
@@ -176,8 +176,8 @@ const Reports = () => {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-text-cyan text-xs font-medium mb-1">Completed</div>
-            <div className="text-2xl font-black text-emerald-500">{completedTasks}</div>
+            <div className="text-text-cyan text-[10px] sm:text-xs font-medium mb-1">Completed</div>
+            <div className="text-xl sm:text-2xl font-black text-emerald-500">{completedTasks}</div>
             <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
@@ -187,8 +187,8 @@ const Reports = () => {
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-text-cyan text-xs font-medium mb-1">Pending</div>
-            <div className="text-2xl font-black text-amber-500">{pendingTasks}</div>
+            <div className="text-text-cyan text-[10px] sm:text-xs font-medium mb-1">Pending</div>
+            <div className="text-xl sm:text-2xl font-black text-amber-500">{pendingTasks}</div>
             <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
@@ -198,8 +198,8 @@ const Reports = () => {
             <Target className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-text-cyan text-xs font-medium mb-1">Completion Rate</div>
-            <div className="text-2xl font-black text-primary">{overallRate}%</div>
+            <div className="text-text-cyan text-[10px] sm:text-xs font-medium mb-1 truncate">Completion Rate</div>
+            <div className="text-xl sm:text-2xl font-black text-primary">{overallRate}%</div>
             <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>
@@ -209,8 +209,8 @@ const Reports = () => {
             <Zap className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-text-cyan text-xs font-medium mb-1">Focus Time</div>
-            <div className="text-2xl font-black text-blue-500">{focusHours}h {focusMins}m</div>
+            <div className="text-text-cyan text-[10px] sm:text-xs font-medium mb-1">Focus Time</div>
+            <div className="text-xl sm:text-2xl font-black text-blue-500">{focusHours}h {focusMins}m</div>
             <div className="text-[10px] text-text-muted mt-1">All time</div>
           </div>
         </div>

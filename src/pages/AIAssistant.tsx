@@ -27,7 +27,7 @@ const AIAssistant = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto h-[calc(100vh-8rem)] pb-6">
+    <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto min-h-[500px] md:h-[calc(100vh-8rem)] pb-6">
       <div className="flex items-center gap-3 border-b border-border/50 pb-4">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-cyan flex items-center justify-center shadow-glow">
           <Bot className="w-5 h-5 text-white" />

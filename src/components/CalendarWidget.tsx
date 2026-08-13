@@ -42,7 +42,7 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   }
 
   return (
-    <div className="glass-card p-6 border-border">
+    <div className="glass-card p-4 md:p-6 border-border">
       <div className="flex justify-between items-center mb-6">
         <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-surface-elevated rounded-lg text-text-muted transition-colors">
           <ChevronLeft className="w-5 h-5"/>

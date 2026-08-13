@@ -48,11 +48,11 @@ const Reminders = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-card flex-1 flex flex-col overflow-hidden h-[calc(100vh-12rem)]">
-          <div className="p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
+        <div className="glass-card flex-1 flex flex-col overflow-hidden lg:h-[calc(100vh-12rem)] min-h-[400px]">
+          <div className="p-4 md:p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
             <h3 className="text-text-primary font-bold">Upcoming Reminders</h3>
           </div>
-          <div className="p-4 overflow-y-auto space-y-2">
+          <div className="p-3 md:p-4 overflow-y-auto space-y-2">
             {pendingReminders.length > 0 ? pendingReminders.map(rem => (
               <div key={rem.id} className="flex items-center gap-4 p-4 rounded-xl bg-surface-elevated border border-border group hover:border-warning/50 transition-colors">
                 <button 
@@ -64,18 +64,18 @@ const Reminders = () => {
                 <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0 text-warning">
                   <AlertCircle className="w-4 h-4" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="font-medium text-sm text-text-primary block truncate">{rem.title}</span>
-                  <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <span className="font-medium text-sm text-text-primary block truncate w-full">{rem.title}</span>
+                  <div className="flex items-center gap-2 mt-0 sm:mt-1 shrink-0">
                     <span className="text-xs text-text-muted">{rem.date ? format(new Date(rem.date), 'MMM d, yyyy') : 'No date'}</span>
                     {rem.time && <span className="text-xs text-text-muted">• {formatTimeDisplay(rem.time)}</span>}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 shrink-0 items-end">
-                  <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border", getPriorityColor(rem.priority))}>{rem.priority}</span>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openReminderModal(undefined, rem)} className="p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id))} className="p-1 text-text-muted hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border opacity-50", getPriorityColor(rem.priority))}>{rem.priority}</span>
+                  <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openReminderModal(undefined, rem)} className="p-2 sm:p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>
+                    <button onClick={() => confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id))} className="p-2 sm:p-1 text-text-muted hover:text-danger transition-colors"><Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>
                   </div>
                 </div>
               </div>
@@ -85,11 +85,11 @@ const Reminders = () => {
           </div>
         </div>
 
-        <div className="glass-card flex-1 flex flex-col overflow-hidden h-[calc(100vh-12rem)] opacity-70 hover:opacity-100 transition-opacity">
-          <div className="p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
+        <div className="glass-card flex-1 flex flex-col overflow-hidden lg:h-[calc(100vh-12rem)] min-h-[400px] opacity-70 hover:opacity-100 transition-opacity">
+          <div className="p-4 md:p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
             <h3 className="text-text-primary font-bold">Past Reminders</h3>
           </div>
-          <div className="p-4 overflow-y-auto space-y-2">
+          <div className="p-3 md:p-4 overflow-y-auto space-y-2">
             {completedReminders.length > 0 ? completedReminders.map(rem => (
               <div key={rem.id} className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-transparent group">
                 <button 
@@ -98,9 +98,11 @@ const Reminders = () => {
                 >
                   <Check className="w-3 h-3" strokeWidth={3} />
                 </button>
-                <div className="flex-1 min-w-0 opacity-50">
-                  <span className="font-medium text-sm text-text-muted line-through block truncate">{rem.title}</span>
-                  <span className="text-xs text-text-muted">{rem.date ? format(new Date(rem.date), 'MMM d, yyyy') : ''}</span>
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 opacity-50">
+                  <span className="font-medium text-sm text-text-muted block truncate line-through w-full">{rem.title}</span>
+                  <div className="flex items-center gap-2 mt-0 sm:mt-1 shrink-0">
+                    <span className="text-xs text-text-muted">{rem.date ? format(new Date(rem.date), 'MMM d, yyyy') : ''}</span>
+                  </div>
                 </div>
                 <button onClick={() => confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id))} className="p-1 text-text-muted hover:text-danger transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>

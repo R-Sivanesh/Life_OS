@@ -28,7 +28,7 @@ const Focus = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto pb-12 h-[calc(100vh-8rem)]">
+    <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto pb-12 min-h-[500px] md:h-[calc(100vh-8rem)]">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-glow">
           <Clock className="w-5 h-5" />
@@ -56,7 +56,7 @@ const Focus = () => {
           </div>
 
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="text-[120px] font-black leading-none tracking-tighter text-text-primary tabular-nums shadow-primary/20" style={{ textShadow: '0 0 40px rgba(59,130,246,0.3)' }}>
+            <div className="text-[80px] md:text-[120px] font-black leading-none tracking-tighter text-text-primary tabular-nums shadow-primary/20" style={{ textShadow: '0 0 40px rgba(59,130,246,0.3)' }}>
               {formatTime(timeLeft)}
             </div>
           </div>

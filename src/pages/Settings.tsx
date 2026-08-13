@@ -135,7 +135,7 @@ const Settings = () => {
               These quotes will be displayed on your Dashboard and change automatically.
             </p>
             
-            <form onSubmit={handleAddQuote} className="flex gap-2">
+            <form onSubmit={handleAddQuote} className="flex flex-col sm:flex-row gap-2">
               <input 
                 type="text" 
                 value={newQuoteText} 
@@ -170,12 +170,12 @@ const Settings = () => {
                   ) : (
                     <>
                       <p className="text-sm text-text-primary italic flex-1 pr-4">"{quote.text}"</p>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => startEditQuote(quote)} className="p-1.5 text-text-muted hover:text-primary transition-colors rounded-lg bg-background/50">
-                          <Edit2 className="w-3.5 h-3.5" />
+                      <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => startEditQuote(quote)} className="p-2 sm:p-1.5 text-text-muted hover:text-primary transition-colors rounded-lg bg-background/50">
+                          <Edit2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
-                        <button onClick={() => handleDeleteQuote(quote.id, quote.text)} className="p-1.5 text-text-muted hover:text-danger transition-colors rounded-lg bg-background/50">
-                          <Trash2 className="w-3.5 h-3.5" />
+                        <button onClick={() => handleDeleteQuote(quote.id, quote.text)} className="p-2 sm:p-1.5 text-text-muted hover:text-danger transition-colors rounded-lg bg-background/50">
+                          <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
                       </div>
                     </>

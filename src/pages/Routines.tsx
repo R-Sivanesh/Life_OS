@@ -51,18 +51,18 @@ const Routines = () => {
               </button>
               
               <div className="flex-1 min-w-0">
-                <h3 className={cn("font-bold truncate", routine.enabled ? "text-text-primary" : "text-text-muted line-through")}>{routine.title}</h3>
-                <div className="flex items-center gap-2 mt-1">
+                <h3 className={cn("font-bold truncate w-full", routine.enabled ? "text-text-primary" : "text-text-muted line-through")}>{routine.title}</h3>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
                   <span className="text-xs text-text-muted">{routine.time ? formatTimeDisplay(routine.time) : 'Any time'} • {routine.duration_minutes || 0} min</span>
-                  <span className="text-xs text-text-muted bg-background px-2 py-0.5 rounded border border-border">
+                  <span className="text-[10px] sm:text-xs text-text-muted bg-background px-2 py-0.5 rounded border border-border">
                     {routine.days?.join(', ') || 'Everyday'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => { setSelectedRoutine(routine); setIsModalOpen(true); }} className="p-2 text-text-muted hover:text-primary transition-colors bg-background rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => confirmDelete(`Routine: ${routine.title}`, () => deleteRoutine(routine.id))} className="p-2 text-text-muted hover:text-danger transition-colors bg-background rounded-lg"><Trash2 className="w-4 h-4" /></button>
+              <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
+                <button onClick={() => { setSelectedRoutine(routine); setIsModalOpen(true); }} className="p-2 sm:p-2 text-text-muted hover:text-primary transition-colors bg-background rounded-lg"><Edit2 className="w-4 h-4 sm:w-4 sm:h-4" /></button>
+                <button onClick={() => confirmDelete(`Routine: ${routine.title}`, () => deleteRoutine(routine.id))} className="p-2 sm:p-2 text-text-muted hover:text-danger transition-colors bg-background rounded-lg"><Trash2 className="w-4 h-4 sm:w-4 sm:h-4" /></button>
               </div>
             </div>
           )) : (

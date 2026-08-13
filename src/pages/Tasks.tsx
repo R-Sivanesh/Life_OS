@@ -60,9 +60,9 @@ const Tasks = () => {
       >
         <Check className="w-3 h-3" strokeWidth={3} />
       </button>
-      <div className={cn("flex-1 min-w-0", isCompleted ? "opacity-50" : "")}>
-        <span className={cn("font-medium text-sm block truncate", isCompleted ? "text-text-muted line-through" : "text-text-primary")}>{task.title}</span>
-        <div className="flex items-center gap-2 mt-1">
+      <div className={cn("flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2", isCompleted ? "opacity-50" : "")}>
+        <span className={cn("font-medium text-sm block truncate w-full", isCompleted ? "text-text-muted line-through" : "text-text-primary")}>{task.title}</span>
+        <div className="flex items-center gap-2 mt-0 sm:mt-1 shrink-0">
           {isCompleted ? (
             <span className="text-xs text-text-muted">{task.completed_at ? `Completed on ${format(new Date(task.completed_at), 'MMM d')}` : ''}</span>
           ) : (
@@ -80,9 +80,9 @@ const Tasks = () => {
             <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded bg-surface-elevated", getCategoryColor(task.category))}>{task.category}</span>
           </div>
         )}
-        <div className={cn("flex items-center gap-2 transition-opacity opacity-0 group-hover:opacity-100")}>
-          {!isCompleted && <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>}
-          <button onClick={() => confirmDelete(task.title, () => deleteTask(task.id))} className={cn("p-1 transition-colors", isCompleted ? "text-text-muted hover:text-danger" : "text-text-muted hover:text-danger")}><Trash2 className="w-3.5 h-3.5" /></button>
+        <div className={cn("flex items-center gap-2 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100")}>
+          {!isCompleted && <button onClick={() => openTaskModal(undefined, task)} className="p-2 sm:p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>}
+          <button onClick={() => confirmDelete(task.title, () => deleteTask(task.id))} className={cn("p-2 sm:p-1 transition-colors", isCompleted ? "text-text-muted hover:text-danger" : "text-text-muted hover:text-danger")}><Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>
         </div>
       </div>
     </div>
@@ -115,11 +115,11 @@ const Tasks = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-card flex-1 flex flex-col overflow-hidden h-[calc(100vh-14rem)]">
-          <div className="p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
+        <div className="glass-card flex-1 flex flex-col overflow-hidden lg:h-[calc(100vh-14rem)] min-h-[400px]">
+          <div className="p-4 md:p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
             <h3 className="text-text-primary font-bold">Pending Tasks</h3>
           </div>
-          <div className="p-4 overflow-y-auto space-y-6">
+          <div className="p-3 md:p-4 overflow-y-auto space-y-4 md:space-y-6">
             {view === 'today' && pendingTasks.length > 0 && (
               <>
                 {pendingNormal.length > 0 && (
@@ -151,11 +151,11 @@ const Tasks = () => {
           </div>
         </div>
 
-        <div className="glass-card flex-1 flex flex-col overflow-hidden h-[calc(100vh-14rem)] opacity-70 hover:opacity-100 transition-opacity">
-          <div className="p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
+        <div className="glass-card flex-1 flex flex-col overflow-hidden lg:h-[calc(100vh-14rem)] min-h-[400px] opacity-70 hover:opacity-100 transition-opacity">
+          <div className="p-4 md:p-6 border-b border-border bg-surface-elevated/30 sticky top-0 z-10">
             <h3 className="text-text-primary font-bold">Completed Tasks</h3>
           </div>
-          <div className="p-4 overflow-y-auto space-y-6">
+          <div className="p-3 md:p-4 overflow-y-auto space-y-4 md:space-y-6">
             {view === 'today' && completedTasks.length > 0 && (
               <>
                 {completedNormal.length > 0 && (

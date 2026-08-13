@@ -121,6 +121,25 @@ CREATE TABLE IF NOT EXISTS public.motivational_quotes (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 10. Learning Topics Table
+CREATE TABLE IF NOT EXISTS public.learning_topics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    category TEXT,
+    priority TEXT DEFAULT 'Medium',
+    progress INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'Not Started',
+    current_module TEXT,
+    next_module TEXT,
+    notes TEXT,
+    resources JSONB DEFAULT '[]'::jsonb,
+    last_studied_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Set up Row Level Security (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
@@ -131,6 +150,7 @@ ALTER TABLE public.journal_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.habits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.motivational_quotes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.learning_topics ENABLE ROW LEVEL SECURITY;
 
 -- Create Policies
 
@@ -223,6 +243,16 @@ DROP POLICY IF EXISTS "Users can update their own quotes" ON public.motivational
 CREATE POLICY "Users can update their own quotes" ON public.motivational_quotes FOR UPDATE USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can delete their own quotes" ON public.motivational_quotes;
 CREATE POLICY "Users can delete their own quotes" ON public.motivational_quotes FOR DELETE USING (auth.uid() = user_id);
+
+-- Learning Topics
+DROP POLICY IF EXISTS "Users can view their own learning topics" ON public.learning_topics;
+CREATE POLICY "Users can view their own learning topics" ON public.learning_topics FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert their own learning topics" ON public.learning_topics;
+CREATE POLICY "Users can insert their own learning topics" ON public.learning_topics FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update their own learning topics" ON public.learning_topics;
+CREATE POLICY "Users can update their own learning topics" ON public.learning_topics FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete their own learning topics" ON public.learning_topics;
+CREATE POLICY "Users can delete their own learning topics" ON public.learning_topics FOR DELETE USING (auth.uid() = user_id);
 
 -- Function to handle new user profile creation automatically
 CREATE OR REPLACE FUNCTION public.handle_new_user() 

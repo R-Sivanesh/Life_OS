@@ -11,6 +11,7 @@ import Reminders from './pages/Reminders';
 import Focus from './pages/Focus';
 import Routines from './pages/Routines';
 import Journal from './pages/Journal';
+import Learning from './pages/Learning';
 import AIAssistant from './pages/AIAssistant';
 import Reports from './pages/Reports';
 import Goals from './pages/Goals';
@@ -49,6 +50,7 @@ function App() {
             <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
             <Route path="/routine" element={<ProtectedRoute><Routines /></ProtectedRoute>} />
             <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
+            <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
             <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />

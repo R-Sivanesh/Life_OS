@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Bell, Check } from 'lucide-react';
+import { Bell, Check, Menu } from 'lucide-react';
 import { format, isToday, parse, parseISO } from 'date-fns';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 import { useRoutines } from '../lib/useRoutines';
 
-const Header = () => {
+const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
@@ -165,17 +165,27 @@ const Header = () => {
   };
 
   return (
-    <header className="h-16 px-8 flex items-center justify-between border-none bg-background pt-2 relative z-50">
-      <div>
-        <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-          {getGreeting()}, {user?.name.toLowerCase()} <span className="text-xl">👋</span>
-        </h2>
-        <p className="text-xs text-text-muted">
-          {format(time, 'EEEE, MMMM d, yyyy')}
-        </p>
+    <header className="h-16 px-4 md:px-8 flex items-center justify-between border-none bg-background pt-2 relative z-30 w-full max-w-full">
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button 
+            onClick={onMenuClick}
+            className="md:hidden p-2 -ml-2 text-text-muted hover:text-text-primary rounded-lg transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        )}
+        <div className="flex flex-col">
+          <h2 className="text-lg md:text-xl font-bold text-text-primary flex items-center gap-2 truncate max-w-[200px] sm:max-w-xs">
+            {getGreeting()}, {user?.name.toLowerCase().split(' ')[0]} <span className="text-lg md:text-xl shrink-0">👋</span>
+          </h2>
+          <p className="text-[10px] md:text-xs text-text-muted truncate">
+            {format(time, 'EEEE, MMMM d, yyyy')}
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 md:gap-6 shrink-0">
         <div className="flex items-center gap-4">
           
           <div className="relative">
@@ -190,7 +200,7 @@ const Header = () => {
             </button>
             
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 glass-card rounded-xl border border-border/50 py-2 shadow-xl bg-surface">
+              <div className="absolute right-0 mt-2 w-[280px] sm:w-80 glass-card rounded-xl border border-border/50 py-2 shadow-xl bg-surface z-50">
                 <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
                   <p className="text-sm font-bold text-text-primary">Notifications</p>
                   {unreadCount > 0 && (
@@ -246,7 +256,7 @@ const Header = () => {
             </button>
             
             {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-48 glass-card rounded-xl border border-border/50 py-2 shadow-xl bg-surface">
+              <div className="absolute right-0 mt-2 w-48 glass-card rounded-xl border border-border/50 py-2 shadow-xl bg-surface z-50">
                 <div className="px-4 py-2 border-b border-border/50">
                   <p className="text-sm font-bold text-text-primary truncate">{user?.name}</p>
                 </div>

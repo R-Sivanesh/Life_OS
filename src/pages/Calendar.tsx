@@ -106,7 +106,8 @@ const Calendar = () => {
                     {format(day, 'd')}
                   </span>
 
-                  <div className="flex-1 overflow-y-auto space-y-1 mt-1 no-scrollbar pr-1">
+                  {/* Desktop View */}
+                  <div className="hidden md:block flex-1 overflow-y-auto space-y-1 mt-1 no-scrollbar pr-1">
                     {dayTasks.map(t => (
                       <div key={t.id} className="text-[10px] truncate px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/20">
                         {t.title}
@@ -118,6 +119,12 @@ const Calendar = () => {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Mobile View */}
+                  <div className="md:hidden flex flex-wrap gap-1 mt-auto">
+                    {dayTasks.length > 0 && <div className="w-1.5 h-1.5 rounded-full bg-success" />}
+                    {dayReminders.length > 0 && <div className="w-1.5 h-1.5 rounded-full bg-warning" />}
+                  </div>
                 </div>
               );
             })}
@@ -126,7 +133,7 @@ const Calendar = () => {
       </div>
 
       {/* Selected Date Details */}
-      <div className="w-full xl:w-96 flex flex-col gap-6 h-[calc(100vh-8rem)]">
+      <div className="w-full xl:w-96 flex flex-col gap-6 h-[50vh] md:h-[calc(100vh-8rem)]">
         <div className="glass-card flex-1 flex flex-col overflow-hidden">
           <div className="p-6 border-b border-border bg-surface-elevated/30">
             <h3 className="text-xl font-bold text-text-primary">{format(selectedDate, 'EEEE, MMMM d')}</h3>

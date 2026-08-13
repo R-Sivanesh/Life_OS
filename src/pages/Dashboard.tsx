@@ -140,9 +140,9 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12 overflow-y-auto">
       {/* Top Stats Row */}
-      <div className={cn("glass-card flex items-center justify-between px-6 py-4 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
+      <div className={cn("glass-card flex flex-col lg:flex-row items-center justify-between px-4 md:px-6 py-4 gap-6 lg:gap-0 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
         {/* Circle Progress (LEFT) */}
-        <div className="flex items-center gap-6 flex-1">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto lg:flex-1 justify-center lg:justify-start">
           <div className="relative w-20 h-20 flex-shrink-0 rounded-full border-[6px] border-surface-elevated/40 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
               <circle 
@@ -186,7 +186,7 @@ const Dashboard = () => {
         </div>
         
         {/* Focus Timer (CENTER) */}
-        <div className="flex flex-col items-center justify-center flex-1 border-x border-border/50 px-6 mx-6">
+        <div className="flex flex-col items-center justify-center w-full lg:w-auto lg:flex-1 border-y lg:border-y-0 lg:border-x border-border/50 py-4 lg:py-0 px-4 lg:px-6 mx-0 lg:mx-6">
           <span className="text-[10px] font-bold text-primary tracking-widest uppercase mb-1">Focus</span>
           <span className="text-3xl font-black text-text-primary tabular-nums leading-none mb-3 tracking-tight">
             {formatTime(timeLeft)}
@@ -219,7 +219,7 @@ const Dashboard = () => {
         </div>
         
         {/* Quote (RIGHT) */}
-        <div className="flex flex-col items-start justify-center flex-1 pl-4">
+        <div className="flex flex-col items-center sm:items-start justify-center w-full lg:w-auto lg:flex-1 lg:pl-4 text-center sm:text-left">
            <div className="text-4xl text-primary/20 leading-none mb-1 font-serif">"</div>
            <p className="text-sm text-text-cyan leading-relaxed font-medium pr-4">
              {quote}
@@ -237,7 +237,7 @@ const Dashboard = () => {
         <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
           {/* Today's Tasks */}
           <div className="glass-card flex flex-col overflow-hidden">
-            <div className="p-6 border-b border-border/50 flex justify-between items-center">
+            <div className="p-4 md:p-6 border-b border-border/50 flex justify-between items-center">
               <h3 className="text-text-primary font-bold">Today's Tasks</h3>
               <button onClick={() => openTaskModal(todayString)} className="btn-primary text-xs py-1.5 px-3 rounded-lg shadow-glow flex items-center gap-1">
                 <Plus className="w-3.5 h-3.5" /> Add Task
@@ -258,21 +258,21 @@ const Dashboard = () => {
                           <Check className="w-2.5 h-2.5" strokeWidth={3} />
                         </button>
                         <div className="flex-1 flex items-center gap-4 min-w-0">
-                          <span className="w-32 text-xs text-primary/80 shrink-0">
+                          <span className="w-16 sm:w-32 text-[10px] sm:text-xs text-primary/80 shrink-0 truncate">
                             {formatTaskTimeRange(task.start_time, task.end_time)}
                           </span>
-                          <span className="font-medium text-sm transition-colors flex-1 text-text-primary truncate">
+                          <span className="font-medium text-xs sm:text-sm transition-colors flex-1 text-text-primary truncate">
                             {task.title}
                           </span>
-                          <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
+                          <span className={cn("text-[8px] sm:text-[10px] uppercase font-bold px-1.5 sm:px-2 py-0.5 rounded-full border shrink-0 text-center hidden xs:inline-block", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
                             {task.category}
                           </span>
-                          <span className={cn("text-[10px] font-bold w-14 shrink-0 text-right", getPriorityColor(task.priority).split(' ')[0])}>
+                          <span className={cn("text-[8px] sm:text-[10px] font-bold w-10 sm:w-14 shrink-0 text-right hidden xs:inline-block", getPriorityColor(task.priority).split(' ')[0])}>
                             {task.priority}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <button onClick={() => openTaskModal(undefined, task)} className="p-1 text-text-muted hover:text-primary rounded transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                        <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
+                          <button onClick={() => openTaskModal(undefined, task)} className="p-2 sm:p-1 text-text-muted hover:text-primary rounded transition-colors"><Edit2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>
                         </div>
                       </div>
                     ))}
@@ -292,11 +292,11 @@ const Dashboard = () => {
                         >
                           <Check className="w-2.5 h-2.5" strokeWidth={3} />
                         </button>
-                        <div className="flex-1 flex items-center gap-4 min-w-0">
-                          <span className="w-32 text-xs text-text-muted shrink-0 line-through">
+                        <div className="flex-1 flex items-center gap-2 sm:gap-4 min-w-0">
+                          <span className="w-16 sm:w-32 text-[10px] sm:text-xs text-text-muted shrink-0 line-through truncate">
                             {formatTaskTimeRange(task.start_time, task.end_time)}
                           </span>
-                          <span className="font-medium text-sm transition-colors flex-1 text-text-muted line-through truncate">
+                          <span className="font-medium text-xs sm:text-sm transition-colors flex-1 text-text-muted line-through truncate">
                             {task.title}
                           </span>
                           <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center opacity-50", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
@@ -344,12 +344,12 @@ const Dashboard = () => {
       <div className="glass-card flex flex-col overflow-hidden">
         <div className="p-6 border-b border-border/50 flex justify-between items-center">
           <h3 className="text-text-primary font-bold">Upcoming Reminders</h3>
-          <button className="text-xs text-primary hover:text-primary-hover font-medium">
-            View All &rarr;
+          <button onClick={() => openReminderModal()} className="p-1.5 bg-surface-elevated text-text-cyan hover:text-text-primary rounded-lg transition-colors">
+            <Plus className="w-4 h-4" />
           </button>
         </div>
         
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {upcomingReminders.length > 0 ? upcomingReminders.map(rem => (
             <div key={rem.id} className="flex items-start gap-3 p-4 rounded-xl bg-surface-elevated/50 border border-border/50 relative group">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">

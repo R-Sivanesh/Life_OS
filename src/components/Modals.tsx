@@ -178,7 +178,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
             </div>
           )}
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-text-cyan mb-1">Date</label>
               <div className="relative">
@@ -247,7 +247,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
             )}
           </div>
           
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <div>
               <label className="block text-xs font-medium text-text-cyan mb-1">Priority</label>
               <div className="relative">

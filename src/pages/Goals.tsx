@@ -38,7 +38,7 @@ const Goals = () => {
       <h1 className="text-2xl font-bold text-text-primary">Goals & Habits</h1>
       
       <div className="glass-card p-6 flex flex-col gap-6 max-w-2xl">
-        <form onSubmit={addGoal} className="flex gap-3">
+        <form onSubmit={addGoal} className="flex flex-col sm:flex-row gap-3">
           <input 
             type="text" 
             value={newGoal} 
@@ -65,7 +65,7 @@ const Goals = () => {
               </span>
               <button 
                 onClick={() => confirmDelete(`Goal: ${goal.title}`, () => deleteGoal(goal.id))} 
-                className="p-1.5 text-text-muted hover:text-danger transition-colors opacity-0 group-hover:opacity-100 rounded-lg bg-background/50 shrink-0"
+                className="p-1.5 text-text-muted hover:text-danger transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 rounded-lg bg-background/50 shrink-0"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
