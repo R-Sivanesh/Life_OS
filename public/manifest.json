@@ -3,11 +3,6 @@
   "name": "Life OS",
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "any",
-      "type": "image/x-icon"
-    },
-    {
       "src": "/logo192.png",
       "type": "image/png",
       "sizes": "192x192",
