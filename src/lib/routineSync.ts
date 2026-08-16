@@ -21,8 +21,16 @@ const shouldRunOnDate = (routine: Routine, date: Date) => {
   return routine.days.includes(dayName);
 };
 
+const syncLocks = new Set<string>();
+
 export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
   if (!userId || !supabase) return;
+
+  const lockKey = `${routine.id}-${userId}`;
+  if (syncLocks.has(lockKey)) return;
+  syncLocks.add(lockKey);
+
+  try {
 
   const dates = getUpcomingDates();
   
@@ -70,20 +78,37 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
   }
 
   if (tasksToInsertDates.length > 0) {
-    const newTasks = tasksToInsertDates.map(date => ({
-      user_id: userId,
-      recurring: routine.id,
-      title: routine.title,
-      category: 'Routine',
-      priority: routine.priority || 'medium',
-      date: date,
-      start_time: routine.time,
-      end_time: endTime,
-      estimated_minutes: routine.duration_minutes || 30,
-      completed: false,
-      status: 'pending'
-    }));
-    await supabase.from('tasks').insert(newTasks);
+    // IDEMPOTENCY CHECK: Double-check that tasks don't exist before inserting
+    // to prevent race conditions when this function runs multiple times concurrently
+    const { data: checkData } = await supabase
+      .from('tasks')
+      .select('date')
+      .eq('recurring', routine.id)
+      .eq('user_id', userId)
+      .in('date', tasksToInsertDates);
+      
+    const doubleCheckDates = checkData?.map(t => t.date) || [];
+    const finalDatesToInsert = tasksToInsertDates.filter(d => !doubleCheckDates.includes(d));
+
+    if (finalDatesToInsert.length > 0) {
+      const newTasks = finalDatesToInsert.map(date => ({
+        user_id: userId,
+        recurring: routine.id,
+        title: routine.title,
+        category: 'Routine',
+        priority: routine.priority || 'medium',
+        date: date,
+        start_time: routine.time,
+        end_time: endTime,
+        estimated_minutes: routine.duration_minutes || 30,
+        completed: false,
+        status: 'pending'
+      }));
+      await supabase.from('tasks').insert(newTasks);
+    }
+  }
+  } finally {
+    syncLocks.delete(lockKey);
   }
 };
 

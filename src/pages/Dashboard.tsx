@@ -13,6 +13,7 @@ import { format, isToday } from 'date-fns';
 
 import { syncAllRoutines } from '../lib/routineSync';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -92,6 +93,56 @@ const Dashboard = () => {
       }
     }
   }, [routines, user]);
+
+  // ONE-TIME CLEANUP FOR EXISTING DUPLICATES
+  useEffect(() => {
+    const cleanupDuplicates = async () => {
+      if (!user || !supabase) return;
+      const cleanupKey = `lifeos_duplicate_cleanup_${user.id}`;
+      if (localStorage.getItem(cleanupKey)) return;
+
+      console.log('Running one-time cleanup for duplicate tasks...');
+      const { data: allTasks } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user.id)
+        .not('recurring', 'is', null);
+
+      if (allTasks) {
+        const groups: Record<string, typeof allTasks> = {};
+        for (const task of allTasks) {
+          if (!task.date || !task.recurring) continue;
+          const key = `${task.date}_${task.recurring}`;
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(task);
+        }
+
+        const idsToDelete: string[] = [];
+        for (const group of Object.values(groups)) {
+          if (group.length > 1) {
+            group.sort((a, b) => {
+              if (a.completed && !b.completed) return -1;
+              if (!a.completed && b.completed) return 1;
+              return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+            });
+            for (let i = 1; i < group.length; i++) {
+              idsToDelete.push(group[i].id);
+            }
+          }
+        }
+
+        if (idsToDelete.length > 0) {
+          for (let i = 0; i < idsToDelete.length; i += 100) {
+            await supabase.from('tasks').delete().in('id', idsToDelete.slice(i, i + 100));
+          }
+          console.log(`Cleaned up ${idsToDelete.length} duplicates.`);
+          window.dispatchEvent(new Event('lifeos_tasks_updated'));
+        }
+      }
+      localStorage.setItem(cleanupKey, 'true');
+    };
+    cleanupDuplicates();
+  }, [user]);
 
 
   const todayString = format(new Date(), 'yyyy-MM-dd');
