@@ -17,7 +17,7 @@ const getUpcomingDates = () => {
 const shouldRunOnDate = (routine: Routine, date: Date) => {
   if (!routine.enabled) return false;
   if (!routine.days || routine.days.length === 0) return true;
-  const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+  const dayName = format(date, 'EEE');
   return routine.days.includes(dayName);
 };
 

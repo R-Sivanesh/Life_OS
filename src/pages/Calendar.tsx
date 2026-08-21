@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 import { format, startOfWeek, addDays, startOfMonth, endOfMonth, endOfWeek, isSameMonth, isSameDay, isToday, addMonths, subMonths } from 'date-fns';
-import { ChevronLeft, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, AlertCircle, FileText } from 'lucide-react';
 import { cn, formatTaskTimeRange, formatTimeDisplay } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 const Calendar = () => {
+  const { user } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [journalEntries, setJournalEntries] = useState<any[]>([]);
+  const [loadingJournal, setLoadingJournal] = useState(false);
   const { tasks, completeTask, uncompleteTask, refresh: refreshTasks } = useTasks();
   const { reminders, refresh: refreshReminders } = useReminders();
 
@@ -15,6 +20,27 @@ const Calendar = () => {
     refreshTasks();
     refreshReminders();
   }, [refreshTasks, refreshReminders]);
+
+  useEffect(() => {
+    const fetchJournal = async () => {
+      if (!user || !supabase) return;
+      setLoadingJournal(true);
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('date', format(selectedDate, 'yyyy-MM-dd'))
+        .order('created_at', { ascending: true });
+        
+      if (!error && data) {
+        setJournalEntries(data);
+      } else {
+        setJournalEntries([]);
+      }
+      setLoadingJournal(false);
+    };
+    fetchJournal();
+  }, [selectedDate, user]);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -186,6 +212,29 @@ const Calendar = () => {
                   </div>
                 )) : (
                   <p className="text-sm text-text-muted text-center py-4">No reminders.</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Journal</h4>
+              <div className="space-y-2">
+                {loadingJournal ? (
+                  <p className="text-sm text-text-muted text-center py-4">Loading journal...</p>
+                ) : journalEntries.length > 0 ? (
+                  journalEntries.map(entry => (
+                    <div key={entry.id} className="p-4 rounded-xl bg-surface-elevated border border-border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-bold text-text-cyan">{format(new Date(entry.date), 'MMMM d, yyyy')}</span>
+                      </div>
+                      <p className="text-sm text-text-primary whitespace-pre-wrap">{entry.content}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 rounded-xl border border-dashed border-border/50 flex items-center justify-center">
+                    <p className="text-sm text-text-muted">No journal entry for this day.</p>
+                  </div>
                 )}
               </div>
             </div>

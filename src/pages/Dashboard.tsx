@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Check, Plus, Edit2, Trash2, Bell, Square, Play, Pause } from 'lucide-react';
-import { cn, openTaskModal, openReminderModal, formatTaskTimeRange, formatTimeDisplay } from '../lib/utils';
+import { cn, openTaskModal, openReminderModal, formatTaskTimeRange, formatTimeDisplay, calculateProductivity } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 import { useRoutines } from '../lib/useRoutines';
@@ -157,7 +157,7 @@ const Dashboard = () => {
   
   const completedToday = completedTodayTasks.length;
   const totalToday = todayTasks.length;
-  const progressPercent = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
+  const progressPercent = calculateProductivity(todayTasks);
 
 
   // Selected date tasks/reminders

@@ -26,6 +26,7 @@ export const FocusProvider: React.FC<{children: React.ReactNode}> = ({ children 
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   
+  const [expectedEndTime, setExpectedEndTime] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Sync timeLeft when sessionDuration changes and timer is not active
@@ -35,17 +36,45 @@ export const FocusProvider: React.FC<{children: React.ReactNode}> = ({ children 
     }
   }, [sessionDuration, isActive]);
 
+  const checkTimer = () => {
+    if (!expectedEndTime) return;
+    const remaining = Math.max(0, Math.round((expectedEndTime - Date.now()) / 1000));
+    if (remaining <= 0) {
+      handleComplete();
+      
+      // Request notification if permission hasn't been asked
+      if ("Notification" in window) {
+        if (Notification.permission === "granted") {
+          new Notification("Focus Session Complete", { body: "Great job! Take a break." });
+        } else if (Notification.permission !== "denied") {
+          Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+              new Notification("Focus Session Complete", { body: "Great job! Take a break." });
+            }
+          });
+        }
+      }
+    } else {
+      setTimeLeft(remaining);
+    }
+  };
+
   useEffect(() => {
-    if (isActive && !isPaused) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            handleComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (isActive && !isPaused && expectedEndTime) {
+      timerRef.current = setInterval(checkTimer, 1000);
+      
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          checkTimer();
+        }
+      };
+      
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     } else if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -53,27 +82,31 @@ export const FocusProvider: React.FC<{children: React.ReactNode}> = ({ children 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isActive, isPaused]);
+  }, [isActive, isPaused, expectedEndTime]);
 
   const handleStart = () => {
     setIsActive(true);
     setIsPaused(false);
+    setExpectedEndTime(Date.now() + timeLeft * 1000);
   };
 
   const handlePause = () => {
     setIsPaused(true);
+    setExpectedEndTime(null);
   };
 
   const handleReset = () => {
     setIsActive(false);
     setIsPaused(false);
     setTimeLeft(sessionDuration * 60);
+    setExpectedEndTime(null);
   };
 
   const handleComplete = async () => {
     setIsActive(false);
     setIsPaused(false);
     setTimeLeft(sessionDuration * 60);
+    setExpectedEndTime(null);
     
     if (user && supabase) {
       await supabase.from('focus_sessions').insert([{

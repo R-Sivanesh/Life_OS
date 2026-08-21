@@ -3,7 +3,7 @@ import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 import { BarChart2, Calendar, CheckCircle2, Clock, LayoutGrid, Target, Zap, CircleDashed } from 'lucide-react';
 import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay, subDays } from 'date-fns';
-import { cn, formatTimeDisplay } from '../lib/utils';
+import { cn, formatTimeDisplay, calculateProductivity } from '../lib/utils';
 
 const Reports = () => {
   const { tasks, refresh: refreshTasks } = useTasks();
@@ -22,7 +22,7 @@ const Reports = () => {
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.completed).length;
   const pendingTasks = totalTasks - completedTasks;
-  const overallRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const overallRate = calculateProductivity(tasks);
   
   const totalFocusMinutes = tasks.filter(t => t.completed).reduce((acc, t) => acc + (t.estimated_minutes || 0), 0);
   const focusHours = Math.floor(totalFocusMinutes / 60);
@@ -54,7 +54,7 @@ const Reports = () => {
 
   // --- 3. Today's Breakdown ---
   const todayRemaining = todayTotal - todayCompleted;
-  const todayRate = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0;
+  const todayRate = calculateProductivity(todayTasks);
   
   const todayFocusMinutes = todayTasks.filter(t => t.completed).reduce((acc, t) => acc + (t.estimated_minutes || 0), 0);
   const todayFocusFormatted = `${Math.floor(todayFocusMinutes / 60)}h ${todayFocusMinutes % 60}m`;
@@ -121,9 +121,7 @@ const Reports = () => {
       const dayStr = format(d, 'yyyy-MM-dd');
       
       const dayTasks = tasks.filter(t => t.date === dayStr || (t.completed_at && t.completed_at.startsWith(dayStr)));
-      const completed = dayTasks.filter(t => t.completed).length;
-      const total = dayTasks.length;
-      const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+      const rate = calculateProductivity(dayTasks);
       
       days.push({
         date: d,
