@@ -233,15 +233,52 @@ const authAdapter = {
     return { data: { user: res.data.user, session }, error: null };
   },
 
-  async signInWithOAuth({ provider: _provider }: { provider: string; options?: any }) {
+  async signInWithOAuth({ provider, options }: { provider: string; options?: { redirectTo?: string } }) {
+    if (provider !== 'google') {
+      return { data: { provider }, error: { message: `OAuth provider ${provider} is not supported` } };
+    }
+
+    let clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID;
+
+    // If not in client env, query backend for public clientId
+    if (!clientId) {
+      try {
+        const configRes = await safeFetchJson('/api/auth', { action: 'get-oauth-config' });
+        if (configRes.data?.googleClientId) {
+          clientId = configRes.data.googleClientId;
+        }
+      } catch {
+        // Continue
+      }
+    }
+
+    if (!clientId) {
+      return {
+        data: null,
+        error: {
+          message: 'Google Client ID is not configured. Please set VITE_GOOGLE_CLIENT_ID in your environment variables.'
+        }
+      };
+    }
+
+    const redirectUri = options?.redirectTo || `${window.location.origin}/auth/callback`;
+    const scope = encodeURIComponent('openid email profile');
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}&access_type=offline&prompt=select_account`;
+
+    // Direct browser navigation to Google's real OAuth page
+    window.location.href = authUrl;
+    return { data: { url: authUrl }, error: null };
+  },
+
+  async handleGoogleCallback(code: string, redirectUri: string) {
     const res = await safeFetchJson('/api/auth', {
-      action: 'google-login',
-      email: 'google_user@lifeos.app',
-      name: 'Google User'
+      action: 'google-oauth-callback',
+      code,
+      redirectUri
     });
 
     if (res.error || !res.data?.token) {
-      return { data: { user: null, session: null }, error: res.error || { message: 'OAuth login failed' } };
+      return { data: { user: null, session: null }, error: res.error || { message: 'Google authentication failed' } };
     }
 
     localStorage.setItem('lifeos_neon_token', res.data.token);
@@ -258,6 +295,11 @@ const authAdapter = {
   }
 };
 
+export function setAuthSession(token: string, user: any) {
+  localStorage.setItem('lifeos_neon_token', token);
+  notifyAuthSubscribers('SIGNED_IN', { user, access_token: token });
+}
+
 // Export neon-backed client adapter
 export const supabase = {
   from(tableName: string) {
@@ -265,3 +307,4 @@ export const supabase = {
   },
   auth: authAdapter
 };
+
