@@ -52,13 +52,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
+        const u = session.user;
         setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-          avatar_url: session.user.user_metadata?.avatar_url || '',
+          id: u.id,
+          email: u.email || '',
+          name: u.name || u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
+          avatar_url: u.avatar_url || u.user_metadata?.avatar_url || '',
         });
-        await upsertProfile(session.user);
+        await upsertProfile(u);
       } else {
         setUser(null);
       }
@@ -70,13 +71,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session?.user) {
+          const u = session.user;
           setUser({
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-            avatar_url: session.user.user_metadata?.avatar_url || '',
+            id: u.id,
+            email: u.email || '',
+            name: u.name || u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
+            avatar_url: u.avatar_url || u.user_metadata?.avatar_url || '',
           });
-          await upsertProfile(session.user);
+          await upsertProfile(u);
         } else {
           setUser(null);
         }

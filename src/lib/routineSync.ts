@@ -87,7 +87,7 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
       .eq('user_id', userId)
       .in('date', tasksToInsertDates);
       
-    const doubleCheckDates = checkData?.map(t => t.date) || [];
+    const doubleCheckDates = checkData?.map((t: any) => t.date) || [];
     const finalDatesToInsert = tasksToInsertDates.filter(d => !doubleCheckDates.includes(d));
 
     if (finalDatesToInsert.length > 0) {

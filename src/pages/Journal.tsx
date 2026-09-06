@@ -30,7 +30,7 @@ const Journal = () => {
       
     if (!error && data) {
       setEntries(data);
-      const current = data.find(e => e.date === selectedDate);
+      const current = data.find((e: any) => e.date === selectedDate);
       if (current) setEntry(current.content);
       else setEntry('');
     }

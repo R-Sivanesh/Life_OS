@@ -43,7 +43,7 @@ export const useLearning = () => {
       console.error('Error fetching learning topics:', error);
     } else if (data) {
       // Sort by priority then by last studied
-      data.sort((a, b) => {
+      data.sort((a: any, b: any) => {
         const priorityOrder: Record<string, number> = { high: 1, medium: 2, low: 3 };
         const pA = priorityOrder[a.priority?.toLowerCase() || 'medium'] || 2;
         const pB = priorityOrder[b.priority?.toLowerCase() || 'medium'] || 2;

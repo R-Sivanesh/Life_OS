@@ -120,7 +120,7 @@ const Dashboard = () => {
         const idsToDelete: string[] = [];
         for (const group of Object.values(groups)) {
           if (group.length > 1) {
-            group.sort((a, b) => {
+            group.sort((a: any, b: any) => {
               if (a.completed && !b.completed) return -1;
               if (!a.completed && b.completed) return 1;
               return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
