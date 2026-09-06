@@ -3,7 +3,7 @@ import { neon } from '@neondatabase/serverless';
 function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
   if (!url) {
-    throw new Error('DATABASE_URL is not set in environment variables.');
+    throw new Error('DATABASE_URL is not set in environment variables. Please configure DATABASE_URL in Vercel project settings.');
   }
   return url;
 }
@@ -22,14 +22,57 @@ const ALLOWED_TABLES = new Set([
   'habits'
 ]);
 
+function normalizeRow(row: any): any {
+  if (!row || typeof row !== 'object') return row;
+  const out: Record<string, any> = { ...row };
+
+  for (const [key, value] of Object.entries(out)) {
+    if (value instanceof Date) {
+      if (key === 'date' || key.endsWith('_date')) {
+        const year = value.getFullYear();
+        const month = String(value.getMonth() + 1).padStart(2, '0');
+        const day = String(value.getDate()).padStart(2, '0');
+        out[key] = `${year}-${month}-${day}`;
+      } else {
+        out[key] = value.toISOString();
+      }
+    } else if (typeof value === 'string') {
+      if (key === 'date' && value.includes('T')) {
+        const d = new Date(value);
+        if (!isNaN(d.getTime())) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          out[key] = `${year}-${month}-${day}`;
+        }
+      }
+    }
+
+    if (key === 'resources' && typeof value === 'string') {
+      try {
+        out[key] = JSON.parse(value);
+      } catch {
+        // Keep original if not JSON
+      }
+    }
+  }
+
+  return out;
+}
+
 export async function handleDbRequest(reqBody: any) {
-  const { action, table, payload, filters, order, limit, onConflict } = reqBody;
+  const { action, table, payload, filters, order, limit, onConflict } = reqBody || {};
 
   if (!table || !ALLOWED_TABLES.has(table)) {
     return { status: 400, data: { error: `Invalid or unauthorized table: ${table}` } };
   }
 
-  const sql = neon(getDatabaseUrl());
+  let sql;
+  try {
+    sql = neon(getDatabaseUrl());
+  } catch (err: any) {
+    return { status: 500, data: { error: err.message || 'Database connection error' } };
+  }
 
   try {
     if (action === 'select') {
@@ -76,7 +119,8 @@ export async function handleDbRequest(reqBody: any) {
         query += ` LIMIT ${limit}`;
       }
 
-      const data = await sql.query(query, params);
+      const rows = await sql.query(query, params);
+      const data = (rows || []).map(normalizeRow);
       return { status: 200, data: { data, error: null } };
     }
 
@@ -105,7 +149,7 @@ export async function handleDbRequest(reqBody: any) {
         const query = `INSERT INTO public.${table} (${columns}) VALUES (${placeholders}) RETURNING *`;
         const result = await sql.query(query, params);
         if (result && result.length > 0) {
-          insertedRows.push(result[0]);
+          insertedRows.push(normalizeRow(result[0]));
         }
       }
 
@@ -150,7 +194,7 @@ export async function handleDbRequest(reqBody: any) {
 
         const res = await sql.query(query, params);
         if (res && res.length > 0) {
-          results.push(res[0]);
+          results.push(normalizeRow(res[0]));
         }
       }
 
@@ -207,7 +251,8 @@ export async function handleDbRequest(reqBody: any) {
       }
 
       query += ' RETURNING *';
-      const data = await sql.query(query, params);
+      const rows = await sql.query(query, params);
+      const data = (rows || []).map(normalizeRow);
       return { status: 200, data: { data, error: null } };
     }
 
@@ -246,7 +291,8 @@ export async function handleDbRequest(reqBody: any) {
       }
 
       query += ' RETURNING *';
-      const data = await sql.query(query, params);
+      const rows = await sql.query(query, params);
+      const data = (rows || []).map(normalizeRow);
       return { status: 200, data: { data, error: null } };
     }
 
@@ -257,12 +303,48 @@ export async function handleDbRequest(reqBody: any) {
   }
 }
 
+async function parseRequestBody(req: any): Promise<any> {
+  if (req.body) {
+    if (typeof req.body === 'object') return req.body;
+    if (typeof req.body === 'string') {
+      try { return JSON.parse(req.body); } catch { return {}; }
+    }
+  }
+
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', (chunk: any) => { raw += chunk; });
+    req.on('end', () => {
+      try {
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch {
+        resolve({});
+      }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 // Vercel Serverless Function Default Export
 export default async function handler(req: any, res: any) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const result = await handleDbRequest(req.body);
-  return res.status(result.status).json(result.data);
+  try {
+    const body = await parseRequestBody(req);
+    const result = await handleDbRequest(body);
+    return res.status(result.status).json(result.data);
+  } catch (err: any) {
+    console.error('Unhandled Vercel DB Error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
 }

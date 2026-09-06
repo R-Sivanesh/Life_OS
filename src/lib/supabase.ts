@@ -7,6 +7,40 @@ type Filter = {
   value: any;
 };
 
+async function safeFetchJson(url: string, bodyObj: any): Promise<{ data: any; error: any }> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyObj)
+    });
+
+    const rawText = await res.text();
+    let json: any = null;
+
+    try {
+      json = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      // Server returned HTML or plain text error (e.g. 500 error page from host)
+      return {
+        data: null,
+        error: {
+          message: rawText && rawText.length < 200 ? rawText : `Server error (${res.status}). Please verify DATABASE_URL in Vercel settings.`
+        }
+      };
+    }
+
+    if (!res.ok) {
+      return { data: null, error: { message: json.error || `Server request failed with status ${res.status}` } };
+    }
+
+    return { data: json.data !== undefined ? json.data : json, error: json.error || null };
+  } catch (err: any) {
+    console.error(`Fetch error on ${url}:`, err);
+    return { data: null, error: { message: err.message || 'Network communication error' } };
+  }
+}
+
 class NeonQueryBuilder {
   private tableName: string;
   private action: 'select' | 'insert' | 'update' | 'delete' | 'upsert' = 'select';
@@ -91,30 +125,15 @@ class NeonQueryBuilder {
   }
 
   async execute(): Promise<{ data: any; error: any }> {
-    try {
-      const res = await fetch('/api/db', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: this.action,
-          table: this.tableName,
-          payload: this.payload,
-          filters: this.filters,
-          order: this.orderConfig,
-          limit: this.limitCount,
-          onConflict: this.conflictTarget
-        })
-      });
-
-      const json = await res.json();
-      if (!res.ok) {
-        return { data: null, error: { message: json.error || 'Request failed' } };
-      }
-      return { data: json.data, error: json.error };
-    } catch (err: any) {
-      console.error('Neon client fetch error:', err);
-      return { data: null, error: { message: err.message || 'Network error' } };
-    }
+    return safeFetchJson('/api/db', {
+      action: this.action,
+      table: this.tableName,
+      payload: this.payload,
+      filters: this.filters,
+      order: this.orderConfig,
+      limit: this.limitCount,
+      onConflict: this.conflictTarget
+    });
   }
 
   // Support Promise-like chaining (await supabase.from(...)...)
@@ -142,26 +161,16 @@ const authAdapter = {
       return { data: { session: null }, error: null };
     }
 
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'verify-token', token })
-      });
-
-      const json = await res.json();
-      if (res.ok && json.user) {
-        const session = {
-          user: json.user,
-          access_token: token
-        };
-        return { data: { session }, error: null };
-      } else {
-        localStorage.removeItem('lifeos_neon_token');
-        return { data: { session: null }, error: json.error };
-      }
-    } catch (e: any) {
-      return { data: { session: null }, error: { message: e.message } };
+    const res = await safeFetchJson('/api/auth', { action: 'verify-token', token });
+    if (res.data?.user) {
+      const session = {
+        user: res.data.user,
+        access_token: token
+      };
+      return { data: { session }, error: null };
+    } else {
+      localStorage.removeItem('lifeos_neon_token');
+      return { data: { session: null }, error: res.error };
     }
   },
 
@@ -184,81 +193,53 @@ const authAdapter = {
   },
 
   async signInWithPassword({ email, password }: { email: string; password: string }) {
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', email, password })
-      });
-
-      const json = await res.json();
-      if (!res.ok || json.error) {
-        return { data: { user: null, session: null }, error: { message: json.error || 'Login failed' } };
-      }
-
-      localStorage.setItem('lifeos_neon_token', json.token);
-      const session = { user: json.user, access_token: json.token };
-      notifyAuthSubscribers('SIGNED_IN', session);
-
-      return { data: { user: json.user, session }, error: null };
-    } catch (e: any) {
-      return { data: { user: null, session: null }, error: { message: e.message } };
+    const res = await safeFetchJson('/api/auth', { action: 'login', email, password });
+    if (res.error || !res.data?.token) {
+      return { data: { user: null, session: null }, error: res.error || { message: 'Login failed' } };
     }
+
+    localStorage.setItem('lifeos_neon_token', res.data.token);
+    const session = { user: res.data.user, access_token: res.data.token };
+    notifyAuthSubscribers('SIGNED_IN', session);
+
+    return { data: { user: res.data.user, session }, error: null };
   },
 
   async signUp({ email, password, options }: { email: string; password: string; options?: { data?: { full_name?: string } } }) {
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'signup',
-          email,
-          password,
-          name: options?.data?.full_name
-        })
-      });
+    const res = await safeFetchJson('/api/auth', {
+      action: 'signup',
+      email,
+      password,
+      name: options?.data?.full_name
+    });
 
-      const json = await res.json();
-      if (!res.ok || json.error) {
-        return { data: { user: null, session: null }, error: { message: json.error || 'Signup failed' } };
-      }
-
-      localStorage.setItem('lifeos_neon_token', json.token);
-      const session = { user: json.user, access_token: json.token };
-      notifyAuthSubscribers('SIGNED_IN', session);
-
-      return { data: { user: json.user, session }, error: null };
-    } catch (e: any) {
-      return { data: { user: null, session: null }, error: { message: e.message } };
+    if (res.error || !res.data?.token) {
+      return { data: { user: null, session: null }, error: res.error || { message: 'Signup failed' } };
     }
+
+    localStorage.setItem('lifeos_neon_token', res.data.token);
+    const session = { user: res.data.user, access_token: res.data.token };
+    notifyAuthSubscribers('SIGNED_IN', session);
+
+    return { data: { user: res.data.user, session }, error: null };
   },
 
   async signInWithOAuth({ provider: _provider }: { provider: string; options?: any }) {
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'google-login',
-          email: 'google_user@lifeos.app',
-          name: 'Google User'
-        })
-      });
+    const res = await safeFetchJson('/api/auth', {
+      action: 'google-login',
+      email: 'google_user@lifeos.app',
+      name: 'Google User'
+    });
 
-      const json = await res.json();
-      if (!res.ok || json.error) {
-        return { data: { user: null, session: null }, error: { message: json.error || 'OAuth login failed' } };
-      }
-
-      localStorage.setItem('lifeos_neon_token', json.token);
-      const session = { user: json.user, access_token: json.token };
-      notifyAuthSubscribers('SIGNED_IN', session);
-
-      return { data: { user: json.user, session }, error: null };
-    } catch (e: any) {
-      return { data: { user: null, session: null }, error: { message: e.message } };
+    if (res.error || !res.data?.token) {
+      return { data: { user: null, session: null }, error: res.error || { message: 'OAuth login failed' } };
     }
+
+    localStorage.setItem('lifeos_neon_token', res.data.token);
+    const session = { user: res.data.user, access_token: res.data.token };
+    notifyAuthSubscribers('SIGNED_IN', session);
+
+    return { data: { user: res.data.user, session }, error: null };
   },
 
   async signOut() {

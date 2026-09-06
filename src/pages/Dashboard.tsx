@@ -42,17 +42,16 @@ const Dashboard = () => {
         return;
       }
       
-      let nextIndex;
-      do {
-        nextIndex = Math.floor(Math.random() * quotes.length);
-      } while (quotes[nextIndex].id === lastQuoteIdRef.current);
+      const otherQuotes = quotes.filter(q => q.id !== lastQuoteIdRef.current);
+      const pool = otherQuotes.length > 0 ? otherQuotes : quotes;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
       
-      setQuote(quotes[nextIndex].text);
-      lastQuoteIdRef.current = quotes[nextIndex].id;
+      setQuote(picked.text);
+      lastQuoteIdRef.current = picked.id;
     };
 
     setNextQuote();
-    const interval = setInterval(setNextQuote, 30000);
+    const interval = setInterval(setNextQuote, 15000);
     return () => clearInterval(interval);
   }, [quotes]);
   

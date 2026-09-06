@@ -7,14 +7,20 @@ const JWT_SECRET = process.env.JWT_SECRET || 'lifeos_jwt_secret_neon_auth_key_20
 function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
   if (!url) {
-    throw new Error('DATABASE_URL is not set in environment variables.');
+    throw new Error('DATABASE_URL is not set in environment variables. Please configure DATABASE_URL in Vercel project settings.');
   }
   return url;
 }
 
 export async function handleAuthRequest(reqBody: any) {
-  const { action, email, password, name, avatarUrl, token } = reqBody;
-  const sql = neon(getDatabaseUrl());
+  const { action, email, password, name, avatarUrl, token } = reqBody || {};
+  
+  let sql;
+  try {
+    sql = neon(getDatabaseUrl());
+  } catch (err: any) {
+    return { status: 500, data: { error: err.message || 'Database connection error' } };
+  }
 
   try {
     if (action === 'signup') {
@@ -194,7 +200,7 @@ export async function handleAuthRequest(reqBody: any) {
             error: null
           }
         };
-      } catch (err) {
+      } catch {
         return { status: 401, data: { user: null, error: 'Invalid or expired session token' } };
       }
     }
@@ -229,12 +235,48 @@ export async function handleAuthRequest(reqBody: any) {
   }
 }
 
+async function parseRequestBody(req: any): Promise<any> {
+  if (req.body) {
+    if (typeof req.body === 'object') return req.body;
+    if (typeof req.body === 'string') {
+      try { return JSON.parse(req.body); } catch { return {}; }
+    }
+  }
+
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', (chunk: any) => { raw += chunk; });
+    req.on('end', () => {
+      try {
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch {
+        resolve({});
+      }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 // Vercel Serverless Function Default Export
 export default async function handler(req: any, res: any) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const result = await handleAuthRequest(req.body);
-  return res.status(result.status).json(result.data);
+  try {
+    const body = await parseRequestBody(req);
+    const result = await handleAuthRequest(body);
+    return res.status(result.status).json(result.data);
+  } catch (err: any) {
+    console.error('Unhandled Vercel Auth Error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from './supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,10 +9,13 @@ export interface Quote {
   created_at: string;
 }
 
+const seedingUsers = new Set<string>();
+
 export const useQuotes = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const isFetchingRef = useRef(false);
 
   const fetchQuotes = useCallback(async () => {
     if (!user || !supabase) {
@@ -20,6 +23,9 @@ export const useQuotes = () => {
       return;
     }
     
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
     try {
       const { data, error } = await supabase
         .from('motivational_quotes')
@@ -28,9 +34,10 @@ export const useQuotes = () => {
         .order('created_at', { ascending: true });
 
       if (error) {
-        console.error('Error fetching quotes:', error);
+        console.error('Error fetching quotes from Neon:', error);
       } else {
-        if (data && data.length === 0) {
+        if (data && data.length === 0 && !seedingUsers.has(user.id)) {
+          seedingUsers.add(user.id);
           // If no quotes exist, populate with defaults
           const defaultQuotes = [
             { user_id: user.id, text: "Hope." },
@@ -48,13 +55,21 @@ export const useQuotes = () => {
           } else if (insertedData) {
             setQuotes(insertedData as Quote[]);
           }
-        } else {
-          setQuotes((data as Quote[]) || []);
+        } else if (data) {
+          // Deduplicate quotes by text for clean UI representation
+          const uniqueMap = new Map<string, Quote>();
+          for (const q of (data as Quote[])) {
+            if (q && q.text && !uniqueMap.has(q.text.trim())) {
+              uniqueMap.set(q.text.trim(), q);
+            }
+          }
+          setQuotes(Array.from(uniqueMap.values()));
         }
       }
     } catch (e) {
       console.error(e);
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
   }, [user]);
@@ -64,9 +79,9 @@ export const useQuotes = () => {
   }, [fetchQuotes]);
 
   const addQuote = async (text: string) => {
-    if (!user || !supabase) return;
+    if (!user || !supabase || !text.trim()) return;
     
-    const newQuote = { user_id: user.id, text };
+    const newQuote = { user_id: user.id, text: text.trim() };
     
     // Optimistic UI update
     const tempId = Date.now().toString();
@@ -80,20 +95,20 @@ export const useQuotes = () => {
     if (error) {
       console.error('Error adding quote:', error);
       fetchQuotes(); // Revert on error
-    } else if (data) {
+    } else if (data && data.length > 0) {
       setQuotes(prev => prev.map(q => q.id === tempId ? data[0] : q));
     }
   };
 
   const updateQuote = async (id: string, text: string) => {
-    if (!user || !supabase) return;
+    if (!user || !supabase || !text.trim()) return;
 
     // Optimistic UI update
-    setQuotes(prev => prev.map(q => q.id === id ? { ...q, text } : q));
+    setQuotes(prev => prev.map(q => q.id === id ? { ...q, text: text.trim() } : q));
 
     const { error } = await supabase
       .from('motivational_quotes')
-      .update({ text, updated_at: new Date().toISOString() })
+      .update({ text: text.trim(), updated_at: new Date().toISOString() })
       .eq('id', id);
 
     if (error) {

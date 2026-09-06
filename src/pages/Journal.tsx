@@ -22,16 +22,19 @@ const Journal = () => {
 
   const fetchEntries = async () => {
     if (!user || !supabase) return;
+    setLoading(true);
     const { data, error } = await supabase
       .from('journal_entries')
       .select('*')
       .eq('user_id', user.id)
       .order('date', { ascending: false });
       
-    if (!error && data) {
+    if (error) {
+      console.error('Error fetching journal entries from Neon:', error);
+    } else if (data) {
       setEntries(data);
-      const current = data.find((e: any) => e.date === selectedDate);
-      if (current) setEntry(current.content);
+      const current = data.find((e: any) => (e.date ? e.date.slice(0, 10) : '') === selectedDate);
+      if (current) setEntry(current.content || '');
       else setEntry('');
     }
     setLoading(false);
@@ -42,23 +45,31 @@ const Journal = () => {
   }, [user]);
 
   useEffect(() => {
-    const current = entries.find(e => e.date === selectedDate);
-    if (current) setEntry(current.content);
+    const current = entries.find((e: any) => (e.date ? e.date.slice(0, 10) : '') === selectedDate);
+    if (current) setEntry(current.content || '');
     else setEntry('');
   }, [selectedDate, entries]);
 
   const handleSave = async () => {
     if (!user || !supabase) return;
     
-    const existing = entries.find(e => e.date === selectedDate);
+    const existing = entries.find((e: any) => (e.date ? e.date.slice(0, 10) : '') === selectedDate);
     
     if (existing) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('journal_entries')
         .update({ content: entry, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
         
-      if (!error) {
+      if (error) {
+        console.error('Error updating journal entry:', error);
+        alert('Failed to save journal entry: ' + error.message);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setEntries(prev => prev.map(e => e.id === existing.id ? data[0] : e));
+      } else {
         setEntries(prev => prev.map(e => e.id === existing.id ? { ...e, content: entry } : e));
       }
     } else {
@@ -67,7 +78,13 @@ const Journal = () => {
         .insert([{ user_id: user.id, date: selectedDate, content: entry }])
         .select();
         
-      if (!error && data) {
+      if (error) {
+        console.error('Error inserting journal entry:', error);
+        alert('Failed to save journal entry: ' + error.message);
+        return;
+      }
+
+      if (data && data.length > 0) {
         setEntries(prev => [data[0], ...prev].sort((a, b) => b.date.localeCompare(a.date)));
       }
     }
@@ -78,6 +95,24 @@ const Journal = () => {
 
   const handleNewEntry = () => {
     setSelectedDate(todayStr);
+  };
+
+  const formatDateDisplay = (dateString: string) => {
+    try {
+      const cleanDate = dateString ? dateString.slice(0, 10) : todayStr;
+      return format(parseISO(cleanDate), 'MMM d, yyyy');
+    } catch {
+      return dateString;
+    }
+  };
+
+  const formatHeaderDate = (dateString: string) => {
+    try {
+      const cleanDate = dateString ? dateString.slice(0, 10) : todayStr;
+      return format(parseISO(cleanDate), 'EEEE, MMMM d, yyyy');
+    } catch {
+      return dateString;
+    }
   };
 
   return (
@@ -111,18 +146,18 @@ const Journal = () => {
               entries.map(e => (
                 <button
                   key={e.id}
-                  onClick={() => setSelectedDate(e.date)}
+                  onClick={() => setSelectedDate(e.date ? e.date.slice(0, 10) : todayStr)}
                   className={cn(
                     "w-full text-left p-3 rounded-xl transition-all border",
-                    selectedDate === e.date 
+                    selectedDate === (e.date ? e.date.slice(0, 10) : '') 
                       ? "bg-primary/10 border-primary/30" 
                       : "bg-surface-elevated hover:bg-surface-elevated/80 border-transparent hover:border-border"
                   )}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <FileText className={cn("w-3.5 h-3.5", selectedDate === e.date ? "text-primary" : "text-text-muted")} />
-                    <span className={cn("text-xs font-bold", selectedDate === e.date ? "text-primary" : "text-text-primary")}>
-                      {format(parseISO(e.date), 'MMM d, yyyy')}
+                    <FileText className={cn("w-3.5 h-3.5", selectedDate === (e.date ? e.date.slice(0, 10) : '') ? "text-primary" : "text-text-muted")} />
+                    <span className={cn("text-xs font-bold", selectedDate === (e.date ? e.date.slice(0, 10) : '') ? "text-primary" : "text-text-primary")}>
+                      {formatDateDisplay(e.date)}
                     </span>
                   </div>
                   <p className="text-xs text-text-muted line-clamp-2">
@@ -139,7 +174,7 @@ const Journal = () => {
         {/* Editor */}
         <div className="glass-card p-6 flex flex-col gap-4 lg:col-span-3 h-full overflow-hidden">
           <h2 className="text-lg font-bold text-text-primary border-b border-border/50 pb-4">
-            {selectedDate ? format(parseISO(selectedDate), 'EEEE, MMMM d, yyyy') : 'No Date Selected'}
+            {selectedDate ? formatHeaderDate(selectedDate) : 'No Date Selected'}
           </h2>
           
           <textarea 
