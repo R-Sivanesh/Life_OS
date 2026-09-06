@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     description TEXT,
     category TEXT DEFAULT 'General',
     priority TEXT DEFAULT 'Medium',
+    points INTEGER NOT NULL DEFAULT 10 CHECK (points >= 0),
     date DATE,
     start_time TIME,
     end_time TIME,
@@ -51,9 +52,25 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE UNIQUE INDEX IF NOT EXISTS uq_tasks_user_recurring_date ON public.tasks (user_id, recurring, date) WHERE recurring IS NOT NULL;
+
+-- 3b. Points Transactions Ledger (Idempotent Rewards Tracking)
+CREATE TABLE IF NOT EXISTS public.points_transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    task_id UUID REFERENCES public.tasks(id) ON DELETE SET NULL,
+    points INTEGER NOT NULL CHECK (points >= 0),
+    type TEXT NOT NULL DEFAULT 'task_completion',
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, task_id, type)
+);
+CREATE INDEX IF NOT EXISTS idx_points_transactions_user ON public.points_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_points_transactions_created ON public.points_transactions(user_id, created_at);
 
 -- 4. Reminders Table
 CREATE TABLE IF NOT EXISTS public.reminders (
+
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,

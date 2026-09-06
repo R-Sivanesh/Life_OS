@@ -74,12 +74,14 @@ const Tasks = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2 shrink-0 items-end">
-        {!isCompleted && (
-          <div className="flex gap-2">
-            <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border", getPriorityColor(task.priority))}>{task.priority}</span>
-            <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded bg-surface-elevated", getCategoryColor(task.category))}>{task.category}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {!isCompleted && (
+            <>
+              <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded border", getPriorityColor(task.priority))}>{task.priority}</span>
+              <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded bg-surface-elevated", getCategoryColor(task.category))}>{task.category}</span>
+            </>
+          )}
+        </div>
         <div className={cn("flex items-center gap-2 transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100")}>
           {!isCompleted && <button onClick={() => openTaskModal(undefined, task)} className="p-2 sm:p-1 text-text-muted hover:text-primary transition-colors"><Edit2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>}
           <button onClick={() => confirmDelete(task.title, () => deleteTask(task.id))} className={cn("p-2 sm:p-1 transition-colors", isCompleted ? "text-text-muted hover:text-danger" : "text-text-muted hover:text-danger")}><Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" /></button>

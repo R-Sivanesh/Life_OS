@@ -28,26 +28,8 @@ export const formatTaskTimeRange = (start?: string | null, end?: string | null):
   return `${startStr} - ${formatTimeDisplay(end)}`;
 };
 
-export const getTaskWeight = (task: any): number => {
-  if (!task.start_time) return 0;
-  switch ((task.priority || '').toLowerCase()) {
-    case 'high': return 1.0;
-    case 'low': return 0.4;
-    case 'medium':
-    default: return 0.7;
-  }
-};
-
 export const calculateProductivity = (tasks: any[]): number => {
-  let totalWeight = 0;
-  let completedWeight = 0;
-  
-  tasks.forEach(t => {
-    const w = getTaskWeight(t);
-    totalWeight += w;
-    if (t.completed) completedWeight += w;
-  });
-
-  if (totalWeight === 0) return 0;
-  return Math.round((completedWeight / totalWeight) * 100);
+  if (!tasks || tasks.length === 0) return 0;
+  const completed = tasks.filter(t => t.completed).length;
+  return Math.round((completed / tasks.length) * 100);
 };

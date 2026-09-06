@@ -10,6 +10,7 @@ export type Task = {
   description?: string;
   category: string;
   priority: string;
+  points?: number;
   date?: string;
   start_time?: string | null;
   end_time?: string | null;
@@ -38,7 +39,17 @@ export const useTasks = () => {
       .eq('user_id', user.id);
       
     if (!error && data) {
-      fetchedTasks = data;
+      const seenIds = new Set<string>();
+      fetchedTasks = [];
+      for (const t of data as any[]) {
+        if (!t || !t.id || seenIds.has(t.id)) continue;
+        seenIds.add(t.id);
+        fetchedTasks.push({
+          ...t,
+          date: t.date ? (typeof t.date === 'string' ? t.date.slice(0, 10) : t.date) : undefined,
+          points: t.points !== undefined && t.points !== null ? t.points : (t.xp_reward || 10)
+        });
+      }
     }
 
     const sortTasksChronologically = (a: Task, b: Task) => {
@@ -74,8 +85,11 @@ export const useTasks = () => {
 
   const addTask = async (taskData: Partial<Task>) => {
     if (!user || !supabase) return;
+    const taskPoints = Math.max(0, parseInt((taskData.points ?? taskData.xp_reward ?? 10) as any, 10) || 10);
     const newTask = {
       ...taskData,
+      points: taskPoints,
+      xp_reward: taskPoints,
       user_id: user.id,
       completed: false,
       status: 'pending'
@@ -84,32 +98,46 @@ export const useTasks = () => {
     const { data, error } = await supabase.from('tasks').insert([newTask]).select();
     if (error) {
       console.error('Error adding task:', error);
-      alert('Error saving task: ' + JSON.stringify(error));
+      alert('Error saving task: ' + (error.message || JSON.stringify(error)));
       return;
     }
-    if (data) {
-      setTasks(prev => [...prev, data[0]].sort((a, b) => {
-        const dateA = a.date || '9999-99-99';
-        const dateB = b.date || '9999-99-99';
-        if (dateA !== dateB) return dateA.localeCompare(dateB);
-        const hasTimeA = Boolean(a.start_time);
-        const hasTimeB = Boolean(b.start_time);
-        if (hasTimeA && hasTimeB) return (a.start_time as string).localeCompare(b.start_time as string);
-        if (hasTimeA && !hasTimeB) return -1;
-        if (!hasTimeA && hasTimeB) return 1;
-        return 0;
-      }));
-      // Dispatch event so other components know a task was added
+    if (data && data.length > 0) {
+      const created = {
+        ...data[0],
+        date: data[0].date ? (typeof data[0].date === 'string' ? data[0].date.slice(0, 10) : data[0].date) : undefined,
+        points: data[0].points ?? taskPoints
+      };
+      setTasks(prev => {
+        const withoutCreated = prev.filter(t => t.id !== created.id);
+        return [...withoutCreated, created].sort((a, b) => {
+          const dateA = a.date || '9999-99-99';
+          const dateB = b.date || '9999-99-99';
+          if (dateA !== dateB) return dateA.localeCompare(dateB);
+          const hasTimeA = Boolean(a.start_time);
+          const hasTimeB = Boolean(b.start_time);
+          if (hasTimeA && hasTimeB) return (a.start_time as string).localeCompare(b.start_time as string);
+          if (hasTimeA && !hasTimeB) return -1;
+          if (!hasTimeA && hasTimeB) return 1;
+          return 0;
+        });
+      });
       window.dispatchEvent(new Event('lifeos_tasks_updated'));
-      return data[0];
+      window.dispatchEvent(new Event('lifeos_points_updated'));
+      return created;
     }
   };
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
     if (!supabase) return;
-    const { error } = await supabase.from('tasks').update(updates).eq('id', id);
+    const sanitizedUpdates = { ...updates };
+    if ('points' in sanitizedUpdates) {
+      sanitizedUpdates.points = Math.max(0, parseInt(sanitizedUpdates.points as any, 10) || 10);
+      sanitizedUpdates.xp_reward = sanitizedUpdates.points;
+    }
+
+    const { error } = await supabase.from('tasks').update(sanitizedUpdates).eq('id', id);
     if (!error) {
-      setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t).sort((a, b) => {
+      setTasks(prev => prev.map(t => t.id === id ? { ...t, ...sanitizedUpdates } : t).sort((a, b) => {
         const dateA = a.date || '9999-99-99';
         const dateB = b.date || '9999-99-99';
         if (dateA !== dateB) return dateA.localeCompare(dateB);
@@ -120,6 +148,8 @@ export const useTasks = () => {
         if (!hasTimeA && hasTimeB) return 1;
         return 0;
       }));
+      window.dispatchEvent(new Event('lifeos_tasks_updated'));
+      window.dispatchEvent(new Event('lifeos_points_updated'));
     }
   };
 
@@ -128,6 +158,8 @@ export const useTasks = () => {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
     if (!error) {
       setTasks(prev => prev.filter(t => t.id !== id));
+      window.dispatchEvent(new Event('lifeos_tasks_updated'));
+      window.dispatchEvent(new Event('lifeos_points_updated'));
     }
   };
 
@@ -167,6 +199,8 @@ export const useTasks = () => {
         if (!hasTimeA && hasTimeB) return 1;
         return 0;
       }));
+      window.dispatchEvent(new Event('lifeos_tasks_updated'));
+      window.dispatchEvent(new Event('lifeos_points_updated'));
     }
   };
 
@@ -182,3 +216,4 @@ export const useTasks = () => {
     refresh: fetchTasks
   };
 };
+

@@ -137,7 +137,7 @@ const Reports = () => {
     const width = 1000;
     const height = 200;
     
-    return trendData.map((d, index) => {
+    return trendData.map((d: any, index: number) => {
       const x = (index / (trendData.length - 1)) * width;
       const y = height - ((d.rate / 100) * height);
       return `${x},${y}`;
@@ -318,7 +318,7 @@ const Reports = () => {
                     No activities scheduled for today.
                   </div>
                 ) : (
-                  timelineItems.map((item) => (
+                  timelineItems.map((item: any) => (
                     <div key={item.id} className="flex items-start gap-4">
                       <div className="flex flex-col items-center mt-1">
                         <div className={cn("w-2.5 h-2.5 rounded-full shadow-glow", item.statusColor)} />
@@ -443,7 +443,7 @@ const Reports = () => {
                     />
                     
                     {/* Data Points */}
-                    {trendData.map((d, i) => {
+                    {trendData.map((d: any, i: number) => {
                       const width = 1000;
                       const height = 200;
                       const x = (i / (trendData.length - 1)) * width;
@@ -467,7 +467,7 @@ const Reports = () => {
 
             {/* X-Axis Labels */}
             <div className="absolute left-8 right-0 bottom-0 flex justify-between text-[10px] font-medium text-text-muted pt-2">
-              {trendData.map((d, i) => {
+              {trendData.map((d: any, i: number) => {
                 if (trendRange === 30 && i % 5 !== 0 && i !== trendData.length - 1) return null;
                 return <span key={i}>{d.label}</span>;
               })}

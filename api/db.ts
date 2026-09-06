@@ -37,8 +37,10 @@ const ALLOWED_TABLES = new Set([
   'motivational_quotes',
   'learning_topics',
   'goals',
-  'habits'
+  'habits',
+  'points_transactions'
 ]);
+
 
 function normalizeRow(row: any): any {
   if (!row || typeof row !== 'object') return row;
@@ -78,6 +80,48 @@ function normalizeRow(row: any): any {
   return out;
 }
 
+async function syncUserRewards(sql: any, userId: string) {
+  if (!userId) return;
+  try {
+    await sql.query(`
+      UPDATE public.profiles p
+      SET xp = COALESCE((SELECT SUM(points) FROM public.points_transactions pt WHERE pt.user_id = $1), 0),
+          level = 1 + FLOOR(COALESCE((SELECT SUM(points) FROM public.points_transactions pt WHERE pt.user_id = $1), 0) / 100)::int
+      WHERE user_id = $1
+    `, [userId]);
+  } catch (err: any) {
+    console.error('[REWARDS] Failed to sync user rewards:', err.message);
+  }
+}
+
+async function handleTaskRewardSync(sql: any, row: any) {
+  if (!row || !row.user_id || !row.id) return;
+  const taskPoints = Math.max(0, Math.min(10000, parseInt(row.points ?? 10, 10) || 10));
+
+  if (row.completed) {
+    try {
+      await sql.query(`
+        INSERT INTO public.points_transactions (user_id, task_id, points, type, description, created_at)
+        VALUES ($1, $2, $3, 'task_completion', $4, COALESCE($5, NOW()))
+        ON CONFLICT (user_id, task_id, type) DO UPDATE SET points = EXCLUDED.points
+      `, [row.user_id, row.id, taskPoints, row.title || 'Task completion', row.completed_at || null]);
+    } catch (e: any) {
+      console.error('[REWARDS] Transaction insert error:', e.message);
+    }
+  } else {
+    try {
+      await sql.query(`
+        DELETE FROM public.points_transactions 
+        WHERE user_id = $1 AND task_id = $2 AND type = 'task_completion'
+      `, [row.user_id, row.id]);
+    } catch (e: any) {
+      console.error('[REWARDS] Transaction delete error:', e.message);
+    }
+  }
+
+  await syncUserRewards(sql, row.user_id);
+}
+
 export async function handleDbRequest(reqBody: any) {
   const { action, table, payload, filters, order, limit, onConflict } = reqBody || {};
 
@@ -85,7 +129,7 @@ export async function handleDbRequest(reqBody: any) {
     return { status: 400, data: { error: `Invalid or unauthorized table: ${table}` } };
   }
 
-  let sql;
+  let sql: any;
   try {
     const dbUrl = getDatabaseUrl();
     sql = neon(dbUrl);
@@ -139,7 +183,7 @@ export async function handleDbRequest(reqBody: any) {
         query += ` LIMIT ${limit}`;
       }
 
-      const rows = await withTimeout(
+      const rows: any = await withTimeout(
         sql.query(query, params),
         8000,
         `Database select timed out on table ${table}`
@@ -163,6 +207,17 @@ export async function handleDbRequest(reqBody: any) {
           }
         }
 
+        if (table === 'tasks') {
+          if ('points' in cleaned) {
+            cleaned.points = Math.max(0, Math.min(10000, parseInt(cleaned.points, 10) || 10));
+          } else {
+            cleaned.points = 10;
+          }
+          if ('xp_reward' in cleaned && !('points' in record)) {
+            cleaned.points = Math.max(0, Math.min(10000, parseInt(cleaned.xp_reward, 10) || 10));
+          }
+        }
+
         const keys = Object.keys(cleaned);
         if (keys.length === 0) continue;
 
@@ -171,13 +226,18 @@ export async function handleDbRequest(reqBody: any) {
         const placeholders = params.map((_, i) => `$${i + 1}`).join(', ');
 
         const query = `INSERT INTO public.${table} (${columns}) VALUES (${placeholders}) RETURNING *`;
-        const result = await withTimeout(
+        const result: any = await withTimeout(
           sql.query(query, params),
           8000,
           `Database insert timed out on table ${table}`
         );
         if (result && result.length > 0) {
-          insertedRows.push(normalizeRow(result[0]));
+          const norm = normalizeRow(result[0]);
+          insertedRows.push(norm);
+
+          if (table === 'tasks') {
+            await handleTaskRewardSync(sql, norm);
+          }
         }
       }
 
@@ -190,7 +250,7 @@ export async function handleDbRequest(reqBody: any) {
         return { status: 200, data: { data: [], error: null } };
       }
 
-      const conflictCol = onConflict && /^[a-zA-Z0-9_]+$/.test(onConflict) ? onConflict : 'id';
+      const conflictCol = onConflict && /^[a-zA-Z0-9_, ]+$/.test(onConflict) ? onConflict : 'id';
       const results: any[] = [];
 
       for (const record of records) {
@@ -198,6 +258,12 @@ export async function handleDbRequest(reqBody: any) {
         for (const [k, v] of Object.entries(record)) {
           if (/^[a-zA-Z0-9_]+$/.test(k) && v !== undefined) {
             cleaned[k] = v;
+          }
+        }
+
+        if (table === 'tasks') {
+          if ('points' in cleaned) {
+            cleaned.points = Math.max(0, Math.min(10000, parseInt(cleaned.points, 10) || 10));
           }
         }
 
@@ -209,7 +275,7 @@ export async function handleDbRequest(reqBody: any) {
         const placeholders = params.map((_, i) => `$${i + 1}`).join(', ');
 
         const updateSets = keys
-          .filter(k => k !== conflictCol)
+          .filter(k => k !== 'id' && !conflictCol.includes(k))
           .map(k => `${k} = EXCLUDED.${k}`)
           .join(', ');
 
@@ -220,13 +286,18 @@ export async function handleDbRequest(reqBody: any) {
           query += ` ON CONFLICT (${conflictCol}) DO NOTHING RETURNING *`;
         }
 
-        const res = await withTimeout(
+        const res: any = await withTimeout(
           sql.query(query, params),
           8000,
           `Database upsert timed out on table ${table}`
         );
         if (res && res.length > 0) {
-          results.push(normalizeRow(res[0]));
+          const norm = normalizeRow(res[0]);
+          results.push(norm);
+
+          if (table === 'tasks') {
+            await handleTaskRewardSync(sql, norm);
+          }
         }
       }
 
@@ -240,6 +311,10 @@ export async function handleDbRequest(reqBody: any) {
         if (/^[a-zA-Z0-9_]+$/.test(k)) {
           cleaned[k] = v;
         }
+      }
+
+      if (table === 'tasks' && 'points' in cleaned) {
+        cleaned.points = Math.max(0, Math.min(10000, parseInt(cleaned.points, 10) || 10));
       }
 
       const keys = Object.keys(cleaned);
@@ -283,12 +358,19 @@ export async function handleDbRequest(reqBody: any) {
       }
 
       query += ' RETURNING *';
-      const rows = await withTimeout(
+      const rows: any = await withTimeout(
         sql.query(query, params),
         8000,
         `Database update timed out on table ${table}`
       );
       const data = (rows || []).map(normalizeRow);
+
+      if (table === 'tasks') {
+        for (const r of data) {
+          await handleTaskRewardSync(sql, r);
+        }
+      }
+
       return { status: 200, data: { data, error: null } };
     }
 
@@ -327,14 +409,23 @@ export async function handleDbRequest(reqBody: any) {
       }
 
       query += ' RETURNING *';
-      const rows = await withTimeout(
+      const rows: any = await withTimeout(
         sql.query(query, params),
         8000,
         `Database delete timed out on table ${table}`
       );
       const data = (rows || []).map(normalizeRow);
+
+      if (table === 'tasks') {
+        const userIds = [...new Set(data.map((r: any) => r.user_id).filter(Boolean))];
+        for (const uid of userIds) {
+          await syncUserRewards(sql, uid as string);
+        }
+      }
+
       return { status: 200, data: { data, error: null } };
     }
+
 
     return { status: 400, data: { error: `Unsupported database action: ${action}` } };
   } catch (err: any) {

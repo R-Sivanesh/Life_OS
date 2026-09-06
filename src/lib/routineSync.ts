@@ -46,9 +46,15 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
 
   const requiredDates = dates.filter(d => shouldRunOnDate(routine, d)).map(d => format(d, 'yyyy-MM-dd'));
   
-  const tasksToDelete = existingTasks.filter(t => t.date && !requiredDates.includes(t.date) && !t.completed);
-  const tasksToUpdate = existingTasks.filter(t => t.date && requiredDates.includes(t.date) && !t.completed);
-  const existingDates = existingTasks.map(t => t.date);
+  const existingDates = existingTasks.map(t => (t.date || '').slice(0, 10));
+  const tasksToDelete = existingTasks.filter(t => {
+    const d = (t.date || '').slice(0, 10);
+    return d && !requiredDates.includes(d) && !t.completed;
+  });
+  const tasksToUpdate = existingTasks.filter(t => {
+    const d = (t.date || '').slice(0, 10);
+    return d && requiredDates.includes(d) && !t.completed;
+  });
   const tasksToInsertDates = requiredDates.filter(d => !existingDates.includes(d));
 
   let endTime = undefined;
@@ -79,7 +85,6 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
 
   if (tasksToInsertDates.length > 0) {
     // IDEMPOTENCY CHECK: Double-check that tasks don't exist before inserting
-    // to prevent race conditions when this function runs multiple times concurrently
     const { data: checkData } = await supabase
       .from('tasks')
       .select('date')
@@ -87,7 +92,7 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
       .eq('user_id', userId)
       .in('date', tasksToInsertDates);
       
-    const doubleCheckDates = checkData?.map((t: any) => t.date) || [];
+    const doubleCheckDates = (checkData || []).map((t: any) => (t.date || '').slice(0, 10));
     const finalDatesToInsert = tasksToInsertDates.filter(d => !doubleCheckDates.includes(d));
 
     if (finalDatesToInsert.length > 0) {
@@ -102,9 +107,10 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
         end_time: endTime,
         estimated_minutes: routine.duration_minutes || 30,
         completed: false,
-        status: 'pending'
+        status: 'pending',
+        points: 10
       }));
-      await supabase.from('tasks').insert(newTasks);
+      await supabase.from('tasks').upsert(newTasks, { onConflict: 'user_id,recurring,date' });
     }
   }
   } finally {
