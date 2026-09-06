@@ -12,6 +12,20 @@ function getDatabaseUrl(): string {
   return url;
 }
 
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 8000, errorMsg: string = 'Database operation timed out'): Promise<T> {
+  let timeoutHandle: ReturnType<typeof setTimeout>;
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timeoutHandle = setTimeout(() => reject(new Error(errorMsg)), timeoutMs);
+  });
+  return Promise.race([
+    promise.then((res) => {
+      clearTimeout(timeoutHandle);
+      return res;
+    }),
+    timeoutPromise
+  ]);
+}
+
 const ALLOWED_TABLES = new Set([
   'users',
   'profiles',
@@ -73,8 +87,10 @@ export async function handleDbRequest(reqBody: any) {
 
   let sql;
   try {
-    sql = neon(getDatabaseUrl());
+    const dbUrl = getDatabaseUrl();
+    sql = neon(dbUrl);
   } catch (err: any) {
+    console.error('[DB] Database URL configuration error:', err.message);
     return { status: 500, data: { error: err.message || 'Database connection error' } };
   }
 
@@ -123,7 +139,11 @@ export async function handleDbRequest(reqBody: any) {
         query += ` LIMIT ${limit}`;
       }
 
-      const rows = await sql.query(query, params);
+      const rows = await withTimeout(
+        sql.query(query, params),
+        8000,
+        `Database select timed out on table ${table}`
+      );
       const data = (rows || []).map(normalizeRow);
       return { status: 200, data: { data, error: null } };
     }
@@ -151,7 +171,11 @@ export async function handleDbRequest(reqBody: any) {
         const placeholders = params.map((_, i) => `$${i + 1}`).join(', ');
 
         const query = `INSERT INTO public.${table} (${columns}) VALUES (${placeholders}) RETURNING *`;
-        const result = await sql.query(query, params);
+        const result = await withTimeout(
+          sql.query(query, params),
+          8000,
+          `Database insert timed out on table ${table}`
+        );
         if (result && result.length > 0) {
           insertedRows.push(normalizeRow(result[0]));
         }
@@ -196,7 +220,11 @@ export async function handleDbRequest(reqBody: any) {
           query += ` ON CONFLICT (${conflictCol}) DO NOTHING RETURNING *`;
         }
 
-        const res = await sql.query(query, params);
+        const res = await withTimeout(
+          sql.query(query, params),
+          8000,
+          `Database upsert timed out on table ${table}`
+        );
         if (res && res.length > 0) {
           results.push(normalizeRow(res[0]));
         }
@@ -255,7 +283,11 @@ export async function handleDbRequest(reqBody: any) {
       }
 
       query += ' RETURNING *';
-      const rows = await sql.query(query, params);
+      const rows = await withTimeout(
+        sql.query(query, params),
+        8000,
+        `Database update timed out on table ${table}`
+      );
       const data = (rows || []).map(normalizeRow);
       return { status: 200, data: { data, error: null } };
     }
@@ -295,37 +327,71 @@ export async function handleDbRequest(reqBody: any) {
       }
 
       query += ' RETURNING *';
-      const rows = await sql.query(query, params);
+      const rows = await withTimeout(
+        sql.query(query, params),
+        8000,
+        `Database delete timed out on table ${table}`
+      );
       const data = (rows || []).map(normalizeRow);
       return { status: 200, data: { data, error: null } };
     }
 
     return { status: 400, data: { error: `Unsupported database action: ${action}` } };
   } catch (err: any) {
-    console.error(`Neon DB Error on ${action} ${table}:`, err);
+    console.error(`[DB] Execution error on ${action} ${table}:`, err.message);
     return { status: 500, data: { error: err.message || 'Database query error' } };
   }
 }
 
 async function parseRequestBody(req: any): Promise<any> {
-  if (req.body) {
-    if (typeof req.body === 'object') return req.body;
-    if (typeof req.body === 'string') {
-      try { return JSON.parse(req.body); } catch { return {}; }
+  if (req.body !== undefined && req.body !== null) {
+    if (typeof req.body === 'object') {
+      if (Buffer.isBuffer(req.body)) {
+        try {
+          return JSON.parse(req.body.toString('utf-8'));
+        } catch {
+          return {};
+        }
+      }
+      return req.body;
     }
+    if (typeof req.body === 'string') {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return {};
+      }
+    }
+  }
+
+  // If stream is already finished, return empty object immediately
+  if (req.readableEnded || req.complete || !req.readable) {
+    return {};
   }
 
   return new Promise((resolve) => {
     let raw = '';
+    const timer = setTimeout(() => {
+      try {
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch {
+        resolve({});
+      }
+    }, 500);
+
     req.on('data', (chunk: any) => { raw += chunk; });
     req.on('end', () => {
+      clearTimeout(timer);
       try {
         resolve(raw ? JSON.parse(raw) : {});
       } catch {
         resolve({});
       }
     });
-    req.on('error', () => resolve({}));
+    req.on('error', () => {
+      clearTimeout(timer);
+      resolve({});
+    });
   });
 }
 
@@ -348,7 +414,7 @@ export default async function handler(req: any, res: any) {
     const result = await handleDbRequest(body);
     return res.status(result.status).json(result.data);
   } catch (err: any) {
-    console.error('Unhandled Vercel DB Error:', err);
+    console.error('[DB] Unhandled serverless handler error:', err.message);
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 }

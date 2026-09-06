@@ -20,27 +20,36 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    if (isLogin) {
-      const res = await login(email, password);
-      if (!res?.success) setError(res?.error || 'Login failed. Please check your credentials.');
-    } else {
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
-        setLoading(false);
-        return;
+    try {
+      if (isLogin) {
+        const res = await login(email, password);
+        if (!res?.success) setError(res?.error || 'Login failed. Please check your credentials.');
+      } else {
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+        const res = await signup(name, email, password);
+        if (!res?.success) setError(res?.error || 'Signup failed. Email might already be in use.');
       }
-      const res = await signup(name, email, password);
-      if (!res?.success) setError(res?.error || 'Signup failed. Email might already be in use.');
+    } catch (err: any) {
+      setError(err?.message || 'An unexpected error occurred during authentication.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
-    const res = await loginWithGoogle();
-    if (!res?.success) {
-      setError(res?.error || 'Google login failed.');
+    try {
+      const res = await loginWithGoogle();
+      if (!res?.success) {
+        setError(res?.error || 'Google login failed.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Google login failed.');
+    } finally {
       setLoading(false);
     }
   };

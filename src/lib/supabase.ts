@@ -7,14 +7,19 @@ type Filter = {
   value: any;
 };
 
-async function safeFetchJson(url: string, bodyObj: any): Promise<{ data: any; error: any }> {
+async function safeFetchJson(url: string, bodyObj: any, timeoutMs: number = 10000): Promise<{ data: any; error: any }> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bodyObj)
+      body: JSON.stringify(bodyObj),
+      signal: controller.signal
     });
 
+    clearTimeout(timer);
     const rawText = await res.text();
     let json: any = null;
 
@@ -36,7 +41,11 @@ async function safeFetchJson(url: string, bodyObj: any): Promise<{ data: any; er
 
     return { data: json.data !== undefined ? json.data : json, error: json.error || null };
   } catch (err: any) {
+    clearTimeout(timer);
     console.error(`Fetch error on ${url}:`, err);
+    if (err.name === 'AbortError') {
+      return { data: null, error: { message: 'Request timed out. Please check your internet connection or try again.' } };
+    }
     return { data: null, error: { message: err.message || 'Network communication error' } };
   }
 }
