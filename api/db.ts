@@ -1,9 +1,13 @@
 import { neon } from '@neondatabase/serverless';
 
 function getDatabaseUrl(): string {
-  const url = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
+  let url = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
   if (!url) {
     throw new Error('DATABASE_URL is not set in environment variables. Please configure DATABASE_URL in Vercel project settings.');
+  }
+  url = url.trim();
+  if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'"))) {
+    url = url.slice(1, -1).trim();
   }
   return url;
 }
