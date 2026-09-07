@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
-import { BarChart2, Calendar, CheckCircle2, Clock, LayoutGrid, Target, Zap, CircleDashed } from 'lucide-react';
-import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay, subDays } from 'date-fns';
+import { BarChart2, Calendar, CheckCircle2, Clock, LayoutGrid, Target, Zap, CircleDashed, ChevronLeft, ChevronRight } from 'lucide-react';
+import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay, subDays, addWeeks, subWeeks, isSameWeek, isThisWeek } from 'date-fns';
 import { cn, formatTimeDisplay, calculateProductivity } from '../lib/utils';
 
 const Reports = () => {
@@ -95,20 +95,56 @@ const Reports = () => {
     return items.sort((a, b) => a.time.localeCompare(b.time));
   }, [todayTasks, todayReminders, nowTime, todayStr]);
 
-  // --- 4. Weekly Performance ---
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
-  
-  const weeklyData = weekDays.map(day => {
-    const dayStr = format(day, 'yyyy-MM-dd');
-    const count = tasks.filter(t => t.completed && (t.completed_at?.startsWith(dayStr) || t.date === dayStr)).length;
-    return {
-      date: day,
-      label: format(day, 'EEE'), 
-      count
-    };
-  });
+  // --- 4. Week Navigation & Weekly Performance ---
+  const [selectedWeekDate, setSelectedWeekDate] = useState<Date>(new Date());
+
+  const selectedWeekStart = useMemo(() => startOfWeek(selectedWeekDate, { weekStartsOn: 1 }), [selectedWeekDate]);
+  const selectedWeekEnd = useMemo(() => endOfWeek(selectedWeekDate, { weekStartsOn: 1 }), [selectedWeekDate]);
+  const selectedWeekDays = useMemo(() => eachDayOfInterval({ start: selectedWeekStart, end: selectedWeekEnd }), [selectedWeekStart, selectedWeekEnd]);
+
+  const weekLabel = useMemo(() => {
+    const isCurrent = isThisWeek(selectedWeekDate, { weekStartsOn: 1 });
+    const isPrev = isSameWeek(selectedWeekDate, subWeeks(today, 1), { weekStartsOn: 1 });
+    const isNext = isSameWeek(selectedWeekDate, addWeeks(today, 1), { weekStartsOn: 1 });
+    
+    const startYear = selectedWeekStart.getFullYear();
+    const endYear = selectedWeekEnd.getFullYear();
+    const currentYear = today.getFullYear();
+
+    let dateRangeStr = '';
+    if (startYear !== endYear) {
+      dateRangeStr = `${format(selectedWeekStart, 'MMM d, yyyy')} - ${format(selectedWeekEnd, 'MMM d, yyyy')}`;
+    } else if (startYear !== currentYear) {
+      dateRangeStr = `${format(selectedWeekStart, 'MMM d')} - ${format(selectedWeekEnd, 'MMM d')}, ${startYear}`;
+    } else {
+      dateRangeStr = `${format(selectedWeekStart, 'MMM d')} - ${format(selectedWeekEnd, 'MMM d')}`;
+    }
+
+    if (isCurrent) {
+      return `This Week (${dateRangeStr})`;
+    }
+    if (isPrev) {
+      return `Last Week (${dateRangeStr})`;
+    }
+    if (isNext) {
+      return `Next Week (${dateRangeStr})`;
+    }
+    return dateRangeStr;
+  }, [selectedWeekDate, selectedWeekStart, selectedWeekEnd, today]);
+
+  const weeklyData = useMemo(() => {
+    return selectedWeekDays.map(day => {
+      const dayStr = format(day, 'yyyy-MM-dd');
+      const count = tasks.filter(t => t.completed && (t.completed_at?.startsWith(dayStr) || t.date === dayStr)).length;
+      return {
+        date: day,
+        label: format(day, 'EEE'),
+        dayNum: format(day, 'd'),
+        count
+      };
+    });
+  }, [selectedWeekDays, tasks]);
+
   const maxWeeklyCount = Math.max(...weeklyData.map(d => d.count), 1);
 
   // --- 5. Productivity Trend ---
@@ -116,21 +152,35 @@ const Reports = () => {
   
   const trendData = useMemo(() => {
     const days = [];
-    for (let i = trendRange - 1; i >= 0; i--) {
-      const d = subDays(today, i);
-      const dayStr = format(d, 'yyyy-MM-dd');
-      
-      const dayTasks = tasks.filter(t => t.date === dayStr || (t.completed_at && t.completed_at.startsWith(dayStr)));
-      const rate = calculateProductivity(dayTasks);
-      
-      days.push({
-        date: d,
-        label: format(d, 'MMM d'),
-        rate
-      });
+    if (trendRange === 7) {
+      for (const d of selectedWeekDays) {
+        const dayStr = format(d, 'yyyy-MM-dd');
+        const dayTasks = tasks.filter(t => t.date === dayStr || (t.completed_at && t.completed_at.startsWith(dayStr)));
+        const rate = calculateProductivity(dayTasks);
+        
+        days.push({
+          date: d,
+          label: format(d, 'MMM d'),
+          rate
+        });
+      }
+    } else {
+      for (let i = 29; i >= 0; i--) {
+        const d = subDays(selectedWeekEnd, i);
+        const dayStr = format(d, 'yyyy-MM-dd');
+        
+        const dayTasks = tasks.filter(t => t.date === dayStr || (t.completed_at && t.completed_at.startsWith(dayStr)));
+        const rate = calculateProductivity(dayTasks);
+        
+        days.push({
+          date: d,
+          label: format(d, 'MMM d'),
+          rate
+        });
+      }
     }
     return days;
-  }, [tasks, trendRange, today]);
+  }, [tasks, trendRange, selectedWeekDays, selectedWeekEnd]);
 
   const createPolylinePoints = () => {
     if (trendData.length === 0) return '';
@@ -340,18 +390,44 @@ const Reports = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
         {/* 4. WEEKLY PERFORMANCE */}
         <div className="glass-card p-6 flex flex-col h-[340px]">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-6 sm:mb-8">
             <h3 className="text-sm font-bold text-text-primary">Weekly Performance</h3>
-            <select className="bg-surface-elevated border border-border/50 rounded-lg text-xs text-text-cyan px-3 py-1.5 focus:outline-none focus:border-primary cursor-pointer">
-              <option>This Week</option>
-            </select>
+            <div className="flex items-center gap-1 bg-surface-elevated border border-border/50 rounded-lg p-1 text-xs text-text-cyan">
+              <button
+                type="button"
+                onClick={() => setSelectedWeekDate(prev => subWeeks(prev, 1))}
+                className="p-1 sm:p-1.5 hover:bg-surface-card hover:text-text-primary rounded transition-colors text-text-cyan flex items-center justify-center cursor-pointer"
+                title="Previous week"
+                aria-label="Previous week"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedWeekDate(new Date())}
+                className="px-2 py-0.5 font-medium text-text-primary hover:text-primary transition-colors select-none whitespace-nowrap text-[11px] sm:text-xs cursor-pointer"
+                title="Click to reset to current week"
+              >
+                {weekLabel}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedWeekDate(prev => addWeeks(prev, 1))}
+                className="p-1 sm:p-1.5 hover:bg-surface-card hover:text-text-primary rounded transition-colors text-text-cyan flex items-center justify-center cursor-pointer"
+                title="Next week"
+                aria-label="Next week"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
           
-          <div className="flex-1 flex items-end gap-3 justify-between px-2 pb-2">
+          <div className="flex-1 flex items-end gap-2 sm:gap-3 justify-between px-1 sm:px-2 pb-2">
             {weeklyData.map((data, index) => {
               const heightPercent = maxWeeklyCount > 0 ? Math.round((data.count / maxWeeklyCount) * 100) : 0;
+              const isCurrentDay = isSameDay(data.date, today);
               return (
-                <div key={index} className="flex-1 flex flex-col items-center justify-end h-full gap-3 group">
+                <div key={index} className="flex-1 flex flex-col items-center justify-end h-full gap-2 sm:gap-3 group min-w-0">
                   <div className="text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                     {data.count}
                   </div>
@@ -359,18 +435,19 @@ const Reports = () => {
                     <div 
                       className={cn(
                         "w-full max-w-[36px] rounded-t-md transition-all duration-700 relative overflow-hidden",
-                        isSameDay(data.date, today) ? "bg-primary shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "bg-primary/40 group-hover:bg-primary/60"
+                        isCurrentDay ? "bg-primary shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "bg-primary/40 group-hover:bg-primary/60"
                       )}
-                      style={{ height: `${Math.max(heightPercent, 2)}%` }}
+                      style={{ height: `${data.count > 0 ? Math.max(heightPercent, 8) : 2}%` }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20" />
                     </div>
                   </div>
                   <div className={cn(
-                    "text-xs font-medium uppercase mt-1",
-                    isSameDay(data.date, today) ? "text-primary font-bold" : "text-text-muted"
+                    "text-xs font-medium uppercase mt-1 flex flex-col items-center",
+                    isCurrentDay ? "text-primary font-bold" : "text-text-muted"
                   )}>
-                    {data.label}
+                    <span>{data.label}</span>
+                    <span className="text-[9px] opacity-70 font-normal">{data.dayNum}</span>
                   </div>
                 </div>
               );
