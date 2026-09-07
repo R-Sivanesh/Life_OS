@@ -173,71 +173,14 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
           </div>
 
           {type === 'task' && (
-            <>
-              <div>
-                <label className="block text-xs font-medium text-text-cyan mb-1">Description (optional)</label>
-                <textarea 
-                  value={description} onChange={e => setDescription(e.target.value)}
-                  placeholder="Add details..." rows={2}
-                  className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors resize-none"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-medium text-text-cyan flex items-center gap-1.5">
-                    <span>Reward Points</span>
-                    <span className="text-warning">⭐</span>
-                  </label>
-                  <span className="text-[11px] text-text-muted">
-                    {points === 5 ? 'Very easy' : points === 10 ? 'Normal' : points === 20 ? 'Important' : points === 30 ? 'Hard' : points === 50 ? 'Major' : points === 100 ? 'Critical' : 'Custom'}
-                  </span>
-                </div>
-                
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {[
-                    { value: 5, label: '5', desc: 'Very easy' },
-                    { value: 10, label: '10', desc: 'Normal' },
-                    { value: 20, label: '20', desc: 'Important' },
-                    { value: 30, label: '30', desc: 'Hard' },
-                    { value: 50, label: '50', desc: 'Major' },
-                    { value: 100, label: '100', desc: 'Critical' }
-                  ].map((chip) => (
-                    <button
-                      key={chip.value}
-                      type="button"
-                      onClick={() => setPoints(chip.value)}
-                      className={cn(
-                        "px-2.5 py-1 text-xs rounded-lg border font-medium transition-all flex items-center gap-1",
-                        points === chip.value
-                          ? "bg-warning/20 border-warning text-warning shadow-[0_0_10px_rgba(234,179,8,0.2)]"
-                          : "bg-surface border-border text-text-muted hover:border-border-hover hover:text-text-primary"
-                      )}
-                    >
-                      <span>⭐ {chip.label}</span>
-                      <span className="text-[10px] opacity-75">({chip.desc})</span>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm">⭐</span>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    max="10000"
-                    step="1"
-                    value={points} 
-                    onChange={e => {
-                      const val = parseInt(e.target.value, 10);
-                      setPoints(isNaN(val) ? 0 : Math.max(0, Math.min(10000, val)));
-                    }}
-                    placeholder="Custom points (e.g. 10)"
-                    className="w-full bg-surface border border-border rounded-xl py-2 pl-8 pr-3 text-sm text-text-primary focus:outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-            </>
+            <div>
+              <label className="block text-xs font-medium text-text-cyan mb-1">Description (optional)</label>
+              <textarea 
+                value={description} onChange={e => setDescription(e.target.value)}
+                placeholder="Add details..." rows={2}
+                className="w-full bg-surface border border-border rounded-xl py-2 px-3 text-text-primary placeholder-text-muted focus:outline-none focus:border-primary transition-colors resize-none"
+              />
+            </div>
           )}
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
