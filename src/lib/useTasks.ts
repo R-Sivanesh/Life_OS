@@ -11,6 +11,7 @@ export type Task = {
   category: string;
   priority: string;
   points?: number;
+  progress?: number;
   date?: string;
   start_time?: string | null;
   end_time?: string | null;
@@ -44,9 +45,22 @@ export const useTasks = () => {
       for (const t of data as any[]) {
         if (!t || !t.id || seenIds.has(t.id)) continue;
         seenIds.add(t.id);
+        
+        let normalizedDate: string | undefined = undefined;
+        if (t.date) {
+          if (typeof t.date === 'string') {
+            normalizedDate = t.date.includes('T') ? t.date.split('T')[0] : t.date.slice(0, 10);
+          } else if (t.date instanceof Date) {
+            const y = t.date.getFullYear();
+            const m = String(t.date.getMonth() + 1).padStart(2, '0');
+            const d = String(t.date.getDate()).padStart(2, '0');
+            normalizedDate = `${y}-${m}-${d}`;
+          }
+        }
+
         fetchedTasks.push({
           ...t,
-          date: t.date ? (typeof t.date === 'string' ? t.date.slice(0, 10) : t.date) : undefined,
+          date: normalizedDate,
           points: t.points !== undefined && t.points !== null ? t.points : (t.xp_reward || 10)
         });
       }

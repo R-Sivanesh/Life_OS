@@ -57,13 +57,19 @@ function normalizeRow(row: any): any {
         out[key] = value.toISOString();
       }
     } else if (typeof value === 'string') {
-      if (key === 'date' && value.includes('T')) {
-        const d = new Date(value);
-        if (!isNaN(d.getTime())) {
-          const year = d.getFullYear();
-          const month = String(d.getMonth() + 1).padStart(2, '0');
-          const day = String(d.getDate()).padStart(2, '0');
-          out[key] = `${year}-${month}-${day}`;
+      if (key === 'date' || key.endsWith('_date')) {
+        if (value.includes('T')) {
+          const d = new Date(value);
+          if (!isNaN(d.getTime())) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            out[key] = `${year}-${month}-${day}`;
+          } else {
+            out[key] = value.split('T')[0];
+          }
+        } else if (value.length >= 10) {
+          out[key] = value.slice(0, 10);
         }
       }
     }

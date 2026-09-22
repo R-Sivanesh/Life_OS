@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     xp_reward INTEGER DEFAULT 10,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
-);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_tasks_user_recurring_date ON public.tasks (user_id, recurring, date) WHERE recurring IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_tasks_user_recurring_date_all ON public.tasks (user_id, recurring, date);
 
 -- 3b. Points Transactions Ledger (Idempotent Rewards Tracking)
 CREATE TABLE IF NOT EXISTS public.points_transactions (

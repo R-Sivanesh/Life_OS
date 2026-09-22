@@ -29,6 +29,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
   const [endTime, setEndTime] = useState('10:00');
   const [category, setCategory] = useState('General');
   const [points, setPoints] = useState<number>(10);
+  const [progress, setProgress] = useState<number>(0);
   const [noSpecificTime, setNoSpecificTime] = useState(false);
   
   // Reminder specific fields
@@ -57,6 +58,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
           setDescription(initialTask.description || '');
           setCategory(initialTask.category || 'General');
           setPoints(typeof initialTask.points === 'number' && initialTask.points >= 0 ? initialTask.points : 10);
+          setProgress(typeof initialTask.progress === 'number' ? initialTask.progress : (initialTask.completed ? 100 : 0));
           if (initialTask.start_time) {
             setStartTime(initialTask.start_time.slice(0, 5));
             setEndTime(initialTask.end_time ? initialTask.end_time.slice(0, 5) : '10:00');
@@ -77,6 +79,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
         setPriority('Medium');
         setCategory('General');
         setPoints(10);
+        setProgress(0);
         setStartTime('09:00');
         setEndTime('10:00');
         setReminderTime('12:00');
@@ -94,6 +97,7 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
 
     if (type === 'task') {
       const safePoints = Math.max(0, Math.min(10000, Math.floor(Number(points) || 10)));
+      const safeProgress = Math.max(0, Math.min(100, Math.floor(Number(progress) || 0)));
       const taskPayload: any = {
         title,
         description,
@@ -103,6 +107,8 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
         priority: priority.toLowerCase(),
         category,
         points: safePoints,
+        progress: safeProgress,
+        completed: safeProgress === 100,
         estimated_minutes: 60
       };
       
@@ -301,6 +307,31 @@ export const GlobalAddModal: React.FC<GlobalAddModalProps> = ({ isOpen, onClose,
               </div>
             )}
           </div>
+
+          {type === 'task' && (
+            <div className="pt-2">
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-xs font-medium text-text-cyan">Task Progress</label>
+                <span className="text-xs font-mono font-bold text-primary">{progress}%</span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                step="5"
+                value={progress} 
+                onChange={e => setProgress(Number(e.target.value))}
+                className="w-full accent-primary bg-surface h-2 rounded-lg cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-text-muted mt-1 font-mono">
+                <button type="button" onClick={() => setProgress(0)} className="hover:text-text-primary">0%</button>
+                <button type="button" onClick={() => setProgress(25)} className="hover:text-text-primary">25%</button>
+                <button type="button" onClick={() => setProgress(50)} className="hover:text-text-primary">50%</button>
+                <button type="button" onClick={() => setProgress(75)} className="hover:text-text-primary">75%</button>
+                <button type="button" onClick={() => setProgress(100)} className="hover:text-success font-semibold">100%</button>
+              </div>
+            </div>
+          )}
           
           <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-border">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-text-cyan hover:text-text-primary hover:bg-surface-elevated transition-colors">
