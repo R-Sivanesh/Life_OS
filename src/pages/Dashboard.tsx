@@ -130,10 +130,10 @@ const Dashboard = () => {
 
   const getPriorityBadgeLabel = (priority?: string) => {
     switch ((priority || 'medium').toLowerCase()) {
-      case 'high': return 'HIGH 3x';
-      case 'low': return 'LOW 1x';
+      case 'high': return 'HIGH';
+      case 'low': return 'LOW';
       case 'medium':
-      default: return 'MEDIUM 2x';
+      default: return 'MEDIUM';
     }
   };
 
@@ -259,9 +259,6 @@ const Dashboard = () => {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-[10px] font-bold text-primary uppercase tracking-wider">Pending ({pendingToday.length})</h4>
-                    <span className="text-[9px] sm:text-[10px] font-mono text-text-muted/60 tracking-tight">
-                      HIGH = 3x | MEDIUM = 2x | LOW = 1x
-                    </span>
                   </div>
                   <div className="space-y-1">
                     {pendingToday.map(task => (
