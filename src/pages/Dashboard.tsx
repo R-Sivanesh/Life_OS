@@ -1,14 +1,13 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Check, Plus, Edit2, Trash2, Bell, Square, Play, Pause } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Check, Plus, Edit2, Bell } from 'lucide-react';
 import { cn, openTaskModal, openReminderModal, formatTaskTimeRange, formatTimeDisplay, calculateProductivity } from '../lib/utils';
 import { useTasks } from '../lib/useTasks';
 import { useReminders } from '../lib/useReminders';
 import { useRoutines } from '../lib/useRoutines';
 import CalendarWidget from '../components/CalendarWidget';
-import { useFocus } from '../contexts/FocusContext';
 import { useQuotes } from '../lib/useQuotes';
-import { useDeleteModal } from '../contexts/DeleteModalContext';
-import { format, isToday } from 'date-fns';
+import { format } from 'date-fns';
 import { syncAllRoutines } from '../lib/routineSync';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -17,17 +16,9 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [quote, setQuote] = useState('Hope.');
-  const [activeReminderMenu, setActiveReminderMenu] = useState<string | null>(null);
 
-  const { confirmDelete } = useDeleteModal();
   const { quotes } = useQuotes();
   const lastQuoteIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = () => setActiveReminderMenu(null);
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, []);
 
   useEffect(() => {
     if (!quotes || quotes.length === 0) return;
@@ -51,24 +42,9 @@ const Dashboard = () => {
     const interval = setInterval(setNextQuote, 15000);
     return () => clearInterval(interval);
   }, [quotes]);
-  
-  const {
-    timeLeft,
-    isActive,
-    isPaused,
-    handleStart,
-    handlePause,
-    handleReset,
-  } = useFocus();
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
 
   const { tasks, completeTask, uncompleteTask, refresh: refreshTasks } = useTasks();
-  const { reminders, deleteReminder, refresh: refreshReminders } = useReminders();
+  const { reminders, refresh: refreshReminders } = useReminders();
   const { routines } = useRoutines();
 
   useEffect(() => {
@@ -110,14 +86,48 @@ const Dashboard = () => {
     return calculateProductivity(todayTasks, true);
   }, [todayTasks]);
 
-  // Selected date tasks/reminders
-  const upcomingReminders = reminders.filter(r => r.date >= todayString && !r.completed).sort((a, b) => {
-    if (a.date !== b.date) return a.date.localeCompare(b.date);
-    if (!a.time && b.time) return 1;
-    if (a.time && !b.time) return -1;
-    if (!a.time && !b.time) return 0;
-    return a.time!.localeCompare(b.time!);
-  }).slice(0, 5);
+  // Nearest 2-3 upcoming reminders
+  const topUpcomingReminders = useMemo(() => {
+    return reminders
+      .filter(r => (r.date ? r.date >= todayString : true) && !r.completed)
+      .sort((a, b) => {
+        const dateA = a.date || '9999-99-99';
+        const dateB = b.date || '9999-99-99';
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+        if (!a.time && b.time) return 1;
+        if (a.time && !b.time) return -1;
+        if (!a.time && !b.time) return 0;
+        return a.time!.localeCompare(b.time!);
+      })
+      .slice(0, 3);
+  }, [reminders, todayString]);
+
+  const formatReminderDate = (rem: any) => {
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
+
+    let datePart = '';
+    if (rem.date === todayStr) {
+      datePart = 'Today';
+    } else if (rem.date === tomorrowStr) {
+      datePart = 'Tomorrow';
+    } else if (rem.date) {
+      try {
+        const [y, m, d] = rem.date.split('-').map(Number);
+        datePart = format(new Date(y, m - 1, d), 'MMM d');
+      } catch {
+        datePart = rem.date;
+      }
+    }
+
+    if (rem.time) {
+      const timePart = formatTimeDisplay(rem.time);
+      return datePart ? `${datePart} · ${timePart}` : timePart;
+    }
+    return datePart || 'No date';
+  };
 
   const getPriorityColor = (priority?: string) => {
     switch ((priority || 'medium').toLowerCase()) {
@@ -195,37 +205,65 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* Focus Timer (CENTER) */}
-        <div className="flex flex-col items-center justify-center w-full lg:w-auto lg:flex-1 border-y lg:border-y-0 lg:border-x border-border/50 py-4 lg:py-0 px-4 lg:px-6 mx-0 lg:mx-6">
-          <span className="text-[10px] font-bold text-primary tracking-widest uppercase mb-1">Focus</span>
-          <span className="text-3xl font-black text-text-primary tabular-nums leading-none mb-3 tracking-tight">
-            {formatTime(timeLeft)}
-          </span>
-          
-          <div className="flex items-center gap-2">
-            {!isActive || isPaused ? (
-              <button onClick={handleStart} className="btn-primary px-5 py-2 rounded-xl text-xs font-bold shadow-glow flex items-center gap-2">
-                <Play className="w-3 h-3 fill-current" /> {isPaused ? 'Resume' : 'Start Focus'}
+        {/* Upcoming Reminders (CENTER) */}
+        <div className="flex flex-col justify-center w-full lg:w-auto lg:flex-1 border-y lg:border-y-0 lg:border-x border-border/50 py-4 lg:py-0 px-4 lg:px-6 mx-0 lg:mx-6 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-primary tracking-wider uppercase">
+              <Bell className="w-3.5 h-3.5 text-primary" />
+              <span>Upcoming Reminders</span>
+            </div>
+            {topUpcomingReminders.length > 0 && (
+              <button 
+                onClick={() => openReminderModal()}
+                className="text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors"
+                title="Add reminder"
+              >
+                <Plus className="w-3.5 h-3.5" />
               </button>
-            ) : (
-              <button onClick={handlePause} className="px-5 py-2 rounded-xl bg-warning/20 text-warning hover:bg-warning/30 transition-colors text-xs font-bold flex items-center gap-2">
-                <Pause className="w-3 h-3 fill-current" /> Pause
-              </button>
-            )}
-            
-            {(isActive || isPaused) && (
-              <button onClick={handleReset} className="px-4 py-2 rounded-xl bg-surface-elevated text-text-cyan hover:text-text-primary flex items-center gap-2 transition-colors text-xs font-bold">
-                <Square className="w-3 h-3 fill-current" /> Stop
-              </button>
-            )}
-            
-            {!isActive && !isPaused && (
-              <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-elevated/30 text-text-cyan text-xs font-medium">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                Ready to focus
-              </div>
             )}
           </div>
+
+          {topUpcomingReminders.length > 0 ? (
+            <div className="space-y-1.5">
+              {topUpcomingReminders.map(rem => (
+                <div 
+                  key={rem.id} 
+                  onClick={() => openReminderModal(undefined, rem)}
+                  className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-surface-elevated/60 transition-colors cursor-pointer group text-left"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-warning/15 flex items-center justify-center flex-shrink-0 text-warning">
+                    <Bell className="w-3 h-3" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-text-primary truncate group-hover:text-primary transition-colors">
+                      {rem.title}
+                    </p>
+                    <p className="text-[10px] text-text-muted">
+                      {formatReminderDate(rem)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-0.5">
+                <Link 
+                  to="/reminders" 
+                  className="text-[11px] font-medium text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  View all reminders →
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-2 text-center">
+              <p className="text-xs text-text-muted mb-2">No upcoming reminders</p>
+              <button 
+                onClick={() => openReminderModal()} 
+                className="text-xs text-primary hover:text-primary-hover font-semibold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Reminder
+              </button>
+            </div>
+          )}
         </div>
         
         {/* Quote (RIGHT) */}
@@ -240,12 +278,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Main Grid Row 1 */}
+      {/* Main Grid */}
       <div className="grid grid-cols-12 gap-6 mb-6">
-        
         {/* Left Column - Today's Tasks */}
         <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
-          {/* Today's Tasks */}
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="p-4 md:p-6 border-b border-border/50 flex justify-between items-center">
               <h3 className="text-text-primary font-bold">Today's Tasks</h3>
@@ -341,7 +377,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Right Column - Calendar & Reminders */}
+        {/* Right Column - Calendar */}
         <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
           <CalendarWidget 
             currentMonth={currentMonth}
@@ -351,66 +387,6 @@ const Dashboard = () => {
             tasks={tasks}
             reminders={reminders}
           />
-        </div>
-      </div>
-
-      {/* Main Grid Row 2 - Upcoming Reminders */}
-      <div className="glass-card flex flex-col overflow-hidden">
-        <div className="p-6 border-b border-border/50 flex justify-between items-center">
-          <h3 className="text-text-primary font-bold">Upcoming Reminders</h3>
-          <button onClick={() => openReminderModal()} className="p-1.5 bg-surface-elevated text-text-cyan hover:text-text-primary rounded-lg transition-colors">
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-        
-        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {upcomingReminders.length > 0 ? upcomingReminders.map(rem => (
-            <div key={rem.id} className="flex items-start gap-3 p-4 rounded-xl bg-surface-elevated/50 border border-border/50 relative group">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
-                <Bell className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-text-primary truncate">{rem.title}</h4>
-                <p className="text-xs text-text-muted mt-1">{isToday(new Date(rem.date)) ? 'Today' : format(new Date(rem.date), 'MMM d')}, {formatTimeDisplay(rem.time)}</p>
-              </div>
-              <span className={cn("text-[10px] uppercase font-bold", getPriorityColor(rem.priority).split(' ')[0])}>
-                {rem.priority}
-              </span>
-              
-              <div className="relative">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); setActiveReminderMenu(activeReminderMenu === rem.id ? null : rem.id); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-primary transition-all"
-                >
-                  <div className="flex flex-col gap-0.5 pointer-events-none">
-                    <div className="w-1 h-1 bg-current rounded-full" />
-                    <div className="w-1 h-1 bg-current rounded-full" />
-                    <div className="w-1 h-1 bg-current rounded-full" />
-                  </div>
-                </button>
-                {activeReminderMenu === rem.id && (
-                  <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-surface-elevated border border-border rounded-xl shadow-xl z-20 py-1 flex flex-col overflow-hidden">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); openReminderModal(undefined, rem); setActiveReminderMenu(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-surface transition-colors flex items-center gap-2"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" /> Edit
-                    </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); confirmDelete(`Reminder: ${rem.title}`, () => deleteReminder(rem.id)); setActiveReminderMenu(null); }}
-                      className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors flex items-center gap-2"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )) : (
-            <div className="col-span-full py-8 text-center text-sm text-text-muted">
-              No upcoming reminders.
-            </div>
-          )}
         </div>
       </div>
     </div>

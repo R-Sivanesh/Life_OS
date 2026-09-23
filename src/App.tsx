@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { TasksProvider } from './contexts/TasksContext';
+import { RemindersProvider } from './contexts/RemindersContext';
 import { FocusProvider } from './contexts/FocusContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -40,27 +42,31 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <FocusProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <TasksProvider>
+          <RemindersProvider>
+            <FocusProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-            <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-            <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-            <Route path="/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-            <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
-            <Route path="/routine" element={<ProtectedRoute><Routines /></ProtectedRoute>} />
-            <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
-            <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
-            <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          </Routes>
-        </FocusProvider>
+                <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+                <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+                <Route path="/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+                <Route path="/focus" element={<ProtectedRoute><Focus /></ProtectedRoute>} />
+                <Route path="/routine" element={<ProtectedRoute><Routines /></ProtectedRoute>} />
+                <Route path="/journal" element={<ProtectedRoute><Journal /></ProtectedRoute>} />
+                <Route path="/learning" element={<ProtectedRoute><Learning /></ProtectedRoute>} />
+                <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+                <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              </Routes>
+            </FocusProvider>
+          </RemindersProvider>
+        </TasksProvider>
       </AuthProvider>
     </Router>
   );
