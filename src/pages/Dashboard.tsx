@@ -159,10 +159,10 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col gap-5 md:gap-6 w-full max-w-[1440px] mx-auto pb-12 overflow-y-auto">
-      {/* Top 3-Column Banner on Desktop / Split Elements on Mobile */}
-      <div className={cn("contents lg:grid lg:grid-cols-3 lg:divide-x lg:divide-border/50 lg:glass-card transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "lg:border-primary/50 lg:shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
-        {/* 1. Statistics (Left on Desktop: 33.33%, 1st on Mobile) */}
-        <div className={cn("order-1 lg:order-1 glass-card lg:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none p-4 sm:p-5 lg:p-5 xl:p-6 flex items-center justify-center gap-4 sm:gap-6 xl:gap-7 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)] lg:border-0 lg:shadow-none" : "")}>
+      {/* Top 3-Column Grid on Desktop / Stamped Stack on Mobile */}
+      <div className="contents lg:grid lg:grid-cols-3 lg:gap-6">
+        {/* 1. Statistics Card (Left on Desktop: 33.33%, 1st on Mobile) */}
+        <div className={cn("order-1 lg:order-1 glass-card p-4 sm:p-5 lg:p-6 flex items-center justify-center gap-4 sm:gap-6 xl:gap-8 h-full transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-full border-[5px] sm:border-[6px] border-surface-elevated/40 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
               <circle 
@@ -205,8 +205,8 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* 2. Motivational Quote (Center on Desktop: 33.33%, 2nd on Mobile) */}
-        <div className="order-2 lg:order-2 glass-card lg:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none p-4 sm:p-5 lg:p-5 xl:p-6 flex flex-col items-center justify-center text-center">
+        {/* 2. Motivational Quote Card (Center on Desktop: 33.33%, 2nd on Mobile) */}
+        <div className="order-2 lg:order-2 glass-card p-4 sm:p-5 lg:p-6 flex flex-col items-center justify-center text-center h-full min-h-[130px]">
            <div className="text-3xl sm:text-4xl text-primary/25 leading-none mb-1 font-serif select-none">"</div>
            <p className="text-xs sm:text-sm text-text-cyan leading-relaxed font-medium max-w-md px-2 line-clamp-3">
              {quote}
@@ -216,8 +216,8 @@ const Dashboard = () => {
            </p>
         </div>
 
-        {/* 4. Upcoming Reminders (Right on Desktop: 33.33%, 4th on Mobile below Today's Tasks) */}
-        <div className="order-4 lg:order-3 glass-card lg:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none p-4 sm:p-5 lg:p-5 xl:p-6 flex flex-col justify-center min-w-0">
+        {/* 4. Upcoming Reminders Card (Right on Desktop: 33.33%, 4th on Mobile below Today's Tasks) */}
+        <div className="order-4 lg:order-3 glass-card p-4 sm:p-5 lg:p-6 flex flex-col justify-center h-full min-w-0 min-h-[130px]">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-primary tracking-wider uppercase">
               <Bell className="w-3.5 h-3.5 text-primary shrink-0" />
