@@ -184,9 +184,8 @@ const Calendar = () => {
                       <Check className="w-3 h-3" strokeWidth={3} />
                     </button>
                     <div className="flex-1 min-w-0">
-                      <p className={cn("text-sm font-medium truncate transition-colors", task.completed ? "text-text-muted line-through" : (task.category === 'Routine' ? "text-primary" : "text-text-primary"))}>
+                      <p className={cn("text-sm font-medium truncate transition-colors", task.completed ? "text-text-muted line-through" : "text-text-primary")}>
                         {task.title}
-                        {task.category === 'Routine' && <span className="ml-2 text-[10px] uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded">Routine</span>}
                       </p>
                       <p className="text-xs text-text-muted mt-1">{formatTaskTimeRange(task.start_time, task.end_time)}</p>
                     </div>

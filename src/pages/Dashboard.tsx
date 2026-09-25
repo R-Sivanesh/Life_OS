@@ -147,16 +147,6 @@ const Dashboard = () => {
     }
   };
 
-  const getCategoryColor = (category?: string) => {
-    switch ((category || '').toLowerCase()) {
-      case 'health': return 'text-success';
-      case 'learning': return 'text-primary';
-      case 'work': return 'text-cyan';
-      case 'personal': return 'text-warning';
-      default: return 'text-text-cyan';
-    }
-  };
-
   return (
     <div className="flex flex-col gap-5 md:gap-6 w-full max-w-[1500px] mx-auto pb-12 overflow-y-auto">
       {/* Top 3-Column Grid on Desktop / Stacked Cards on Mobile */}
@@ -318,11 +308,6 @@ const Dashboard = () => {
                           <span className="font-medium text-xs sm:text-sm transition-colors flex-1 text-text-primary truncate">
                             {task.title}
                           </span>
-                          {task.category && (
-                            <span className={cn("text-[8px] sm:text-[10px] uppercase font-bold px-1.5 sm:px-2 py-0.5 rounded-full border shrink-0 text-center hidden xs:inline-block", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
-                              {task.category}
-                            </span>
-                          )}
                           <span className={cn("text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md border shrink-0 uppercase tracking-tight", getPriorityColor(task.priority))}>
                             {getPriorityBadgeLabel(task.priority)}
                           </span>
@@ -355,11 +340,6 @@ const Dashboard = () => {
                           <span className="font-medium text-xs sm:text-sm transition-colors flex-1 text-text-muted line-through truncate">
                             {task.title}
                           </span>
-                          {task.category && (
-                            <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 text-center opacity-50", getCategoryColor(task.category), `border-${getCategoryColor(task.category).split('-')[1]}/30 bg-${getCategoryColor(task.category).split('-')[1]}/10`)}>
-                              {task.category}
-                            </span>
-                          )}
                           <span className={cn("text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md border shrink-0 uppercase tracking-tight opacity-60", getPriorityColor(task.priority))}>
                             {getPriorityBadgeLabel(task.priority)}
                           </span>
