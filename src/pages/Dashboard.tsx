@@ -210,11 +210,11 @@ const Dashboard = () => {
         
         {/* 2. Motivational Quote Card (Center on Desktop: 33.33%, 2nd on Mobile) */}
         <div className="order-2 lg:order-2 glass-card p-4 sm:p-5 flex flex-col items-center justify-center text-center h-full">
-           <div className="text-3xl sm:text-4xl text-primary/30 leading-none -mb-0.5 font-serif select-none">"</div>
-           <p className="text-base sm:text-lg xl:text-xl text-text-primary font-semibold leading-snug max-w-sm px-2 line-clamp-3">
+           <div className="text-2xl sm:text-3xl lg:text-xl text-primary/30 leading-none mb-0.5 font-serif select-none">"</div>
+           <p className="text-base sm:text-lg lg:text-[18px] text-text-primary font-semibold leading-snug lg:leading-[1.4] max-w-sm px-2 line-clamp-3">
              {quote}
            </p>
-           <p className="text-xs sm:text-sm text-primary mt-2 flex items-center justify-center gap-1.5 font-bold tracking-wide">
+           <p className="text-xs sm:text-sm lg:text-[14px] text-primary mt-2 flex items-center justify-center gap-1.5 font-bold tracking-wide">
              <span className="w-2.5 h-[2px] bg-primary rounded-full"></span> Keep going!
            </p>
         </div>
