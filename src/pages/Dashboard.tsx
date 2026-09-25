@@ -158,13 +158,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 md:gap-6 w-full max-w-[1440px] mx-auto pb-12 overflow-y-auto">
-      {/* Top 3-Column Grid on Desktop / Stamped Stack on Mobile */}
-      <div className="contents lg:grid lg:grid-cols-3 lg:gap-6">
+    <div className="flex flex-col gap-5 md:gap-6 w-full max-w-[1500px] mx-auto pb-12 overflow-y-auto">
+      {/* Top 3-Column Grid on Desktop / Stacked Cards on Mobile */}
+      <div className="contents lg:grid lg:grid-cols-3 lg:gap-5 xl:gap-6">
         {/* 1. Statistics Card (Left on Desktop: 33.33%, 1st on Mobile) */}
-        <div className={cn("order-1 lg:order-1 glass-card p-4 sm:p-5 lg:p-6 flex items-center justify-center gap-4 sm:gap-6 xl:gap-8 h-full transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-full border-[5px] sm:border-[6px] border-surface-elevated/40 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
+        <div className={cn("order-1 lg:order-1 glass-card p-4 sm:p-5 lg:p-5 xl:p-6 flex items-center justify-between sm:justify-center gap-4 sm:gap-6 xl:gap-8 h-full transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 xl:w-28 xl:h-28 flex-shrink-0 rounded-full border-[6px] xl:border-[7px] border-surface-elevated/50 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="absolute w-[86%] h-[86%] transform -rotate-90 drop-shadow-lg">
               <circle 
                 cx="50" cy="50" r="40" 
                 fill="transparent" 
@@ -181,96 +181,101 @@ const Dashboard = () => {
                 strokeDashoffset={251.327 - (progressPercent / 100) * 251.327}
                 className="transition-all duration-1000 ease-in-out"
                 style={{
-                  filter: progressPercent > 0 ? 'drop-shadow(0 0 6px rgba(59,130,246,0.6))' : 'none'
+                  filter: progressPercent > 0 ? 'drop-shadow(0 0 8px rgba(59,130,246,0.65))' : 'none'
                 }}
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg sm:text-xl font-black text-text-primary">{progressPercent}%</span>
+              <span className="text-xl sm:text-2xl xl:text-3xl font-black text-text-primary tracking-tight">{progressPercent}%</span>
             </div>
           </div>
-          <div className="flex gap-4 sm:gap-6 xl:gap-8">
+          <div className="flex gap-4 sm:gap-6 xl:gap-7">
             <div className="text-center sm:text-left">
-              <p className="text-[11px] sm:text-xs text-text-muted mb-0.5">Completed</p>
-              <p className="text-xl sm:text-2xl font-bold text-success">{completedToday}</p>
+              <p className="text-xs xl:text-sm text-text-muted font-medium mb-0.5">Completed</p>
+              <p className="text-2xl sm:text-2xl xl:text-3xl font-bold text-success">{completedToday}</p>
             </div>
             <div className="text-center sm:text-left">
-              <p className="text-[11px] sm:text-xs text-text-muted mb-0.5">Total Tasks</p>
-              <p className="text-xl sm:text-2xl font-bold text-cyan">{totalToday}</p>
+              <p className="text-xs xl:text-sm text-text-muted font-medium mb-0.5">Total Tasks</p>
+              <p className="text-2xl sm:text-2xl xl:text-3xl font-bold text-cyan">{totalToday}</p>
             </div>
             <div className="text-center sm:text-left">
-              <p className="text-[11px] sm:text-xs text-text-muted mb-0.5">Remaining</p>
-              <p className="text-xl sm:text-2xl font-bold text-warning">{totalToday - completedToday}</p>
+              <p className="text-xs xl:text-sm text-text-muted font-medium mb-0.5">Remaining</p>
+              <p className="text-2xl sm:text-2xl xl:text-3xl font-bold text-warning">{totalToday - completedToday}</p>
             </div>
           </div>
         </div>
         
         {/* 2. Motivational Quote Card (Center on Desktop: 33.33%, 2nd on Mobile) */}
-        <div className="order-2 lg:order-2 glass-card p-4 sm:p-5 lg:p-6 flex flex-col items-center justify-center text-center h-full min-h-[130px]">
-           <div className="text-3xl sm:text-4xl text-primary/25 leading-none mb-1 font-serif select-none">"</div>
-           <p className="text-xs sm:text-sm text-text-cyan leading-relaxed font-medium max-w-md px-2 line-clamp-3">
+        <div className="order-2 lg:order-2 glass-card p-4 sm:p-5 lg:p-5 xl:p-6 flex flex-col items-center justify-center text-center h-full">
+           <div className="text-3xl sm:text-4xl xl:text-5xl text-primary/30 leading-none -mb-1 font-serif select-none">"</div>
+           <p className="text-base sm:text-lg xl:text-xl text-text-primary font-semibold leading-snug max-w-md px-2 line-clamp-3">
              {quote}
            </p>
-           <p className="text-[10px] sm:text-[11px] text-primary mt-2 flex items-center gap-1.5 font-semibold">
-             <span className="w-2.5 h-[1.5px] bg-primary rounded-full"></span> Keep going!
+           <p className="text-xs sm:text-sm text-primary mt-2.5 flex items-center gap-2 font-bold tracking-wide">
+             <span className="w-3 h-[2px] bg-primary rounded-full"></span> Keep going!
            </p>
         </div>
 
         {/* 4. Upcoming Reminders Card (Right on Desktop: 33.33%, 4th on Mobile below Today's Tasks) */}
-        <div className="order-4 lg:order-3 glass-card p-4 sm:p-5 lg:p-6 flex flex-col justify-center h-full min-w-0 min-h-[130px]">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-primary tracking-wider uppercase">
-              <Bell className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span className="truncate">Upcoming Reminders</span>
+        <div className="order-4 lg:order-3 glass-card p-4 sm:p-5 lg:p-5 xl:p-6 flex flex-col justify-between h-full min-w-0">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-primary tracking-wider uppercase">
+                <Bell className="w-4 h-4 text-primary shrink-0" />
+                <span className="truncate">Upcoming Reminders</span>
+              </div>
+              <button 
+                onClick={() => openReminderModal()}
+                className="text-text-muted hover:text-text-primary p-1 rounded-lg hover:bg-surface-elevated/60 transition-colors shrink-0"
+                title="Add reminder"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
             </div>
-            <button 
-              onClick={() => openReminderModal()}
-              className="text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors shrink-0"
-              title="Add reminder"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
+
+            {topUpcomingReminders.length > 0 ? (
+              <div className="space-y-1.5">
+                {topUpcomingReminders.map(rem => (
+                  <div 
+                    key={rem.id} 
+                    onClick={() => openReminderModal(undefined, rem)}
+                    className="flex items-center gap-2.5 p-1.5 sm:p-2 rounded-xl hover:bg-surface-elevated/60 transition-colors cursor-pointer group text-left"
+                  >
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-warning/15 flex items-center justify-center flex-shrink-0 text-warning">
+                      <Bell className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold text-text-primary truncate group-hover:text-primary transition-colors">
+                        {rem.title}
+                      </p>
+                      <p className="text-[11px] sm:text-xs text-text-muted truncate">
+                        {formatReminderDate(rem)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-3 text-center">
+                <p className="text-xs text-text-muted mb-2">No upcoming reminders</p>
+                <button 
+                  onClick={() => openReminderModal()} 
+                  className="text-xs text-primary hover:text-primary-hover font-semibold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Reminder
+                </button>
+              </div>
+            )}
           </div>
 
-          {topUpcomingReminders.length > 0 ? (
-            <div className="space-y-1.5">
-              {topUpcomingReminders.map(rem => (
-                <div 
-                  key={rem.id} 
-                  onClick={() => openReminderModal(undefined, rem)}
-                  className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-surface-elevated/60 transition-colors cursor-pointer group text-left"
-                >
-                  <div className="w-6 h-6 rounded-lg bg-warning/15 flex items-center justify-center flex-shrink-0 text-warning">
-                    <Bell className="w-3 h-3" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-text-primary truncate group-hover:text-primary transition-colors">
-                      {rem.title}
-                    </p>
-                    <p className="text-[10px] text-text-muted truncate">
-                      {formatReminderDate(rem)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              <div className="pt-0.5">
-                <Link 
-                  to="/reminders" 
-                  className="text-[11px] font-medium text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  View all reminders →
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-2 text-center">
-              <p className="text-xs text-text-muted mb-2">No upcoming reminders</p>
-              <button 
-                onClick={() => openReminderModal()} 
-                className="text-xs text-primary hover:text-primary-hover font-semibold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+          {topUpcomingReminders.length > 0 && (
+            <div className="pt-2">
+              <Link 
+                to="/reminders" 
+                className="text-xs sm:text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Reminder
-              </button>
+                View all reminders →
+              </Link>
             </div>
           )}
         </div>
