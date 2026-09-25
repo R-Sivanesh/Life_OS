@@ -159,10 +159,10 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12 overflow-y-auto">
-      {/* Top Stats Row */}
-      <div className={cn("glass-card flex flex-col lg:flex-row items-center justify-between px-4 md:px-6 py-4 gap-6 lg:gap-0 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
-        {/* Circle Progress (LEFT) */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto lg:flex-1 justify-center lg:justify-start">
+      {/* Top 3-Column Banner on Desktop / Split Elements on Mobile */}
+      <div className={cn("contents lg:flex lg:flex-row items-center justify-between lg:px-6 lg:py-4 lg:glass-card transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "lg:border-primary/50 lg:shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
+        {/* 1. Statistics (Left on Desktop, 1st on Mobile) */}
+        <div className={cn("order-1 lg:order-1 glass-card lg:bg-transparent lg:border-0 lg:shadow-none p-4 md:p-6 lg:p-0 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto lg:flex-1 justify-center lg:justify-start transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)] lg:border-0 lg:shadow-none" : "")}>
           <div className="relative w-20 h-20 flex-shrink-0 rounded-full border-[6px] border-surface-elevated/40 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
               <circle 
@@ -205,8 +205,19 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* Upcoming Reminders (CENTER) */}
-        <div className="flex flex-col justify-center w-full lg:w-auto lg:flex-1 border-y lg:border-y-0 lg:border-x border-border/50 py-4 lg:py-0 px-4 lg:px-6 mx-0 lg:mx-6 min-w-0">
+        {/* 2. Motivational Quote (Center on Desktop, 2nd on Mobile) */}
+        <div className="order-2 lg:order-2 glass-card lg:bg-transparent lg:border-0 lg:shadow-none p-4 md:p-6 lg:p-0 flex flex-col items-center sm:items-start justify-center w-full lg:w-auto lg:flex-1 lg:border-x border-border/50 lg:px-6 lg:mx-6 min-w-0 text-center sm:text-left">
+           <div className="text-4xl text-primary/20 leading-none mb-1 font-serif">"</div>
+           <p className="text-sm text-text-cyan leading-relaxed font-medium pr-4">
+             {quote}
+           </p>
+           <p className="text-[11px] text-primary mt-3 flex items-center gap-2">
+             <span className="w-3 h-[1px] bg-primary"></span> Keep going!
+           </p>
+        </div>
+
+        {/* 4. Upcoming Reminders (Right on Desktop, 4th on Mobile below Today's Tasks) */}
+        <div className="order-4 lg:order-3 glass-card lg:bg-transparent lg:border-0 lg:shadow-none p-4 md:p-6 lg:p-0 flex flex-col justify-center w-full lg:w-auto lg:flex-1 min-w-0">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-primary tracking-wider uppercase">
               <Bell className="w-3.5 h-3.5 text-primary" />
@@ -265,23 +276,12 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-        
-        {/* Quote (RIGHT) */}
-        <div className="flex flex-col items-center sm:items-start justify-center w-full lg:w-auto lg:flex-1 lg:pl-4 text-center sm:text-left">
-           <div className="text-4xl text-primary/20 leading-none mb-1 font-serif">"</div>
-           <p className="text-sm text-text-cyan leading-relaxed font-medium pr-4">
-             {quote}
-           </p>
-           <p className="text-[11px] text-primary mt-3 flex items-center gap-2">
-             <span className="w-3 h-[1px] bg-primary"></span> Keep going!
-           </p>
-        </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-12 gap-6 mb-6">
-        {/* Left Column - Today's Tasks */}
-        <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
+      {/* Main Grid: Today's Tasks & Calendar */}
+      <div className="contents lg:grid lg:grid-cols-12 lg:gap-6 mb-6">
+        {/* 3. Left Column - Today's Tasks (3rd on Mobile, Left on Desktop) */}
+        <div className="order-3 lg:order-1 col-span-12 xl:col-span-8 flex flex-col gap-6">
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="p-4 md:p-6 border-b border-border/50 flex justify-between items-center">
               <h3 className="text-text-primary font-bold">Today's Tasks</h3>
@@ -377,8 +377,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Right Column - Calendar */}
-        <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
+        {/* 5. Right Column - Calendar (5th on Mobile, Right on Desktop) */}
+        <div className="order-5 lg:order-2 col-span-12 xl:col-span-4 flex flex-col gap-6">
           <CalendarWidget 
             currentMonth={currentMonth}
             setCurrentMonth={setCurrentMonth}
