@@ -158,12 +158,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-[1600px] mx-auto pb-12 overflow-y-auto">
+    <div className="flex flex-col gap-5 md:gap-6 w-full max-w-[1440px] mx-auto pb-12 overflow-y-auto">
       {/* Top 3-Column Banner on Desktop / Split Elements on Mobile */}
-      <div className={cn("contents lg:flex lg:flex-row items-center justify-between lg:px-6 lg:py-4 lg:glass-card transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "lg:border-primary/50 lg:shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
-        {/* 1. Statistics (Left on Desktop, 1st on Mobile) */}
-        <div className={cn("order-1 lg:order-1 glass-card lg:bg-transparent lg:border-0 lg:shadow-none p-4 md:p-6 lg:p-0 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto lg:flex-1 justify-center lg:justify-start transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)] lg:border-0 lg:shadow-none" : "")}>
-          <div className="relative w-20 h-20 flex-shrink-0 rounded-full border-[6px] border-surface-elevated/40 flex items-center justify-center">
+      <div className={cn("contents lg:grid lg:grid-cols-3 lg:divide-x lg:divide-border/50 lg:glass-card transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "lg:border-primary/50 lg:shadow-[0_0_30px_rgba(59,130,246,0.15)]" : "")}>
+        {/* 1. Statistics (Left on Desktop: 33.33%, 1st on Mobile) */}
+        <div className={cn("order-1 lg:order-1 glass-card lg:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none p-4 sm:p-5 lg:p-5 xl:p-6 flex items-center justify-center gap-4 sm:gap-6 xl:gap-7 transition-all duration-700", progressPercent === 100 && totalToday > 0 ? "border-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)] lg:border-0 lg:shadow-none" : "")}>
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-full border-[5px] sm:border-[6px] border-surface-elevated/40 flex items-center justify-center">
             <svg viewBox="0 0 100 100" className="absolute w-[85%] h-[85%] transform -rotate-90 drop-shadow-lg">
               <circle 
                 cx="50" cy="50" r="40" 
@@ -186,52 +186,50 @@ const Dashboard = () => {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-black text-text-primary">{progressPercent}%</span>
+              <span className="text-lg sm:text-xl font-black text-text-primary">{progressPercent}%</span>
             </div>
           </div>
-          <div className="flex gap-8">
-            <div>
-              <p className="text-xs text-text-muted mb-1">Completed</p>
-              <p className="text-2xl font-bold text-success">{completedToday}</p>
+          <div className="flex gap-4 sm:gap-6 xl:gap-8">
+            <div className="text-center sm:text-left">
+              <p className="text-[11px] sm:text-xs text-text-muted mb-0.5">Completed</p>
+              <p className="text-xl sm:text-2xl font-bold text-success">{completedToday}</p>
             </div>
-            <div>
-              <p className="text-xs text-text-muted mb-1">Total Tasks</p>
-              <p className="text-2xl font-bold text-cyan">{totalToday}</p>
+            <div className="text-center sm:text-left">
+              <p className="text-[11px] sm:text-xs text-text-muted mb-0.5">Total Tasks</p>
+              <p className="text-xl sm:text-2xl font-bold text-cyan">{totalToday}</p>
             </div>
-            <div>
-              <p className="text-xs text-text-muted mb-1">Remaining</p>
-              <p className="text-2xl font-bold text-warning">{totalToday - completedToday}</p>
+            <div className="text-center sm:text-left">
+              <p className="text-[11px] sm:text-xs text-text-muted mb-0.5">Remaining</p>
+              <p className="text-xl sm:text-2xl font-bold text-warning">{totalToday - completedToday}</p>
             </div>
           </div>
         </div>
         
-        {/* 2. Motivational Quote (Center on Desktop, 2nd on Mobile) */}
-        <div className="order-2 lg:order-2 glass-card lg:bg-transparent lg:border-0 lg:shadow-none p-4 md:p-6 lg:p-0 flex flex-col items-center sm:items-start justify-center w-full lg:w-auto lg:flex-1 lg:border-x border-border/50 lg:px-6 lg:mx-6 min-w-0 text-center sm:text-left">
-           <div className="text-4xl text-primary/20 leading-none mb-1 font-serif">"</div>
-           <p className="text-sm text-text-cyan leading-relaxed font-medium pr-4">
+        {/* 2. Motivational Quote (Center on Desktop: 33.33%, 2nd on Mobile) */}
+        <div className="order-2 lg:order-2 glass-card lg:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none p-4 sm:p-5 lg:p-5 xl:p-6 flex flex-col items-center justify-center text-center">
+           <div className="text-3xl sm:text-4xl text-primary/25 leading-none mb-1 font-serif select-none">"</div>
+           <p className="text-xs sm:text-sm text-text-cyan leading-relaxed font-medium max-w-md px-2 line-clamp-3">
              {quote}
            </p>
-           <p className="text-[11px] text-primary mt-3 flex items-center gap-2">
-             <span className="w-3 h-[1px] bg-primary"></span> Keep going!
+           <p className="text-[10px] sm:text-[11px] text-primary mt-2 flex items-center gap-1.5 font-semibold">
+             <span className="w-2.5 h-[1.5px] bg-primary rounded-full"></span> Keep going!
            </p>
         </div>
 
-        {/* 4. Upcoming Reminders (Right on Desktop, 4th on Mobile below Today's Tasks) */}
-        <div className="order-4 lg:order-3 glass-card lg:bg-transparent lg:border-0 lg:shadow-none p-4 md:p-6 lg:p-0 flex flex-col justify-center w-full lg:w-auto lg:flex-1 min-w-0">
+        {/* 4. Upcoming Reminders (Right on Desktop: 33.33%, 4th on Mobile below Today's Tasks) */}
+        <div className="order-4 lg:order-3 glass-card lg:bg-transparent lg:border-0 lg:shadow-none lg:rounded-none p-4 sm:p-5 lg:p-5 xl:p-6 flex flex-col justify-center min-w-0">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-primary tracking-wider uppercase">
-              <Bell className="w-3.5 h-3.5 text-primary" />
-              <span>Upcoming Reminders</span>
+              <Bell className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className="truncate">Upcoming Reminders</span>
             </div>
-            {topUpcomingReminders.length > 0 && (
-              <button 
-                onClick={() => openReminderModal()}
-                className="text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors"
-                title="Add reminder"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            )}
+            <button 
+              onClick={() => openReminderModal()}
+              className="text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors shrink-0"
+              title="Add reminder"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {topUpcomingReminders.length > 0 ? (
@@ -249,7 +247,7 @@ const Dashboard = () => {
                     <p className="text-xs font-semibold text-text-primary truncate group-hover:text-primary transition-colors">
                       {rem.title}
                     </p>
-                    <p className="text-[10px] text-text-muted">
+                    <p className="text-[10px] text-text-muted truncate">
                       {formatReminderDate(rem)}
                     </p>
                   </div>
@@ -279,9 +277,9 @@ const Dashboard = () => {
       </div>
 
       {/* Main Grid: Today's Tasks & Calendar */}
-      <div className="contents lg:grid lg:grid-cols-12 lg:gap-6 mb-6">
-        {/* 3. Left Column - Today's Tasks (3rd on Mobile, Left on Desktop) */}
-        <div className="order-3 lg:order-1 col-span-12 xl:col-span-8 flex flex-col gap-6">
+      <div className="contents lg:grid lg:grid-cols-12 lg:gap-6 mb-6 lg:items-start">
+        {/* 3. Left Column - Today's Tasks (3rd on Mobile, Left 66.7% on Desktop) */}
+        <div className="order-3 lg:order-1 col-span-12 lg:col-span-8 flex flex-col gap-6">
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="p-4 md:p-6 border-b border-border/50 flex justify-between items-center">
               <h3 className="text-text-primary font-bold">Today's Tasks</h3>
@@ -377,8 +375,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 5. Right Column - Calendar (5th on Mobile, Right on Desktop) */}
-        <div className="order-5 lg:order-2 col-span-12 xl:col-span-4 flex flex-col gap-6">
+        {/* 5. Right Column - Calendar (5th on Mobile, Right 33.3% on Desktop) */}
+        <div className="order-5 lg:order-2 col-span-12 lg:col-span-4 flex flex-col gap-6">
           <CalendarWidget 
             currentMonth={currentMonth}
             setCurrentMonth={setCurrentMonth}
