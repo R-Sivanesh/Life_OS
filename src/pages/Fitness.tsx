@@ -4,7 +4,6 @@ import {
   Plus, 
   CheckCircle2, 
   Flame, 
-  Layers, 
   History as HistoryIcon
 } from 'lucide-react';
 import { useFitness, type FitnessExercise } from '../contexts/FitnessContext';
@@ -31,16 +30,6 @@ const Fitness: React.FC = () => {
   // Statistics calculation
   const pendingCount = pendingExercises.length;
   const completedCount = completedExercises.length;
-
-  const totalSets = [...pendingExercises, ...completedExercises].reduce(
-    (acc, ex) => acc + (ex.sets || 0), 0
-  );
-
-  const completedSets = completedExercises.reduce((acc, ex) => acc + (ex.sets || 0), 0) +
-    pendingExercises.reduce((acc, ex) => {
-      const sets = ex.loggedSets || [];
-      return acc + sets.filter(s => s.completed).length;
-    }, 0);
 
   const handleOpenAddModal = () => {
     setEditingExercise(null);
@@ -105,8 +94,8 @@ const Fitness: React.FC = () => {
         </button>
       </div>
 
-      {/* Workout Summary Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* Workout Summary Metric Cards (2 Cards Only) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Pending Exercises Card */}
         <div className="glass-card p-4 sm:p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-text-muted mb-2">
@@ -132,36 +121,6 @@ const Fitness: React.FC = () => {
               {completedCount}
             </span>
             <span className="text-xs text-text-muted font-medium">done</span>
-          </div>
-        </div>
-
-        {/* Total Sets Card */}
-        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-text-muted mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-cyan">Total Sets</span>
-            <Layers className="w-4 h-4 text-primary" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-text-primary">
-              {totalSets}
-            </span>
-            <span className="text-xs text-text-muted font-medium">sets scheduled</span>
-          </div>
-        </div>
-
-        {/* Completed Sets / Progress Card */}
-        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-text-muted mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-cyan">Done</span>
-            <span className="text-[10px] font-bold text-cyan bg-cyan/15 px-1.5 py-0.5 rounded">
-              {totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0}%
-            </span>
-          </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl sm:text-3xl font-black text-cyan">
-              {completedSets}
-            </span>
-            <span className="text-sm font-semibold text-text-muted">/ {totalSets} sets</span>
           </div>
         </div>
       </div>
