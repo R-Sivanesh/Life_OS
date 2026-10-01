@@ -4,9 +4,8 @@ import {
   Plus, 
   CheckCircle2, 
   Flame, 
-  History, 
   Layers, 
-  ArrowRight
+  History as HistoryIcon
 } from 'lucide-react';
 import { useFitness, type FitnessExercise } from '../contexts/FitnessContext';
 import { FitnessExerciseCard } from '../components/FitnessExerciseCard';
@@ -14,7 +13,6 @@ import { FitnessCompletedCard } from '../components/FitnessCompletedCard';
 import { FitnessExerciseModal } from '../components/FitnessExerciseModal';
 import { FitnessWorkoutHistory } from '../components/FitnessWorkoutHistory';
 import { FitnessRestTimerBanner } from '../components/FitnessRestTimerBanner';
-import { cn } from '../lib/utils';
 
 const Fitness: React.FC = () => {
   const {
@@ -27,7 +25,6 @@ const Fitness: React.FC = () => {
     loading
   } = useFitness();
 
-  const [activeTab, setActiveTab] = useState<'pending' | 'completed' | 'history'>('pending');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<FitnessExercise | null>(null);
 
@@ -82,7 +79,7 @@ const Fitness: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-[1200px] mx-auto pb-20">
+    <div className="flex flex-col gap-6 w-full max-w-[1500px] mx-auto pb-24">
       {/* Top Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -169,155 +166,117 @@ const Fitness: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs Navigation System */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <div className="flex items-center gap-1.5 bg-surface p-1 rounded-xl border border-border">
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={cn(
-              "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
-              activeTab === 'pending'
-                ? "bg-primary text-white shadow-glow"
-                : "text-text-cyan hover:text-text-primary hover:bg-surface-elevated"
-            )}
-          >
-            <span>Pending Exercises</span>
-            <span className={cn(
-              "text-xs px-1.5 py-0.2 rounded-full",
-              activeTab === 'pending' ? "bg-white/20 text-white" : "bg-surface-elevated text-text-muted"
-            )}>
-              {pendingCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('completed')}
-            className={cn(
-              "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
-              activeTab === 'completed'
-                ? "bg-primary text-white shadow-glow"
-                : "text-text-cyan hover:text-text-primary hover:bg-surface-elevated"
-            )}
-          >
-            <span>Completed Exercises</span>
-            <span className={cn(
-              "text-xs px-1.5 py-0.2 rounded-full",
-              activeTab === 'completed' ? "bg-white/20 text-white" : "bg-surface-elevated text-text-muted"
-            )}>
-              {completedCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('history')}
-            className={cn(
-              "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
-              activeTab === 'history'
-                ? "bg-primary text-white shadow-glow"
-                : "text-text-cyan hover:text-text-primary hover:bg-surface-elevated"
-            )}
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>History</span>
-            <span className={cn(
-              "text-xs px-1.5 py-0.2 rounded-full",
-              activeTab === 'history' ? "bg-white/20 text-white" : "bg-surface-elevated text-text-muted"
-            )}>
-              {workoutHistory.length}
-            </span>
-          </button>
-        </div>
-
-        {activeTab === 'pending' && pendingCount > 0 && (
-          <span className="text-xs text-text-muted hidden md:inline">
-            Use ▲ ▼ to reorder pending exercises
-          </span>
-        )}
-      </div>
-
-      {/* Tab Contents */}
+      {/* Main Two-Column Side-by-Side Exercise Area */}
       {loading ? (
         <div className="py-16 flex flex-col items-center justify-center gap-3">
           <div className="w-8 h-8 border-4 border-cyan/30 border-t-cyan rounded-full animate-spin" />
           <p className="text-xs text-text-muted">Loading your fitness routines...</p>
         </div>
       ) : (
-        <>
-          {/* 1. Pending Exercises Tab */}
-          {activeTab === 'pending' && (
-            <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* LEFT COLUMN: PENDING EXERCISES */}
+          <div className="glass-card flex flex-col overflow-hidden border border-border lg:h-[calc(100vh-19rem)] min-h-[460px]">
+            {/* Column Header */}
+            <div className="p-4 sm:p-5 border-b border-border bg-surface-elevated/40 sticky top-0 z-10 flex items-center justify-between backdrop-blur-md">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-cyan shadow-[0_0_8px_var(--cyan)]" />
+                <h3 className="text-sm sm:text-base font-bold text-text-primary tracking-wide uppercase">
+                  Pending Exercises
+                </h3>
+              </div>
+              <span className="text-xs font-bold text-cyan bg-cyan/15 border border-cyan/30 px-2.5 py-0.5 rounded-full">
+                {pendingCount}
+              </span>
+            </div>
+
+            {/* Scrollable Pending List */}
+            <div className="p-3 sm:p-4 overflow-y-auto flex-1 space-y-3.5 custom-scrollbar">
               {pendingExercises.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4">
-                  {pendingExercises.map((exercise, index) => (
-                    <FitnessExerciseCard
-                      key={exercise.id}
-                      exercise={exercise}
-                      onEdit={handleOpenEditModal}
-                      isFirst={index === 0}
-                      isLast={index === pendingExercises.length - 1}
-                      onMoveUp={() => handleMoveUp(index)}
-                      onMoveDown={() => handleMoveDown(index)}
-                    />
-                  ))}
-                </div>
+                pendingExercises.map((exercise, index) => (
+                  <FitnessExerciseCard
+                    key={exercise.id}
+                    exercise={exercise}
+                    onEdit={handleOpenEditModal}
+                    isFirst={index === 0}
+                    isLast={index === pendingExercises.length - 1}
+                    onMoveUp={() => handleMoveUp(index)}
+                    onMoveDown={() => handleMoveDown(index)}
+                  />
+                ))
               ) : (
-                <div className="glass-card p-10 text-center flex flex-col items-center justify-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-success/15 text-success flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7" />
+                <div className="h-full py-16 flex flex-col items-center justify-center text-center p-6 gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-success/15 text-success flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h3 className="text-base font-bold text-text-primary">All exercises completed! 🎉</h3>
-                  <p className="text-xs text-text-muted max-w-md">
-                    You've finished all your planned exercises for today. Great job staying consistent!
+                  <h4 className="text-sm font-bold text-text-primary">All exercises completed! 🎉</h4>
+                  <p className="text-xs text-text-muted max-w-xs">
+                    You have finished every planned exercise for today. Add a new exercise to keep going.
                   </p>
                   <button
                     onClick={handleOpenAddModal}
                     className="btn-primary mt-2 text-xs font-semibold py-2 px-4 flex items-center gap-1.5"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add New Exercise
+                    <Plus className="w-3.5 h-3.5" /> Add Exercise
                   </button>
                 </div>
               )}
             </div>
-          )}
+          </div>
 
-          {/* 2. Completed Exercises Tab */}
-          {activeTab === 'completed' && (
-            <div className="space-y-4">
+          {/* RIGHT COLUMN: COMPLETED EXERCISES */}
+          <div className="glass-card flex flex-col overflow-hidden border border-border lg:h-[calc(100vh-19rem)] min-h-[460px] opacity-90 hover:opacity-100 transition-opacity">
+            {/* Column Header */}
+            <div className="p-4 sm:p-5 border-b border-border bg-surface-elevated/40 sticky top-0 z-10 flex items-center justify-between backdrop-blur-md">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-success shadow-[0_0_8px_var(--success)]" />
+                <h3 className="text-sm sm:text-base font-bold text-text-primary tracking-wide uppercase">
+                  Completed Exercises
+                </h3>
+              </div>
+              <span className="text-xs font-bold text-success bg-success/15 border border-success/30 px-2.5 py-0.5 rounded-full">
+                {completedCount}
+              </span>
+            </div>
+
+            {/* Scrollable Completed List */}
+            <div className="p-3 sm:p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
               {completedExercises.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3">
-                  {completedExercises.map((exercise) => (
-                    <FitnessCompletedCard
-                      key={exercise.id}
-                      exercise={exercise}
-                    />
-                  ))}
-                </div>
+                completedExercises.map((exercise) => (
+                  <FitnessCompletedCard
+                    key={exercise.id}
+                    exercise={exercise}
+                  />
+                ))
               ) : (
-                <div className="glass-card p-10 text-center flex flex-col items-center justify-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-surface-elevated text-text-muted flex items-center justify-center">
-                    <Dumbbell className="w-6 h-6" />
+                <div className="h-full py-16 flex flex-col items-center justify-center text-center p-6 gap-3 text-text-muted">
+                  <div className="w-12 h-12 rounded-2xl bg-surface-elevated flex items-center justify-center">
+                    <Dumbbell className="w-6 h-6 opacity-40" />
                   </div>
-                  <h3 className="text-sm font-bold text-text-primary">No completed exercises yet</h3>
-                  <p className="text-xs text-text-muted max-w-sm">
-                    Start a workout in the Pending tab and complete your sets to see them listed here.
+                  <h4 className="text-sm font-bold text-text-primary">No completed exercises yet</h4>
+                  <p className="text-xs text-text-muted max-w-xs">
+                    Start an exercise on the left and complete your sets to see them completed here.
                   </p>
-                  <button
-                    onClick={() => setActiveTab('pending')}
-                    className="btn-primary mt-2 text-xs font-semibold py-2 px-4 flex items-center gap-1.5"
-                  >
-                    Go to Pending Exercises <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
                 </div>
               )}
             </div>
-          )}
-
-          {/* 3. Workout History Tab */}
-          {activeTab === 'history' && (
-            <FitnessWorkoutHistory />
-          )}
-        </>
+          </div>
+        </div>
       )}
+
+      {/* Workout History Section (Positioned below the two-column main area) */}
+      <div className="mt-2 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-bold text-text-primary uppercase tracking-wider">
+            <HistoryIcon className="w-4 h-4 text-primary" />
+            <span>Workout History</span>
+            <span className="text-xs text-text-muted font-medium">({workoutHistory.length} sessions logged)</span>
+          </div>
+        </div>
+
+        <div className="glass-card p-4 sm:p-6 border border-border">
+          <FitnessWorkoutHistory />
+        </div>
+      </div>
 
       {/* Add / Edit Exercise Modal */}
       <FitnessExerciseModal

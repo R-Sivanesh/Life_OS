@@ -1,4 +1,5 @@
-import { CheckCircle2, RotateCcw, Trash2, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, RotateCcw, Trash2, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { useFitness, type FitnessExercise } from '../contexts/FitnessContext';
 import { useDeleteModal } from '../contexts/DeleteModalContext';
@@ -10,6 +11,7 @@ interface FitnessCompletedCardProps {
 export const FitnessCompletedCard: React.FC<FitnessCompletedCardProps> = ({ exercise }) => {
   const { reopenExercise, deleteExercise } = useFitness();
   const { confirmDelete } = useDeleteModal();
+  const [showDetails, setShowDetails] = useState(false);
 
   const formattedTime = exercise.completed_at 
     ? (() => {
@@ -19,46 +21,34 @@ export const FitnessCompletedCard: React.FC<FitnessCompletedCardProps> = ({ exer
           return '';
         }
       })()
-    : 'Today';
+    : 'Completed';
 
-  const formattedDate = exercise.completed_at
-    ? (() => {
-        try {
-          return format(new Date(exercise.completed_at), 'MMMM d, yyyy');
-        } catch {
-          return '';
-        }
-      })()
-    : '';
-
-  // Get actual logged sets summary if available
+  // Get actual logged sets
   const loggedSets = exercise.loggedSets || [];
   const repsSummary = loggedSets.length > 0 
     ? loggedSets.map(s => s.actual_reps ?? s.target_reps).join(', ')
     : `${exercise.target_reps} reps`;
 
   return (
-    <div className="glass-card bg-surface/70 border border-success/30 hover:border-success/50 transition-all duration-200 p-4 sm:p-5 rounded-2xl shadow-card relative overflow-hidden group">
-      {/* Subtle green glow accent in background */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-success/5 rounded-full blur-2xl pointer-events-none" />
-
-      <div className="flex items-start justify-between gap-3 relative z-10">
-        <div className="flex items-start gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-success/20 text-success flex items-center justify-center shrink-0 border border-success/30 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <CheckCircle2 className="w-5 h-5" />
+    <div className="p-3.5 sm:p-4 rounded-xl bg-surface/90 border border-success/20 hover:border-success/40 transition-all duration-200 shadow-sm relative overflow-hidden group">
+      <div className="flex items-start justify-between gap-3">
+        {/* Left icon + details */}
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-success/15 text-success flex items-center justify-center shrink-0 border border-success/30 shadow-[0_0_10px_rgba(16,185,129,0.15)] mt-0.5">
+            <CheckCircle2 className="w-4 h-4" />
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-text-primary">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-sm font-bold text-text-primary truncate">
                 {exercise.name}
-              </h3>
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-success/15 border border-success/30 text-success">
+              </h4>
+              <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-success/15 border border-success/30 text-success">
                 Done
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-muted mt-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-text-muted mt-1">
               <span className="text-text-primary font-medium">
                 {exercise.sets} Sets × {exercise.target_reps} Reps
               </span>
@@ -68,43 +58,67 @@ export const FitnessCompletedCard: React.FC<FitnessCompletedCardProps> = ({ exer
                   ? `${exercise.weight} ${exercise.weight_unit || 'kg'}` 
                   : 'Bodyweight'}
               </span>
-              {loggedSets.length > 0 && (
-                <>
-                  <span>•</span>
-                  <span className="text-text-cyan">Logged: [{repsSummary}]</span>
-                </>
-              )}
             </div>
 
             {formattedTime && (
-              <p className="text-[11px] text-success/90 font-medium flex items-center gap-1.5 mt-2">
-                <Clock className="w-3 h-3" />
-                Completed at {formattedTime} {formattedDate ? `· ${formattedDate}` : ''}
+              <p className="text-[11px] text-text-muted flex items-center gap-1 mt-1.5">
+                <Clock className="w-3 h-3 text-success/80" />
+                Completed: <span className="text-success font-medium">{formattedTime}</span>
               </p>
             )}
           </div>
         </div>
 
-        {/* Reopen & Delete Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Right Action buttons: Repeat, View Details, Delete */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {loggedSets.length > 0 && (
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="px-2 py-1 rounded-lg bg-surface-elevated hover:bg-surface-selected border border-border text-[11px] font-medium text-text-cyan hover:text-text-primary transition-colors flex items-center gap-1"
+              title="View set breakdown"
+            >
+              <span>{showDetails ? 'Hide' : 'Details'}</span>
+              {showDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          )}
+
           <button
             onClick={() => reopenExercise(exercise.id)}
-            className="px-3 py-1.5 rounded-xl bg-surface-elevated hover:bg-surface-selected border border-border text-xs font-semibold text-text-cyan hover:text-cyan transition-colors flex items-center gap-1.5"
+            className="px-2 py-1 rounded-lg bg-surface-elevated hover:bg-surface-selected border border-border text-[11px] font-semibold text-text-cyan hover:text-cyan transition-colors flex items-center gap-1"
             title="Move back to Pending to do again"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3 h-3" />
             <span className="hidden sm:inline">Repeat</span>
           </button>
 
           <button
             onClick={() => confirmDelete(exercise.name, () => deleteExercise(exercise.id))}
-            className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-colors"
+            className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
             title="Delete Exercise"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
+
+      {/* Expandable Details Breakdown */}
+      {showDetails && loggedSets.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border/60 text-xs animate-in slide-in-from-top-1 duration-150">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {loggedSets.map((s) => (
+              <div key={s.set_number} className="bg-surface-elevated/60 px-2.5 py-1.5 rounded-lg border border-border/50 flex items-center justify-between">
+                <span className="text-[11px] text-text-muted font-medium">Set {s.set_number}:</span>
+                <span className="text-[11px] font-bold text-text-primary">
+                  {s.actual_reps ?? s.target_reps} reps {Number(s.weight) > 0 ? `· ${s.weight}${s.weight_unit || 'kg'}` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-text-muted mt-2">
+            Summary: [{repsSummary}]
+          </p>
+        </div>
+      )}
     </div>
   );
 };
