@@ -3,7 +3,6 @@ import {
   Dumbbell, 
   Plus, 
   CheckCircle2, 
-  Flame, 
   History as HistoryIcon
 } from 'lucide-react';
 import { useFitness, type FitnessExercise } from '../contexts/FitnessContext';
@@ -27,7 +26,6 @@ const Fitness: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<FitnessExercise | null>(null);
 
-  // Statistics calculation
   const pendingCount = pendingExercises.length;
   const completedCount = completedExercises.length;
 
@@ -79,7 +77,7 @@ const Fitness: React.FC = () => {
             <div>
               <h1 className="text-2xl font-bold text-text-primary tracking-tight">Fitness</h1>
               <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-                Track your workouts, exercises, sets, reps and progress.
+                Track your workouts, exercises, sets and progress.
               </p>
             </div>
           </div>
@@ -94,37 +92,6 @@ const Fitness: React.FC = () => {
         </button>
       </div>
 
-      {/* Workout Summary Metric Cards (2 Cards Only) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Pending Exercises Card */}
-        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-text-muted mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-cyan">Pending</span>
-            <Flame className="w-4 h-4 text-warning" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-text-primary">
-              {pendingCount}
-            </span>
-            <span className="text-xs text-text-muted font-medium">exercises</span>
-          </div>
-        </div>
-
-        {/* Completed Exercises Card */}
-        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-text-muted mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-cyan">Completed</span>
-            <CheckCircle2 className="w-4 h-4 text-success" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-success">
-              {completedCount}
-            </span>
-            <span className="text-xs text-text-muted font-medium">done</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Two-Column Side-by-Side Exercise Area */}
       {loading ? (
         <div className="py-16 flex flex-col items-center justify-center gap-3">
@@ -134,11 +101,11 @@ const Fitness: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           {/* LEFT COLUMN: PENDING EXERCISES */}
-          <div className="glass-card flex flex-col overflow-hidden border border-border lg:h-[calc(100vh-19rem)] min-h-[460px]">
+          <div className="glass-card flex flex-col overflow-hidden border border-border lg:h-[calc(100vh-14rem)] min-h-[460px]">
             {/* Column Header */}
             <div className="p-4 sm:p-5 border-b border-border bg-surface-elevated/40 sticky top-0 z-10 flex items-center justify-between backdrop-blur-md">
               <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-cyan shadow-[0_0_8px_var(--cyan)]" />
+                <div className="w-3 h-3 rounded-full bg-cyan shadow-[0_0_10px_var(--cyan)]" />
                 <h3 className="text-sm sm:text-base font-bold text-text-primary tracking-wide uppercase">
                   Pending Exercises
                 </h3>
@@ -183,11 +150,11 @@ const Fitness: React.FC = () => {
           </div>
 
           {/* RIGHT COLUMN: COMPLETED EXERCISES */}
-          <div className="glass-card flex flex-col overflow-hidden border border-border lg:h-[calc(100vh-19rem)] min-h-[460px] opacity-90 hover:opacity-100 transition-opacity">
+          <div className="glass-card flex flex-col overflow-hidden border border-border lg:h-[calc(100vh-14rem)] min-h-[460px] opacity-90 hover:opacity-100 transition-opacity">
             {/* Column Header */}
             <div className="p-4 sm:p-5 border-b border-border bg-surface-elevated/40 sticky top-0 z-10 flex items-center justify-between backdrop-blur-md">
               <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-success shadow-[0_0_8px_var(--success)]" />
+                <div className="w-3 h-3 rounded-full bg-success shadow-[0_0_10px_var(--success)]" />
                 <h3 className="text-sm sm:text-base font-bold text-text-primary tracking-wide uppercase">
                   Completed Exercises
                 </h3>
