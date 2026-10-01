@@ -108,9 +108,9 @@ export const syncRoutineToTasks = async (routine: Routine, userId: string) => {
         estimated_minutes: routine.duration_minutes || 30,
         completed: false,
         status: 'pending',
-        points: 10
+        xp_reward: 10
       }));
-      await supabase.from('tasks').upsert(newTasks, { onConflict: 'user_id,recurring,date' });
+      await supabase.from('tasks').insert(newTasks);
     }
   }
   } finally {

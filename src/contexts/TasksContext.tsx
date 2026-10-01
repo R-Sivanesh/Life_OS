@@ -144,7 +144,6 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const payload: any = {
           ...taskData,
-          points: taskPoints,
           xp_reward: taskPoints,
           user_id: user.id,
           completed: false,
@@ -153,6 +152,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
         delete payload.id;
         delete payload._type;
+        delete payload.points;
 
         const { data, error } = await supabase.from('tasks').insert([payload]).select();
         if (error) {
@@ -163,7 +163,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const serverTask: Task = {
             ...data[0],
             date: normalizeDate(data[0].date),
-            points: data[0].points ?? taskPoints
+            points: data[0].xp_reward ?? taskPoints
           };
           // Seamlessly swap tempId with persistent DB id without UI flicker
           setTasks(prev => prev.map(t => t.id === tempId ? serverTask : t).sort(sortTasksChronologically));
@@ -186,17 +186,18 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const sanitizedUpdates: any = { ...updates };
     if ('points' in sanitizedUpdates) {
-      sanitizedUpdates.points = Math.max(0, parseInt(sanitizedUpdates.points as any, 10) || 10);
-      sanitizedUpdates.xp_reward = sanitizedUpdates.points;
+      const pts = Math.max(0, parseInt(sanitizedUpdates.points as any, 10) || 10);
+      sanitizedUpdates.xp_reward = pts;
     }
     if ('date' in sanitizedUpdates) {
       sanitizedUpdates.date = normalizeDate(sanitizedUpdates.date);
     }
     delete sanitizedUpdates._type;
+    delete sanitizedUpdates.points;
 
     const updatedTask: Task = {
       ...prevTask,
-      ...sanitizedUpdates
+      ...updates
     };
 
     // 1. Immediately update UI local state
