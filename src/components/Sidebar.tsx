@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, Zap, CheckCircle, Bell, Timer, Book, BookOpen, BarChart2, Target, Settings, X } from 'lucide-react';
+import { Home, Calendar, Zap, CheckCircle, Dumbbell, Bell, Timer, Book, BookOpen, BarChart2, Target, Settings, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { name: 'Calendar', path: '/calendar', icon: Calendar },
   { name: 'Daily Routine', path: '/routine', icon: Zap },
   { name: 'Tasks', path: '/tasks', icon: CheckCircle },
+  { name: 'Fitness', path: '/fitness', icon: Dumbbell },
   { name: 'Learning Hub', path: '/learning', icon: BookOpen },
   { name: 'Reminders', path: '/reminders', icon: Bell },
   { name: 'Focus', path: '/focus', icon: Timer },

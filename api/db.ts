@@ -38,7 +38,10 @@ const ALLOWED_TABLES = new Set([
   'learning_topics',
   'goals',
   'habits',
-  'points_transactions'
+  'points_transactions',
+  'fitness_exercises',
+  'fitness_sets',
+  'fitness_logs'
 ]);
 
 

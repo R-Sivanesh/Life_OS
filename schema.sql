@@ -169,6 +169,57 @@ CREATE TABLE IF NOT EXISTS public.learning_topics (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 12. Fitness Exercises Table
+CREATE TABLE IF NOT EXISTS public.fitness_exercises (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    sets INTEGER NOT NULL DEFAULT 3,
+    target_reps INTEGER NOT NULL DEFAULT 12,
+    weight NUMERIC DEFAULT 0,
+    weight_unit TEXT DEFAULT 'kg',
+    rest_time_seconds INTEGER DEFAULT 60,
+    notes TEXT,
+    order_index INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'pending',
+    completed BOOLEAN DEFAULT FALSE,
+    completed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 13. Fitness Sets Table
+CREATE TABLE IF NOT EXISTS public.fitness_sets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    exercise_id UUID REFERENCES public.fitness_exercises(id) ON DELETE CASCADE,
+    set_number INTEGER NOT NULL,
+    target_reps INTEGER NOT NULL,
+    actual_reps INTEGER,
+    weight NUMERIC DEFAULT 0,
+    weight_unit TEXT DEFAULT 'kg',
+    completed BOOLEAN DEFAULT FALSE,
+    completed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 14. Fitness Logs (Workout History) Table
+CREATE TABLE IF NOT EXISTS public.fitness_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    exercise_id UUID,
+    exercise_name TEXT NOT NULL,
+    sets_completed INTEGER NOT NULL,
+    total_sets INTEGER NOT NULL,
+    target_reps INTEGER NOT NULL,
+    actual_reps_summary TEXT,
+    weight NUMERIC DEFAULT 0,
+    weight_unit TEXT DEFAULT 'kg',
+    duration_seconds INTEGER DEFAULT 0,
+    completed_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for optimal query performance
 CREATE INDEX IF NOT EXISTS idx_tasks_user_date ON public.tasks(user_id, date);
 CREATE INDEX IF NOT EXISTS idx_reminders_user_date ON public.reminders(user_id, date);
@@ -177,3 +228,6 @@ CREATE INDEX IF NOT EXISTS idx_journal_user_date ON public.journal_entries(user_
 CREATE INDEX IF NOT EXISTS idx_learning_user ON public.learning_topics(user_id);
 CREATE INDEX IF NOT EXISTS idx_quotes_user ON public.motivational_quotes(user_id);
 CREATE INDEX IF NOT EXISTS idx_focus_user ON public.focus_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_fitness_exercises_user ON public.fitness_exercises(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_fitness_sets_exercise ON public.fitness_sets(exercise_id, set_number);
+CREATE INDEX IF NOT EXISTS idx_fitness_logs_user ON public.fitness_logs(user_id, completed_at);
