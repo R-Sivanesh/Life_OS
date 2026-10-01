@@ -56,8 +56,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         setUser({
           id: u.id,
           email: u.email || '',
-          name: u.name || u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-          avatar_url: u.avatar_url || u.user_metadata?.avatar_url || '',
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || 'User',
+          avatar_url: u.user_metadata?.avatar_url || '',
         });
         await upsertProfile(u);
       } else {
@@ -75,8 +75,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
           setUser({
             id: u.id,
             email: u.email || '',
-            name: u.name || u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-            avatar_url: u.avatar_url || u.user_metadata?.avatar_url || '',
+            name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || 'User',
+            avatar_url: u.user_metadata?.avatar_url || '',
           });
           await upsertProfile(u);
         } else {

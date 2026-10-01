@@ -34,7 +34,7 @@ export const useQuotes = () => {
         .order('created_at', { ascending: true });
 
       if (error) {
-        console.error('Error fetching quotes from Neon:', error);
+        console.error('Error fetching quotes from database:', error);
       } else {
         if (data && data.length === 0 && !seedingUsers.has(user.id)) {
           seedingUsers.add(user.id);

@@ -30,7 +30,7 @@ const Journal = () => {
       .order('date', { ascending: false });
       
     if (error) {
-      console.error('Error fetching journal entries from Neon:', error);
+      console.error('Error fetching journal entries from database:', error);
     } else if (data) {
       setEntries(data);
       const current = data.find((e: any) => (e.date ? e.date.slice(0, 10) : '') === selectedDate);
@@ -56,7 +56,7 @@ const Journal = () => {
     const existing = entries.find((e: any) => (e.date ? e.date.slice(0, 10) : '') === selectedDate);
     
     if (existing) {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('journal_entries')
         .update({ content: entry, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
@@ -67,11 +67,7 @@ const Journal = () => {
         return;
       }
 
-      if (data && data.length > 0) {
-        setEntries(prev => prev.map(e => e.id === existing.id ? data[0] : e));
-      } else {
-        setEntries(prev => prev.map(e => e.id === existing.id ? { ...e, content: entry } : e));
-      }
+      setEntries(prev => prev.map(e => e.id === existing.id ? { ...e, content: entry } : e));
     } else {
       const { data, error } = await supabase
         .from('journal_entries')
