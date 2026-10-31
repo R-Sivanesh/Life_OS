@@ -82,8 +82,18 @@ const AuthCallback: React.FC = () => {
               <AlertCircle className="w-8 h-8" />
             </div>
             <h2 className="text-lg font-bold text-text-primary">Authentication Failed</h2>
-            <p className="text-sm text-text-muted">{error}</p>
-            <p className="text-xs text-text-muted mt-2">Redirecting to login page...</p>
+            <p className="text-sm text-text-muted leading-relaxed">
+              {error.includes('external code') 
+                ? 'Google OAuth credentials or Redirect URI mismatch. Please verify your Google Cloud Console and Supabase Auth settings.'
+                : error}
+            </p>
+            <button
+              onClick={() => navigate('/login', { replace: true })}
+              className="mt-3 btn-primary w-full py-2.5 text-sm"
+            >
+              Back to Login
+            </button>
+            <p className="text-xs text-text-muted mt-2">Redirecting to login in a few seconds...</p>
           </div>
         ) : (
           <div className="space-y-4">
