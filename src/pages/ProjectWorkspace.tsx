@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -11,17 +11,13 @@ import {
   ChevronUp,
   ChevronDown,
   Check,
-  Github,
   Globe,
   FileText,
   Palette,
   Link as LinkIcon,
   Bell,
   FlaskConical,
-  BookOpen,
   Lightbulb,
-  Layers,
-  BarChart2,
   AlignLeft,
   RefreshCw,
 } from 'lucide-react';
@@ -58,12 +54,6 @@ function formatDate(dateStr?: string): string {
   } catch {
     return dateStr;
   }
-}
-
-function truncate(str?: string, lines = 3): string {
-  if (!str) return '';
-  const parts = str.split('\n').slice(0, lines);
-  return parts.join('\n');
 }
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
@@ -1011,7 +1001,6 @@ function LearningTab({
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ProjectLearning | null>(null);
   const [saving, setSaving] = useState(false);
-  const [defaultListType, setDefaultListType] = useState<'learned' | 'to_learn'>('to_learn');
   const emptyForm = { title: '', notes: '', resources: '', status: 'Not Started', next_task: '', list_type: 'to_learn' };
   const [form, setForm] = useState(emptyForm);
 
@@ -1020,7 +1009,6 @@ function LearningTab({
 
   const openAdd = (listType: 'learned' | 'to_learn') => {
     setEditing(null);
-    setDefaultListType(listType);
     setForm({ ...emptyForm, list_type: listType });
     setModalOpen(true);
   };
@@ -1410,10 +1398,19 @@ function RemindersTab({
   );
 }
 
+function GithubIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+      <path d="M9 18c-4.51 2-5-2-7-2" />
+    </svg>
+  );
+}
+
 // ─── TAB 9: Links ────────────────────────────────────────────────────────────
 
 const LINK_TYPE_ICON: Record<string, React.ReactNode> = {
-  github:      <Github className="w-4 h-4" />,
+  github:      <GithubIcon className="w-4 h-4" />,
   deployment:  <Globe className="w-4 h-4" />,
   documentation: <FileText className="w-4 h-4" />,
   design:      <Palette className="w-4 h-4" />,

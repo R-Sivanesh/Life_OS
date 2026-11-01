@@ -8,7 +8,6 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
-  ExternalLink,
   Bell,
   X,
   ChevronRight,
@@ -18,7 +17,7 @@ import { useProjects } from '../lib/useProjects';
 import type { Project, ProjectStatus, ProjectReminder } from '../lib/useProjects';
 import { useDeleteModal } from '../contexts/DeleteModalContext';
 import { cn } from '../lib/utils';
-import { format, isPast, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
