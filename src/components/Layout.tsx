@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import BottomNav from './BottomNav';
 import { Plus } from 'lucide-react';
 import { GlobalAddModal } from './Modals';
 import { useTasks } from '../lib/useTasks';
@@ -43,27 +44,32 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <DeleteModalProvider>
       <div className="flex h-screen w-full overflow-hidden bg-background">
+        {/* Sidebar: hidden on mobile (bottom nav takes over) */}
         <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
         <div className="flex-1 flex flex-col min-w-0 relative">
           <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
-          <main className="flex-1 overflow-y-auto pt-4 px-4 md:px-8 pb-8 relative">
+          {/* Extra bottom padding on mobile so content isn't hidden behind the bottom nav */}
+          <main className="flex-1 overflow-y-auto pt-4 px-4 md:px-8 pb-8 md:pb-8 [padding-bottom:calc(env(safe-area-inset-bottom,0px)+80px)] md:[padding-bottom:2rem] relative">
             {children}
           </main>
-          
-          {/* FAB */}
-          <div className="absolute bottom-6 md:bottom-8 right-6 md:right-8 flex flex-col items-end gap-3 z-40">
-            <button 
+
+          {/* FAB — lifted above bottom nav on mobile */}
+          <div className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+72px)] md:bottom-8 right-6 md:right-8 flex flex-col items-end gap-3 z-40">
+            <button
               onClick={() => { setSelectedModalDate(undefined); setInitialTask(undefined); setIsModalOpen(true); }}
-              className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all duration-300 bg-primary hover:bg-primary-hover hover:scale-105 active:scale-95`}
+              className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all duration-300 bg-primary hover:bg-primary-hover hover:scale-105 active:scale-95"
             >
               <Plus className="w-6 h-6" />
             </button>
           </div>
         </div>
-        
-        <GlobalAddModal 
-          isOpen={isModalOpen} 
-          onClose={() => { setIsModalOpen(false); setInitialTask(undefined); }} 
+
+        {/* Mobile bottom navigation — only visible on small screens */}
+        <BottomNav />
+
+        <GlobalAddModal
+          isOpen={isModalOpen}
+          onClose={() => { setIsModalOpen(false); setInitialTask(undefined); }}
           onSaveTask={addTask}
           onUpdateTask={updateTask}
           onSaveReminder={addReminder}

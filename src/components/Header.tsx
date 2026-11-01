@@ -170,7 +170,7 @@ const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
         {onMenuClick && (
           <button 
             onClick={onMenuClick}
-            className="md:hidden p-2 -ml-2 text-text-muted hover:text-text-primary rounded-lg transition-colors"
+            className="hidden p-2 -ml-2 text-text-muted hover:text-text-primary rounded-lg transition-colors"
           >
             <Menu className="w-6 h-6" />
           </button>

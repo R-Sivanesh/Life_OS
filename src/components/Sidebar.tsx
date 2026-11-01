@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, Zap, CheckCircle, Dumbbell, Bell, Timer, Book, BookOpen, BarChart2, Target, Settings, X } from 'lucide-react';
+import { Home, Calendar, Zap, CheckCircle, Dumbbell, Bell, Timer, Book, BookOpen, BarChart2, Target, Settings, X, FolderKanban } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { name: 'Reminders', path: '/reminders', icon: Bell },
   { name: 'Focus', path: '/focus', icon: Timer },
   { name: 'Journal', path: '/journal', icon: Book },
+  { name: 'Projects', path: '/projects', icon: FolderKanban },
   { name: 'Reports', path: '/reports', icon: BarChart2 },
   { name: 'Goals & Habits', path: '/goals', icon: Target },
   { name: 'Settings', path: '/settings', icon: Settings },
@@ -26,18 +27,14 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   return (
     <>
-      {/* Mobile Backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-          onClick={onClose}
-        />
-      )}
-      
-      {/* Sidebar Container */}
+      {/* Mobile Backdrop — hidden on mobile (bottom nav handles navigation) */}
+
+      {/* Sidebar Container — hidden on mobile, always visible on desktop */}
       <aside 
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 border-r border-border bg-sidebar flex flex-col h-full flex-shrink-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
+          // On mobile: completely hidden (bottom nav is used instead)
+          "hidden md:flex",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

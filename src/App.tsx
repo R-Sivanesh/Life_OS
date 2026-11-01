@@ -22,6 +22,8 @@ import Goals from './pages/Goals';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import AuthCallback from './pages/AuthCallback';
+import Projects from './pages/Projects';
+import ProjectWorkspace from './pages/ProjectWorkspace';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -67,6 +69,8 @@ function App() {
                   <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+                  <Route path="/projects/:id" element={<ProtectedRoute><ProjectWorkspace /></ProtectedRoute>} />
                 </Routes>
               </FitnessProvider>
             </FocusProvider>
